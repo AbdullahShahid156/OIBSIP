@@ -103,7 +103,43 @@ npm run dev
 
 ## Features
 
-### Current (Phase 3 — Complete)
+### Current (Phase 4 — Complete)
+
+**Authentication System**
+
+| Feature | Description |
+|---------|-------------|
+| Registration | Name, email, password with strength validation |
+| Email Verification | HTML email with branded verification link |
+| Login | Email/password with JWT token generation |
+| Forgot Password | Rate-limited email with reset link |
+| Reset Password | Token-validated password update |
+| JWT Auth | Access token + HTTP-only refresh token cookie |
+| Protected Routes | Client and server route protection |
+| Logout | Token invalidation and cookie clearing |
+
+**Security**
+
+- bcrypt password hashing (12 rounds)
+- JWT with configurable expiry
+- HTTP-only refresh token cookies
+- Rate limiting on auth endpoints (10 req/15min, 3 resets/hour)
+- Zod input validation on all endpoints
+- Helmet security headers
+- CORS with credentials
+- Password strength requirements (uppercase, lowercase, number)
+
+**Premium UI**
+
+- AuthLayout with split-screen design
+- Password visibility toggle
+- Password strength indicator
+- Animated form transitions
+- Loading states with spinners
+- Error/success states with toasts
+- Responsive across all devices
+
+### Previous Phases
 
 **Premium Landing Page**
 
@@ -133,10 +169,9 @@ npm run dev
 - Dark/light theme with localStorage persistence
 - Responsive across all breakpoints (480px → 1536px+)
 
-### Coming (Phase 4-12)
+### Coming (Phase 5-12)
 
-- Database models (User, Ingredient, Cart, Order)
-- User authentication (JWT, email verification)
+- Database models (Ingredient, Cart, Order)
 - Interactive pizza builder
 - Shopping cart with price recalculation
 - Checkout and order management

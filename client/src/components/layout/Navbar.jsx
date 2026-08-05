@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode, useMediaQuery, useScrollPosition } from '../../hooks';
 import { cn } from '../../utils/helpers';
 import { ROUTES } from '../../utils/constants';
+import { logout } from '../../store/slices/authSlice';
 
 const landingLinks = [
   { label: 'Menu', href: '#featured' },
@@ -24,6 +26,8 @@ export default function Navbar() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const scrollPosition = useScrollPosition();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const isHome = location.pathname === ROUTES.HOME;
 
@@ -249,15 +253,50 @@ export default function Navbar() {
                 </AnimatePresence>
               </motion.button>
 
-              <Link
-                to={ROUTES.MENU}
-                className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
-              >
-                Order Now
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
+              {isAuthenticated ? (
+                <div className="hidden md:flex items-center gap-2">
+                  <Link
+                    to={ROUTES.MENU}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                  >
+                    Order Now
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+                  <button
+                    onClick={() => dispatch(logout())}
+                    className={cn(
+                      "px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+                      isDark
+                        ? "text-white/50 hover:text-white hover:bg-white/[0.06]"
+                        : "text-surface-500 hover:text-surface-700 hover:bg-surface-100"
+                    )}
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="hidden md:flex items-center gap-2">
+                  <Link
+                    to="/login"
+                    className={cn(
+                      "px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+                      isDark
+                        ? "text-white/60 hover:text-white hover:bg-white/[0.06]"
+                        : "text-surface-600 hover:text-surface-900 hover:bg-surface-100"
+                    )}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              )}
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -420,17 +459,47 @@ export default function Navbar() {
                   className="mt-2 pt-2 border-t border-surface-200 dark:border-white/[0.06]"
                   role="none"
                 >
-                  <Link
-                    to={ROUTES.MENU}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    role="menuitem"
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
-                  >
-                    Order Now
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </Link>
+                  {isAuthenticated ? (
+                    <div className="space-y-2">
+                      <Link
+                        to={ROUTES.MENU}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        role="menuitem"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                      >
+                        Order Now
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </Link>
+                      <button
+                        onClick={() => { dispatch(logout()); setIsMobileMenuOpen(false); }}
+                        role="menuitem"
+                        className="flex items-center justify-center w-full px-4 py-3 text-surface-500 dark:text-white/50 font-medium rounded-xl hover:bg-surface-100 dark:hover:bg-white/[0.04] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Link
+                        to="/login"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        role="menuitem"
+                        className="flex items-center justify-center w-full px-4 py-3 text-surface-600 dark:text-white/60 font-medium rounded-xl hover:bg-surface-100 dark:hover:bg-white/[0.04] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        role="menuitem"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                      >
+                        Get Started
+                      </Link>
+                    </div>
+                  )}
                 </motion.div>
               </div>
             </div>

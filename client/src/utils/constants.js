@@ -25,6 +25,10 @@ export const API_ENDPOINTS = {
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
     ME: '/auth/me',
+    VERIFY_EMAIL: '/auth/verify-email',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
+    REFRESH_TOKEN: '/auth/refresh-token',
   },
   PIZZAS: {
     BASE: '/pizzas',
