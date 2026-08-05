@@ -103,19 +103,39 @@ npm run dev
 
 ## Features
 
-### Current (Phase 2 — Complete)
+### Current (Phase 3 — Complete)
 
-- **Design System** — Complete token system with colors, spacing, shadows, animations
-- **Typography** — Clash Display for headings, Inter for body, JetBrains Mono for code
-- **UI Components** — Button, Input, Card, Badge, Modal, and 15+ reusable components
-- **Animation System** — 12 animation presets with Framer Motion
-- **Layout** — Glass morphism navbar, responsive footer, scroll-to-top
-- **Responsive** — Mobile, tablet, laptop, and desktop layouts
-- **Accessibility** — ARIA labels, keyboard navigation, focus-visible states
-- **Dark/Light Theme** — Automatic detection with manual toggle
+**Premium Landing Page**
 
-### Coming (Phase 3-11)
+| Section | Description |
+|---------|-------------|
+| Hero | Large headline, gradient text, animated underline, parallax floating elements, scroll indicator |
+| Stats Bar | Animated counters (10K+ customers, 50+ varieties, 30min delivery, 4.9 rating) |
+| Featured Pizzas | 4-card showcase with hover lift, rating badges, star icons |
+| Why Choose Us | 6 feature cards with icons, hover glow effects |
+| How It Works | 4-step horizontal timeline with accent gradient icons |
+| Categories | 6-card grid with gradient icons, pizza counts |
+| Testimonials | 3-card testimonial section with star ratings, avatars |
+| CTA | Full-width gradient section with dual CTAs, noise texture, glow orbs |
 
+**Design System**
+
+- Complete color token system (brand, accent, success, warning, danger, info, neutral)
+- Typography: Clash Display for headings, Inter for body, JetBrains Mono for code
+- 18 reusable UI components (Button, Input, Card, Badge, Modal, and more)
+- 12 animation presets with Framer Motion
+
+**Layout & Accessibility**
+
+- Glass morphism navbar with section anchors (landing page)
+- Responsive footer with social links
+- Skip-to-content link, ARIA labels, keyboard navigation
+- Dark/light theme with localStorage persistence
+- Responsive across all breakpoints (480px → 1536px+)
+
+### Coming (Phase 4-12)
+
+- Database models (User, Ingredient, Cart, Order)
 - User authentication (JWT, email verification)
 - Interactive pizza builder
 - Shopping cart with price recalculation

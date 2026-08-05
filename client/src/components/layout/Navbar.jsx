@@ -5,6 +5,13 @@ import { useDarkMode, useMediaQuery, useScrollPosition } from '../../hooks';
 import { cn } from '../../utils/helpers';
 import { ROUTES } from '../../utils/constants';
 
+const landingLinks = [
+  { label: 'Menu', href: '#featured' },
+  { label: 'Why Us', href: '#why-us' },
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Testimonials', href: '#testimonials' },
+];
+
 const navLinks = [
   { label: 'Home', path: ROUTES.HOME },
   { label: 'Menu', path: ROUTES.MENU },
@@ -17,6 +24,8 @@ export default function Navbar() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const scrollPosition = useScrollPosition();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const isHome = location.pathname === ROUTES.HOME;
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -43,6 +52,15 @@ export default function Navbar() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  const handleSectionClick = useCallback((e, href) => {
+    e.preventDefault();
+    const el = document.querySelector(href);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setIsMobileMenuOpen(false);
+  }, []);
 
   const isScrolled = scrollPosition > 50;
 
@@ -94,45 +112,94 @@ export default function Navbar() {
               </div>
             </Link>
 
-            <div
-              className={cn(
-                "hidden md:flex items-center gap-1 p-1 rounded-2xl border",
-                isDark ? "bg-white/[0.03] border-white/[0.04]" : "bg-surface-100 border-surface-200"
-              )}
-              role="menubar"
-            >
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  role="menuitem"
-                  aria-current={location.pathname === link.path ? 'page' : undefined}
-                  className={cn(
-                    'relative px-5 py-2 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
-                    location.pathname === link.path
-                      ? isDark
-                        ? 'text-white'
-                        : 'text-surface-900'
-                      : isDark
-                        ? 'text-white/50 hover:text-white/80'
-                        : 'text-surface-500 hover:text-surface-700'
-                  )}
-                >
-                  {location.pathname === link.path && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className={cn(
-                        "absolute inset-0 rounded-xl border",
-                        isDark ? "bg-white/[0.08] border-white/[0.08]" : "bg-white border-surface-200 shadow-sm"
-                      )}
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <span className="relative z-10">{link.label}</span>
-                </Link>
-              ))}
-            </div>
+            {isHome ? (
+              <div
+                className={cn(
+                  "hidden md:flex items-center gap-1 p-1 rounded-2xl border",
+                  isDark ? "bg-white/[0.03] border-white/[0.04]" : "bg-surface-100 border-surface-200"
+                )}
+                role="menubar"
+              >
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    role="menuitem"
+                    aria-current={location.pathname === link.path ? 'page' : undefined}
+                    className={cn(
+                      'relative px-5 py-2 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                      location.pathname === link.path
+                        ? isDark ? 'text-white' : 'text-surface-900'
+                        : isDark ? 'text-white/50 hover:text-white/80' : 'text-surface-500 hover:text-surface-700'
+                    )}
+                  >
+                    {location.pathname === link.path && (
+                      <motion.div
+                        layoutId="activeNav"
+                        className={cn(
+                          "absolute inset-0 rounded-xl border",
+                          isDark ? "bg-white/[0.08] border-white/[0.08]" : "bg-white border-surface-200 shadow-sm"
+                        )}
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="relative z-10">{link.label}</span>
+                  </Link>
+                ))}
+                <div className={cn("w-px h-5", isDark ? "bg-white/10" : "bg-surface-200")} aria-hidden="true" />
+                {landingLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => handleSectionClick(e, link.href)}
+                    role="menuitem"
+                    className={cn(
+                      'relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                      isDark ? 'text-white/50 hover:text-white/80' : 'text-surface-500 hover:text-surface-700'
+                    )}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "hidden md:flex items-center gap-1 p-1 rounded-2xl border",
+                  isDark ? "bg-white/[0.03] border-white/[0.04]" : "bg-surface-100 border-surface-200"
+                )}
+                role="menubar"
+              >
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    role="menuitem"
+                    aria-current={location.pathname === link.path ? 'page' : undefined}
+                    className={cn(
+                      'relative px-5 py-2 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                      location.pathname === link.path
+                        ? isDark ? 'text-white' : 'text-surface-900'
+                        : isDark ? 'text-white/50 hover:text-white/80' : 'text-surface-500 hover:text-surface-700'
+                    )}
+                  >
+                    {location.pathname === link.path && (
+                      <motion.div
+                        layoutId="activeNav"
+                        className={cn(
+                          "absolute inset-0 rounded-xl border",
+                          isDark ? "bg-white/[0.08] border-white/[0.08]" : "bg-white border-surface-200 shadow-sm"
+                        )}
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="relative z-10">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center gap-3">
               <motion.button
@@ -263,7 +330,62 @@ export default function Navbar() {
                 : "bg-white/95 backdrop-blur-2xl border-surface-200"
             )}>
               <div role="menu">
-                {navLinks.map((link, index) => (
+                {isHome && (
+                  <>
+                    {navLinks.map((link, index) => (
+                      <motion.div
+                        key={link.path}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        role="none"
+                      >
+                        <Link
+                          to={link.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          role="menuitem"
+                          aria-current={location.pathname === link.path ? 'page' : undefined}
+                          className={cn(
+                            'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+                            location.pathname === link.path
+                              ? isDark ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 'bg-brand-50 text-brand-600 border border-brand-200'
+                              : isDark ? 'text-white/60 hover:text-white hover:bg-white/[0.04]' : 'text-surface-500 hover:text-surface-900 hover:bg-surface-100'
+                          )}
+                        >
+                          <span className={cn(
+                            'w-1.5 h-1.5 rounded-full transition-colors',
+                            location.pathname === link.path ? 'bg-brand-500' : isDark ? 'bg-white/20' : 'bg-surface-300'
+                          )} aria-hidden="true" />
+                          {link.label}
+                        </Link>
+                      </motion.div>
+                    ))}
+                    <div className={cn("my-1 h-px", isDark ? "bg-white/[0.06]" : "bg-surface-200")} aria-hidden="true" />
+                    {landingLinks.map((link, index) => (
+                      <motion.div
+                        key={link.href}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (navLinks.length + index) * 0.05 }}
+                        role="none"
+                      >
+                        <a
+                          href={link.href}
+                          onClick={(e) => handleSectionClick(e, link.href)}
+                          role="menuitem"
+                          className={cn(
+                            'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+                            isDark ? 'text-white/60 hover:text-white hover:bg-white/[0.04]' : 'text-surface-500 hover:text-surface-900 hover:bg-surface-100'
+                          )}
+                        >
+                          <span className={cn('w-1.5 h-1.5 rounded-full', isDark ? 'bg-white/20' : 'bg-surface-300')} aria-hidden="true" />
+                          {link.label}
+                        </a>
+                      </motion.div>
+                    ))}
+                  </>
+                )}
+                {!isHome && navLinks.map((link, index) => (
                   <motion.div
                     key={link.path}
                     initial={{ opacity: 0, x: -20 }}
@@ -279,12 +401,8 @@ export default function Navbar() {
                       className={cn(
                         'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
                         location.pathname === link.path
-                          ? isDark
-                            ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20'
-                            : 'bg-brand-50 text-brand-600 border border-brand-200'
-                          : isDark
-                            ? 'text-white/60 hover:text-white hover:bg-white/[0.04]'
-                            : 'text-surface-500 hover:text-surface-900 hover:bg-surface-100'
+                          ? isDark ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 'bg-brand-50 text-brand-600 border border-brand-200'
+                          : isDark ? 'text-white/60 hover:text-white hover:bg-white/[0.04]' : 'text-surface-500 hover:text-surface-900 hover:bg-surface-100'
                       )}
                     >
                       <span className={cn(
