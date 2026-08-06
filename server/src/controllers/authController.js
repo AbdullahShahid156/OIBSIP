@@ -95,6 +95,8 @@ export async function getMe(req, res, next) {
           id: user._id,
           name: user.name,
           email: user.email,
+          phone: user.phone,
+          avatar: user.avatar,
           isEmailVerified: user.isEmailVerified,
           createdAt: user.createdAt,
         },

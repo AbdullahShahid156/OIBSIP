@@ -2,6 +2,63 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
+const addressSchema = new mongoose.Schema(
+  {
+    recipientName: {
+      type: String,
+      required: [true, 'Recipient name is required'],
+      trim: true,
+      maxlength: [100, 'Recipient name must be at most 100 characters'],
+    },
+    phone: {
+      type: String,
+      required: [true, 'Phone number is required'],
+      trim: true,
+      match: [/^\+?[\d\s\-()]{7,20}$/, 'Please provide a valid phone number'],
+    },
+    houseFlat: {
+      type: String,
+      required: [true, 'House/Flat number is required'],
+      trim: true,
+      maxlength: [100, 'House/Flat must be at most 100 characters'],
+    },
+    street: {
+      type: String,
+      required: [true, 'Street is required'],
+      trim: true,
+      maxlength: [200, 'Street must be at most 200 characters'],
+    },
+    area: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Area must be at most 100 characters'],
+      default: '',
+    },
+    city: {
+      type: String,
+      required: [true, 'City is required'],
+      trim: true,
+      maxlength: [100, 'City must be at most 100 characters'],
+    },
+    postalCode: {
+      type: String,
+      required: [true, 'Postal code is required'],
+      trim: true,
+      maxlength: [20, 'Postal code must be at most 20 characters'],
+    },
+    label: {
+      type: String,
+      enum: ['home', 'office', 'other'],
+      default: 'home',
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: true, timestamps: true }
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -24,6 +81,16 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters'],
       select: false,
+    },
+    phone: {
+      type: String,
+      trim: true,
+      match: [/^\+?[\d\s\-()]{7,20}$/, 'Please provide a valid phone number'],
+      default: '',
+    },
+    avatar: {
+      type: String,
+      default: '',
     },
     isEmailVerified: {
       type: Boolean,
@@ -49,6 +116,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    addresses: [addressSchema],
   },
   {
     timestamps: true,

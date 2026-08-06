@@ -237,7 +237,22 @@ npm run dev
 - `object-cover` for consistent aspect ratios
 - Decoding async for non-blocking render
 
-### Coming (Phase 8-12)
+**User Profile & Address Management (Phase 8)**
+
+| Feature | Description |
+|---------|-------------|
+| Profile Dashboard | Gradient banner, avatar, verified badge, member since, 5 stat cards, account details, quick actions |
+| Edit Profile | Update full name and phone number with validation |
+| Avatar Upload | Upload/replace/remove profile picture, JPEG/PNG/WebP, 5MB max |
+| Change Password | Current + new password, show/hide toggle, strength indicator |
+| Address Management | Add/edit/delete addresses, set default, label selector (Home/Office/Other) |
+| Address Cards | Recipient, phone, full address, label badge, default indicator, animated selection |
+| Empty State | Elegant empty state with CTA for no addresses |
+| Toast Notifications | Success/error feedback with auto-dismiss |
+| Profile APIs | GET/PATCH profile, POST/DELETE avatar, PATCH password, full address CRUD |
+| Security | JWT auth, bcrypt hashing, Zod validation, file type/size validation |
+
+### Coming (Phase 9-14)
 
 - Shopping cart with server-side price recalculation
 - Checkout flow with order creation

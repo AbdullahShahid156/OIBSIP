@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import env from '../config/env.js';
 
+export { validate } from './validate.js';
+
 const setupMiddleware = (app) => {
   app.use(helmet());
 

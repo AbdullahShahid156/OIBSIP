@@ -215,6 +215,60 @@ All food visuals use high-quality, real photographs from Unsplash with professio
 - `object-cover` for consistent aspect ratios
 - Decoding async for non-blocking render
 
+### Phase 8 — User Profile & Address Management
+
+**Profile Dashboard**
+
+| Feature | Description |
+|---------|-------------|
+| Profile Header | Large gradient banner, avatar with initials fallback, verified badge, member since date |
+| Account Overview | 5 stat cards (Favorite Pizza, Total Orders, Total Spent, Loyalty Tier, Saved Addresses) |
+| Account Details | Name, email, phone, email status, member since |
+| Quick Actions | Order Pizza, Browse Menu, Logout |
+
+**Profile Management**
+
+| Feature | Description |
+|---------|-------------|
+| Edit Profile | Update full name and phone number with Zod validation |
+| Avatar Upload | Upload/replace/remove profile picture, JPEG/PNG/WebP, 5MB max, base64 storage |
+| Change Password | Current + new password, show/hide toggle, strength indicator (6 levels), validation |
+| Toast Notifications | Success/error feedback with auto-dismiss |
+
+**Address Management**
+
+| Feature | Description |
+|---------|-------------|
+| Address Cards | Recipient, phone, full address, label badge (Home/Office/Other), default indicator |
+| Add Address | Modal form with all fields, label selector, set as default checkbox |
+| Edit Address | Pre-filled modal form for editing |
+| Delete Address | Confirmation dialog, auto-reassign default |
+| Set Default Address | One-click default assignment |
+| Empty State | Elegant empty state with CTA |
+
+**Backend APIs**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/profile/me` | GET | Get full profile with addresses |
+| `/api/v1/profile/me` | PATCH | Update name and phone |
+| `/api/v1/profile/avatar` | POST | Upload avatar (multipart/form-data) |
+| `/api/v1/profile/avatar` | DELETE | Remove avatar |
+| `/api/v1/profile/change-password` | PATCH | Change password |
+| `/api/v1/profile/addresses` | GET | Get all addresses |
+| `/api/v1/profile/addresses` | POST | Create address |
+| `/api/v1/profile/addresses/:id` | PATCH | Update address |
+| `/api/v1/profile/addresses/:id` | DELETE | Delete address |
+| `/api/v1/profile/addresses/:id/default` | PATCH | Set default address |
+
+**Security**
+
+- All profile routes protected with JWT auth middleware
+- Password hashed with bcrypt (12 rounds) before save
+- Avatar uploads validated (type + size)
+- Zod validation on all inputs
+- User can only access own profile/addresses
+
 ---
 
 ## Roadmap
@@ -226,13 +280,14 @@ Phase 3  ✅  Premium landing page experience
 Phase 4  ✅  Authentication system (JWT, email verification, password reset)
 Phase 5  ✅  Pizza model, API endpoints, Pizza Discovery Dashboard
 Phase 6  ✅  Interactive pizza builder with live preview and quantity controls
-Phase 7  ✅  Premium visual assets, SVG food illustrations, brand identity system
-Phase 8  ⬜  Shopping cart with server-side price recalculation
-Phase 8  ⬜  Checkout flow with order creation
-Phase 9  ⬜  Payment integration (Razorpay)
-Phase 10 ⬜  Order management and status tracking
-Phase 11 ⬜  Admin dashboard with inventory and analytics
-Phase 12 ⬜  Real-time order tracking via WebSocket
+Phase 7  ✅  Premium visual assets, real food photography, brand identity system
+Phase 8  ✅  User profile, address management, avatar upload, change password
+Phase 9  ⬜  Shopping cart with server-side price recalculation
+Phase 10 ⬜  Checkout flow with order creation
+Phase 11 ⬜  Payment integration (Razorpay)
+Phase 12 ⬜  Order management and status tracking
+Phase 13 ⬜  Admin dashboard with inventory and analytics
+Phase 14 ⬜  Real-time order tracking via WebSocket
 ```
 
 ---

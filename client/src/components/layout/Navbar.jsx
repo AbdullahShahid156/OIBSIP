@@ -264,6 +264,24 @@ export default function Navbar() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </Link>
+                  <Link
+                    to="/profile"
+                    className={cn(
+                      "p-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+                      isDark
+                        ? "bg-white/[0.04] border-white/[0.06] text-white/60 hover:text-white hover:bg-white/[0.08]"
+                        : "bg-surface-100 border-surface-200 text-surface-500 hover:text-surface-700 hover:bg-surface-200"
+                    )}
+                    aria-label="Go to profile"
+                  >
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="" className="w-4 h-4 rounded-full object-cover" />
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    )}
+                  </Link>
                   <button
                     onClick={() => dispatch(logout())}
                     className={cn(
@@ -471,6 +489,17 @@ export default function Navbar() {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
+                      </Link>
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        role="menuitem"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 text-surface-600 dark:text-white/60 font-medium rounded-xl hover:bg-surface-100 dark:hover:bg-white/[0.04] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        My Profile
                       </Link>
                       <button
                         onClick={() => { dispatch(logout()); setIsMobileMenuOpen(false); }}
