@@ -51,16 +51,17 @@ export default function PizzaDetailModal({ pizza, onClose }) {
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           className={cn(
-            'relative w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl',
+            'relative w-full max-w-lg max-h-[90vh] overflow-hidden overflow-y-auto rounded-2xl shadow-2xl',
             'bg-white dark:bg-dark-900',
-            'border border-surface-200 dark:border-white/[0.06]'
+            'border border-surface-200 dark:border-white/[0.06]',
+            'scrollbar-thin scrollbar-thumb-surface-300 dark:scrollbar-thumb-white/10'
           )}
         >
           {/* Close button */}
           <button
             onClick={onClose}
             className={cn(
-              'absolute top-4 right-4 z-10 p-2 rounded-xl transition-all duration-200',
+              'sticky top-4 float-right z-10 p-2 rounded-xl transition-all duration-200 mr-4 mt-4',
               'bg-white/90 dark:bg-dark-800/90 backdrop-blur-sm',
               'text-surface-500 dark:text-white/50',
               'hover:text-surface-900 dark:hover:text-white hover:bg-white dark:hover:bg-dark-700',
@@ -75,7 +76,8 @@ export default function PizzaDetailModal({ pizza, onClose }) {
 
           {/* Image area */}
           <div className={cn(
-            'relative aspect-[16/9] overflow-hidden',
+            'relative overflow-hidden',
+            'aspect-[16/9] sm:aspect-[4/3]',
             isDark ? 'bg-gradient-to-br from-dark-850 to-dark-925' : 'bg-gradient-to-br from-surface-50 to-surface-100'
           )}>
             <div className="absolute inset-0 flex items-center justify-center">
@@ -112,7 +114,7 @@ export default function PizzaDetailModal({ pizza, onClose }) {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <h2 className={cn(
