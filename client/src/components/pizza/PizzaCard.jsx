@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
+import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../food';
 
 const categoryColors = {
   classic: 'brand',
@@ -107,16 +108,19 @@ const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
                   ? 'bg-gradient-to-br from-brand-500/15 to-brand-600/10 group-hover:from-brand-500/25 group-hover:to-brand-600/15'
                   : 'bg-gradient-to-br from-brand-100 to-brand-50 group-hover:from-brand-200 group-hover:to-brand-100'
               )}>
-                <span className={cn(
-                  'text-4xl md:text-5xl select-none transition-transform duration-500 group-hover:scale-110',
-                  'drop-shadow-sm'
-                )}>
-                  {pizza.category === 'vegetarian' ? '🥬' :
-                   pizza.category === 'meat-lovers' ? '🥩' :
-                   pizza.category === 'premium' ? '✨' :
-                   pizza.category === 'specialty' ? '🔥' :
-                   pizza.category === 'signature' ? '👨‍🍳' : '🍕'}
-                </span>
+                {(() => {
+                  const PizzaIcon = PIZZA_BY_NAME[pizza.name] || PIZZA_BY_CATEGORY[pizza.category];
+                  return PizzaIcon ? (
+                    <PizzaIcon size={100} className="drop-shadow-md transition-transform duration-500 group-hover:scale-110" />
+                  ) : (
+                    <span className={cn(
+                      'text-4xl md:text-5xl select-none transition-transform duration-500 group-hover:scale-110',
+                      'drop-shadow-sm'
+                    )}>
+                      🍕
+                    </span>
+                  );
+                })()}
               </div>
               <div className={cn(
                 'absolute -inset-4 rounded-full blur-2xl transition-opacity duration-500 opacity-0 group-hover:opacity-100',

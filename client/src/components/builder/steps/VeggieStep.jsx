@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn, formatCurrency } from '../../../utils/helpers';
 import { useDarkMode } from '../../../hooks';
 import { VEGGIE_OPTIONS, MAX_VEGGIES, MAX_QTY, QTY_LEVELS, STEP_COLORS } from '../../../data/pizzaBuilder';
+import { TOPPING_ICONS } from '../../food';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -30,14 +31,21 @@ function ToppingStepper({ option, qty, onSetQty, maxReached }) {
       )}
     >
       <div className="flex items-center gap-4">
-        {/* Emoji icon */}
+        {/* Topping icon */}
         <div className={cn(
-          'w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-colors',
+          'w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors',
           isSelected
             ? isDark ? 'bg-brand-500/20' : 'bg-brand-100'
             : isDark ? 'bg-white/[0.06]' : 'bg-surface-100',
         )}>
-          {option.emoji}
+          {(() => {
+            const ToppingIcon = TOPPING_ICONS[option.id];
+            return ToppingIcon ? (
+              <ToppingIcon size={32} />
+            ) : (
+              <span className="text-2xl">{option.emoji}</span>
+            );
+          })()}
         </div>
 
         {/* Info */}

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
+import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../food';
 
 const categoryColors = {
   classic: 'brand',
@@ -82,13 +83,14 @@ export default function PizzaDetailModal({ pizza, onClose }) {
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
               >
-                <span className="text-7xl md:text-8xl select-none drop-shadow-lg">
-                  {pizza.category === 'vegetarian' ? '🥬' :
-                   pizza.category === 'meat-lovers' ? '🥩' :
-                   pizza.category === 'premium' ? '✨' :
-                   pizza.category === 'specialty' ? '🔥' :
-                   pizza.category === 'signature' ? '👨‍🍳' : '🍕'}
-                </span>
+                {(() => {
+                  const PizzaIcon = PIZZA_BY_NAME[pizza.name] || PIZZA_BY_CATEGORY[pizza.category];
+                  return PizzaIcon ? (
+                    <PizzaIcon size={180} className="drop-shadow-lg" />
+                  ) : (
+                    <span className="text-7xl md:text-8xl select-none drop-shadow-lg">🍕</span>
+                  );
+                })()}
               </motion.div>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />

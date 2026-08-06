@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { cn } from '../../utils/helpers';
 import { useDarkMode } from '../../hooks';
 import { formatCurrency } from '../../utils/helpers';
+import { BUILDER_ICONS, TOPPING_ICONS } from '../food';
 
 function SelectionCard({ option, selected, onClick, disabled, multiSelect, maxReached }) {
   const { isDark } = useDarkMode();
@@ -58,14 +59,21 @@ function SelectionCard({ option, selected, onClick, disabled, multiSelect, maxRe
           animate={isSelected ? { scale: [1, 1.2, 1] } : {}}
           transition={{ duration: 0.4 }}
           className={cn(
-            'w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0',
+            'w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0',
             isSelected
               ? isDark ? 'bg-brand-500/20' : 'bg-brand-100'
               : isDark ? 'bg-white/[0.06]' : 'bg-surface-100',
             'transition-colors duration-300'
           )}
         >
-          {option.emoji}
+          {(() => {
+            const IconComponent = BUILDER_ICONS[option.id] || TOPPING_ICONS[option.id];
+            return IconComponent ? (
+              <IconComponent size={32} />
+            ) : (
+              <span className="text-2xl">{option.emoji}</span>
+            );
+          })()}
         </motion.div>
 
         <div className="flex-1 min-w-0 pr-8">

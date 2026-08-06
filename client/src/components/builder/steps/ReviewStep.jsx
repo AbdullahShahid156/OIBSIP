@@ -2,12 +2,14 @@ import { motion } from 'framer-motion';
 import { cn, formatCurrency } from '../../../utils/helpers';
 import { useDarkMode } from '../../../hooks';
 import { STEP_COLORS, SIZE_OPTIONS } from '../../../data/pizzaBuilder';
+import { BUILDER_ICONS, TOPPING_ICONS } from '../../food';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
-function IngredientChip({ emoji, name, price, qty, onRemove }) {
+function IngredientChip({ emoji, name, price, qty, onRemove, iconId }) {
   const { isDark } = useDarkMode();
+  const IconComponent = BUILDER_ICONS[iconId] || TOPPING_ICONS[iconId];
   return (
     <motion.div
       layout
@@ -21,7 +23,7 @@ function IngredientChip({ emoji, name, price, qty, onRemove }) {
           : 'border-surface-200 bg-surface-50'
       )}
     >
-      <span className="text-sm">{emoji}</span>
+      {IconComponent ? <IconComponent size={16} /> : <span className="text-sm">{emoji}</span>}
       <span className={cn('text-xs font-semibold', isDark ? 'text-white/70' : 'text-surface-700')}>{name}</span>
       {qty > 1 && (
         <span className={cn('text-xs font-bold', isDark ? 'text-white/80' : 'text-surface-800')}>×{qty}</span>
@@ -45,12 +47,12 @@ export default function ReviewStep({ builder, allIngredients, basePrice, ingredi
   const cheeseObj = allIngredients.cheese.find((c) => c.id === builder.cheese);
 
   const allChips = [];
-  if (baseObj) allChips.push({ emoji: baseObj.emoji, name: baseObj.name, price: baseObj.price, qty: 1 });
-  if (sauceObj) allChips.push({ emoji: sauceObj.emoji, name: sauceObj.name, price: sauceObj.price, qty: 1 });
-  if (cheeseObj) allChips.push({ emoji: cheeseObj.emoji, name: cheeseObj.name, price: cheeseObj.price, qty: 1 });
+  if (baseObj) allChips.push({ emoji: baseObj.emoji, name: baseObj.name, price: baseObj.price, qty: 1, iconId: baseObj.id });
+  if (sauceObj) allChips.push({ emoji: sauceObj.emoji, name: sauceObj.name, price: sauceObj.price, qty: 1, iconId: sauceObj.id });
+  if (cheeseObj) allChips.push({ emoji: cheeseObj.emoji, name: cheeseObj.name, price: cheeseObj.price, qty: 1, iconId: cheeseObj.id });
   Object.entries(builder.veggies).forEach(([vid, qty]) => {
     const opt = allIngredients.veggies.find((v) => v.id === vid);
-    if (opt) allChips.push({ emoji: opt.emoji, name: opt.name, price: opt.price * qty, qty });
+    if (opt) allChips.push({ emoji: opt.emoji, name: opt.name, price: opt.price * qty, qty, iconId: opt.id });
   });
 
   return (
@@ -139,14 +141,18 @@ export default function ReviewStep({ builder, allIngredients, basePrice, ingredi
               <span className={cn('text-xs', isDark ? 'text-white/50' : 'text-surface-500')}>Base ({sizeObj?.name})</span>
               <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>{formatCurrency(basePrice)}</span>
             </div>
-            {allChips.filter((c) => c.price > 0).map((chip, i) => (
-              <div key={i} className="flex justify-between">
-                <span className={cn('text-xs', isDark ? 'text-white/50' : 'text-surface-500')}>
-                  {chip.emoji} {chip.name}{chip.qty > 1 ? ` ×${chip.qty}` : ''}
-                </span>
-                <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>+{formatCurrency(chip.price)}</span>
-              </div>
-            ))}
+            {allChips.filter((c) => c.price > 0).map((chip, i) => {
+              const ChipIcon = BUILDER_ICONS[chip.iconId] || TOPPING_ICONS[chip.iconId];
+              return (
+                <div key={i} className="flex justify-between">
+                  <span className={cn('text-xs flex items-center gap-1', isDark ? 'text-white/50' : 'text-surface-500')}>
+                    {ChipIcon ? <ChipIcon size={14} /> : <span>{chip.emoji}</span>}
+                    {chip.name}{chip.qty > 1 ? ` ×${chip.qty}` : ''}
+                  </span>
+                  <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>+{formatCurrency(chip.price)}</span>
+                </div>
+              );
+            })}
             <div className={cn('border-t pt-2.5 mt-2.5', isDark ? 'border-white/[0.06]' : 'border-surface-200')} />
             <div className="flex justify-between">
               <span className={cn('text-sm font-bold', isDark ? 'text-white' : 'text-surface-900')}>Total</span>
