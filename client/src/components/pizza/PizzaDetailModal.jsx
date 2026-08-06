@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
@@ -16,6 +17,7 @@ const categoryColors = {
 
 export default function PizzaDetailModal({ pizza, onClose }) {
   const { isDark } = useDarkMode();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -225,6 +227,7 @@ export default function PizzaDetailModal({ pizza, onClose }) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => { onClose(); navigate('/builder'); }}
               className={cn(
                 'w-full py-3.5 rounded-xl text-sm font-semibold',
                 'bg-gradient-to-r from-brand-500 to-brand-600 text-white',
