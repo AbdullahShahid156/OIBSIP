@@ -113,7 +113,8 @@ export async function changePassword(req, res, next) {
     user.password = newPassword;
     await user.save();
 
-    const token = (await import('../services/authService.js')).generateAccessToken(user._id);
+    const { generateAccessToken } = await import('../services/authService.js');
+    const token = generateAccessToken(user);
 
     res.status(200).json({
       status: 'success',
