@@ -21,7 +21,7 @@
 
 PizzaCraft is a full-stack food delivery application engineered with the same architectural patterns used in production systems. The codebase emphasizes clean separation of concerns, type-safe runtime validation, and a design system built for scale.
 
-This repository tracks the incremental development of the platform. Phase 4 delivers a production-grade authentication system.
+This repository tracks the incremental development of the platform. Phase 5 delivers the Pizza Discovery Dashboard and Pizza Model API.
 
 ---
 
@@ -29,9 +29,9 @@ This repository tracks the incremental development of the platform. Phase 4 deli
 
 | Metric | Value |
 |--------|-------|
-| **Phase** | 4 — Authentication System |
+| **Phase** | 5 — Pizza Discovery Dashboard |
 | **Build** | Passing |
-| **Client** | 495 modules, zero errors |
+| **Client** | 501 modules, zero errors |
 | **Server** | Syntax verified |
 | **License** | MIT |
 
@@ -86,7 +86,7 @@ Phase 1  ✅  Foundation architecture, design system, layout components, API ser
 Phase 2  ✅  Design system tokens, UI component library, animation system, accessibility
 Phase 3  ✅  Premium landing page experience
 Phase 4  ✅  Authentication system (JWT, email verification, password reset)
-Phase 5  ⬜  Database models (Ingredient, Cart, Order)
+Phase 5  ✅  Pizza model, API endpoints, Pizza Discovery Dashboard
 Phase 6  ⬜  Interactive pizza builder with live inventory
 Phase 7  ⬜  Shopping cart with server-side price recalculation
 Phase 8  ⬜  Checkout flow with order creation
@@ -147,22 +147,22 @@ pizzacraft/
 │   │   └── favicon.svg
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── auth/                # AuthLayout, ProtectedRoute
 │   │   │   ├── layout/              # Navbar, Footer, Layout
+│   │   │   ├── pizza/               # PizzaCard, PizzaDetailModal, PizzaCardSkeleton
 │   │   │   └── ui/                  # Design system components
 │   │   │       ├── index.jsx        # All UI components
 │   │   │       └── AnimationWrapper.jsx
-│   │   ├── hooks/                   # useDarkMode, useMediaQuery, useScrollPosition
-│   │   ├── pages/                   # Home, Menu, Orders, NotFound
-│   │   ├── services/                # Axios API instance
-│   │   ├── store/                   # Redux store and slices
+│   │   ├── hooks/                   # useDarkMode, useMediaQuery, useScrollPosition, useDebounce
+│   │   ├── pages/                   # Home, Menu (Dashboard), Orders, Auth pages, NotFound
+│   │   ├── services/                # API client, auth, pizza
+│   │   ├── store/                   # Redux store and slices (auth, ui, pizza)
 │   │   ├── styles/                  # Global CSS and design tokens
 │   │   ├── utils/                   # Constants and helper functions
 │   │   ├── App.jsx                  # Route definitions
 │   │   └── main.jsx                 # Application entry point
-│   ├── .env.example                 # Client environment template
 │   ├── index.html                   # HTML shell with font loading
 │   ├── package.json
-│   ├── postcss.config.js
 │   ├── tailwind.config.js           # Extended design system
 │   └── vite.config.js
 │
@@ -171,17 +171,35 @@ pizzacraft/
 │   │   ├── config/
 │   │   │   ├── database.js          # MongoDB connection with retry
 │   │   │   └── env.js               # Zod-validated environment
+│   │   ├── controllers/
+│   │   │   ├── authController.js    # Auth endpoints
+│   │   │   └── pizzaController.js   # Pizza CRUD + search + filter
 │   │   ├── middleware/
+│   │   │   ├── auth.js              # JWT protect middleware
 │   │   │   ├── errorHandler.js      # Global error handler + AppError class
 │   │   │   └── index.js             # Helmet, CORS, rate limiting, Morgan
+│   │   ├── models/
+│   │   │   ├── Pizza.js             # Pizza schema (15 seeded documents)
+│   │   │   └── User.js              # User schema with bcrypt
 │   │   ├── routes/
 │   │   │   ├── v1/
-│   │   │   │   └── health.js        # Health check endpoint
+│   │   │   │   ├── auth.js          # Auth routes with rate limiting
+│   │   │   │   ├── health.js        # Health check endpoint
+│   │   │   │   └── pizza.js         # Pizza routes (public)
 │   │   │   └── index.js             # Route aggregator
+│   │   ├── seed.js                  # Database seed script
+│   │   ├── services/
+│   │   │   ├── authService.js       # JWT generation/verification
+│   │   │   └── emailService.js      # Nodemailer transport
+│   │   ├── templates/
+│   │   │   └── email/               # HTML email templates
+│   │   ├── validations/
+│   │   │   ├── auth.js              # Auth Zod schemas
+│   │   │   └── pizza.js             # Pizza Zod schemas
 │   │   ├── utils/
 │   │   │   └── logger.js            # Winston logger configuration
 │   │   └── server.js                # Express + Socket.io entry
-│   ├── .env.example                 # Server environment template
+│   ├── .env
 │   ├── package.json
 │   └── .gitignore
 │

@@ -103,9 +103,41 @@ npm run dev
 
 ## Features
 
-### Current (Phase 4 — Complete)
+### Current (Phase 5 — Complete)
 
-**Authentication System**
+**Pizza Discovery Dashboard**
+
+| Feature | Description |
+|---------|-------------|
+| Pizza Model | Name, description, category, price, rating, prep time, tags, availability, featured/popular flags |
+| GET /pizzas | List all pizzas with search, category filter, sort, pagination |
+| GET /pizzas/:id | Single pizza details |
+| GET /pizzas/categories | Categories with counts |
+| Pizza Cards | Image, name, description, price, rating stars, prep time, category badge, hover animation |
+| Quick View Modal | Full pizza details with tags, rating, description, CTA |
+| Search | Debounced real-time search across names, descriptions, tags |
+| Category Filters | Horizontal filter chips with counts |
+| Sorting | Top Rated, Most Popular, Price, Newest, A to Z |
+| Pagination | Page navigation with current page indicator |
+| Loading Skeletons | Shimmer loading states for cards |
+| Empty States | No results, no pizzas, clear filters |
+| Error States | Dismissible error banner with retry |
+| Featured Section | Curated featured pizzas on dashboard |
+| Quick Start CTA | Promotional banner with build pizza CTA |
+| Welcome Header | Personalized greeting for authenticated users |
+
+**Pizza Data (15 seeded)**
+
+| Category | Pizzas |
+|----------|--------|
+| Classic | Margherita, Pepperoni Supreme, Hawaiian Classic |
+| Premium | Truffle Mushroom, Prosciutto & Arugula, Four Cheese |
+| Vegetarian | Garden Fresh, Mediterranean, Veggie Deluxe |
+| Specialty | Spicy Diavola, BBQ Chicken, Pesto Chicken, Buffalo Blaze |
+| Meat-Lovers | Meat Feast |
+| Signature | The Artisan |
+
+### Phase 4 — Authentication
 
 | Feature | Description |
 |---------|-------------|
@@ -169,15 +201,15 @@ npm run dev
 - Dark/light theme with localStorage persistence
 - Responsive across all breakpoints (480px → 1536px+)
 
-### Coming (Phase 5-12)
+### Coming (Phase 6-12)
 
-- Database models (Ingredient, Cart, Order)
 - Interactive pizza builder
 - Shopping cart with price recalculation
 - Checkout and order management
 - Payment integration (Razorpay)
 - Real-time order tracking
 - Admin dashboard
+- Inventory management
 
 ---
 
@@ -224,6 +256,40 @@ npm run dev
 GET /api/v1/health
 Response: { status: "OK", timestamp: "...", uptime: ... }
 ```
+
+### Authentication
+
+```
+POST   /api/v1/auth/register      — Create account
+POST   /api/v1/auth/login         — Sign in
+POST   /api/v1/auth/logout        — Sign out
+GET    /api/v1/auth/me             — Get current user
+POST   /api/v1/auth/verify-email   — Verify email address
+POST   /api/v1/auth/forgot-password — Request password reset
+POST   /api/v1/auth/reset-password  — Reset password with token
+POST   /api/v1/auth/refresh-token   — Refresh access token
+```
+
+### Pizzas
+
+```
+GET    /api/v1/pizzas              — List pizzas (search, filter, sort, paginate)
+GET    /api/v1/pizzas/categories   — List categories with counts
+GET    /api/v1/pizzas/:id          — Get single pizza
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| search | string | Search across name, description, tags |
+| category | string | Filter by category (classic, premium, vegetarian, specialty, meat-lovers, signature) |
+| sort | string | Sort by: rating, -rating, price, -price, popular, -popular, newest, -newest, name, -name |
+| page | number | Page number (default: 1) |
+| limit | number | Results per page (default: 12) |
+| isAvailable | boolean | Filter by availability |
+| isFeatured | boolean | Filter featured pizzas |
+| isPopular | boolean | Filter popular pizzas |
 
 ---
 

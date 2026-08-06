@@ -23,17 +23,21 @@ function getTransporter() {
 async function sendEmail({ to, subject, html, text }) {
   try {
     const transport = getTransporter();
-    await transport.sendMail({
+    const info = await transport.sendMail({
       from: `"${env.FROM_NAME || 'PizzaCraft'}" <${env.FROM_EMAIL || 'noreply@pizzacraft.com'}>`,
       to,
       subject,
       html,
       text,
     });
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      logger.info(`[DEV] Email preview URL: ${previewUrl}`);
+    }
     logger.info(`Email sent to ${to}: ${subject}`);
     return true;
   } catch (error) {
-    logger.error(`Email send failed to ${to}:`, error.message);
+    logger.error(`Email send failed to ${to}:`, error.message, error.code || '');
     return false;
   }
 }

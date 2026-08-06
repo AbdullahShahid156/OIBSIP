@@ -12,6 +12,7 @@ import emailService from '../services/emailService.js';
 import { getVerificationEmailHTML, getVerificationEmailText } from '../templates/email/verification.js';
 import { getPasswordResetEmailHTML, getPasswordResetEmailText } from '../templates/email/passwordReset.js';
 import env from '../config/env.js';
+import logger from '../utils/logger.js';
 
 export async function register(req, res, next) {
   try {
@@ -28,6 +29,10 @@ export async function register(req, res, next) {
     await user.save({ validateBeforeSave: false });
 
     const verifyUrl = `${env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+
+    if (env.NODE_ENV === 'development') {
+      logger.info(`[DEV] Verification URL: ${verifyUrl}`);
+    }
 
     await emailService.sendEmail({
       to: user.email,
@@ -143,6 +148,10 @@ export async function forgotPassword(req, res, next) {
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    if (env.NODE_ENV === 'development') {
+      logger.info(`[DEV] Password Reset URL: ${resetUrl}`);
+    }
 
     await emailService.sendEmail({
       to: user.email,
