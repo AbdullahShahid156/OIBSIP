@@ -105,13 +105,10 @@ export async function removeAvatar(req, res, next) {
 
 export async function changePassword(req, res, next) {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const { newPassword } = req.body;
 
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.user.id);
     if (!user) throw new AppError('User not found', 404);
-
-    const isCorrect = await user.comparePassword(currentPassword);
-    if (!isCorrect) throw new AppError('Current password is incorrect', 401);
 
     user.password = newPassword;
     await user.save();
