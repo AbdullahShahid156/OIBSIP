@@ -24,7 +24,7 @@ export default function Login() {
   const { isLoading, error } = useSelector((state) => state.auth);
   const { isDark } = useDarkMode();
 
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || '/menu';
 
   const {
     register,

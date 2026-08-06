@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
+import PizzaBuilder from './pages/PizzaBuilder';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { getMe } from './store/slices/authSlice';
 
@@ -29,6 +30,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/builder" element={<PizzaBuilder />} />
         <Route
           path="/orders"
           element={

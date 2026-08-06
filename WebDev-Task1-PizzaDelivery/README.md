@@ -103,9 +103,26 @@ npm run dev
 
 ## Features
 
-### Current (Phase 5 — Complete)
+### Current (Phase 6 — Complete)
 
-**Pizza Discovery Dashboard**
+**Interactive Pizza Builder**
+
+| Feature | Description |
+|---------|-------------|
+| 5-Step Wizard | Base → Sauce → Cheese → Toppings → Review with step indicator |
+| Live Pizza Preview | Real-time CSS pizza visualization with photorealistic layers |
+| Drag-and-Drop Toppings | Framer Motion drag with circular boundary clamping and overlap avoidance |
+| Quantity Stepper | Per-topping −/+ controls with animated number transitions (1–5 levels) |
+| Topping Levels | Light, Regular, Extra, Double, Loaded with color-coded labels |
+| Price Calculation | Live price breakdown updating as selections change |
+| Size Selection | Small (10"), Medium (12"), Large (14"), Family (16") with pricing |
+| Base Options | Classic Hand-Tossed, Thin Crust, Stuffed Crust, Whole Wheat, Gluten-Free |
+| Sauce Options | Classic Tomato, Pesto, BBQ, Garlic White, Buffalo |
+| Cheese Options | Mozzarella, Four Cheese, Vegan, Ricotta, Blue Cheese |
+| Topping Density | Multiple visual instances per topping based on quantity |
+| Review Screen | Full breakdown with size, ingredients, quantities, total, prep time |
+
+**Pizza Discovery Dashboard (Phase 5)**
 
 | Feature | Description |
 |---------|-------------|
@@ -137,24 +154,23 @@ npm run dev
 | Meat-Lovers | Meat Feast |
 | Signature | The Artisan |
 
-### Phase 4 — Authentication
+**Authentication (Phase 4)**
 
 | Feature | Description |
 |---------|-------------|
-| Registration | Name, email, password with strength validation |
-| Email Verification | HTML email with branded verification link |
-| Login | Email/password with JWT token generation |
-| Forgot Password | Rate-limited email with reset link |
+| Registration | Name, email, password with Zod validation and strength requirements |
+| Email Verification | HTML email with branded verification link (Nodemailer + Gmail SMTP) |
+| Login | Email/password with JWT access token + HTTP-only refresh token cookie |
+| Forgot Password | Rate-limited email with reset link (3 requests/hour) |
 | Reset Password | Token-validated password update |
-| JWT Auth | Access token + HTTP-only refresh token cookie |
-| Protected Routes | Client and server route protection |
+| Protected Routes | Client-side (ProtectedRoute) and server-side (auth middleware) |
 | Logout | Token invalidation and cookie clearing |
 
 **Security**
 
 - bcrypt password hashing (12 rounds)
-- JWT with configurable expiry
-- HTTP-only refresh token cookies
+- JWT access tokens with configurable expiry
+- HTTP-only refresh token cookies (30 day expiry)
 - Rate limiting on auth endpoints (10 req/15min, 3 resets/hour)
 - Zod input validation on all endpoints
 - Helmet security headers
@@ -168,7 +184,7 @@ npm run dev
 - Password strength indicator
 - Animated form transitions
 - Loading states with spinners
-- Error/success states with toasts
+- Error/success toasts
 - Responsive across all devices
 
 ### Previous Phases
@@ -201,15 +217,14 @@ npm run dev
 - Dark/light theme with localStorage persistence
 - Responsive across all breakpoints (480px → 1536px+)
 
-### Coming (Phase 6-12)
+### Coming (Phase 7-12)
 
-- Interactive pizza builder
-- Shopping cart with price recalculation
-- Checkout and order management
+- Shopping cart with server-side price recalculation
+- Checkout flow with order creation
 - Payment integration (Razorpay)
-- Real-time order tracking
-- Admin dashboard
-- Inventory management
+- Order management and status tracking
+- Admin dashboard with inventory and analytics
+- Real-time order tracking via WebSocket
 
 ---
 

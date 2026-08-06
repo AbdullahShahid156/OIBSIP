@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
@@ -56,6 +57,7 @@ function StarRating({ rating, reviewCount }) {
 }
 
 const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
+  const navigate = useNavigate();
   const { isDark } = useDarkMode();
   const colorVariant = categoryColors[pizza.category] || 'neutral';
 
@@ -215,6 +217,7 @@ const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
             </div>
 
             <motion.button
+              onClick={() => navigate('/builder')}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className={cn(

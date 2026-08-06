@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from '../hooks';
 import useDebounce from '../hooks/useDebounce';
@@ -22,6 +23,7 @@ const sortOptions = [
 
 export default function Menu() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { isDark } = useDarkMode();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { pizzas, pagination, categories, isLoading, error, filters } = useSelector((state) => state.pizza);
@@ -618,6 +620,7 @@ export default function Menu() {
                   Choose any pizza from our menu and customize it with your favorite toppings, size, and crust.
                 </p>
                 <motion.button
+                  onClick={() => navigate('/builder')}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-600 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-600"

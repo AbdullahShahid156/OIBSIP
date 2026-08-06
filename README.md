@@ -21,7 +21,7 @@
 
 PizzaCraft is a full-stack food delivery application engineered with the same architectural patterns used in production systems. The codebase emphasizes clean separation of concerns, type-safe runtime validation, and a design system built for scale.
 
-This repository tracks the incremental development of the platform. Phase 5 delivers the Pizza Discovery Dashboard and Pizza Model API.
+This repository tracks the incremental development of the platform. Phase 6 delivers the Interactive Pizza Builder with live preview, drag-and-drop toppings, and per-topping quantity controls.
 
 ---
 
@@ -29,9 +29,9 @@ This repository tracks the incremental development of the platform. Phase 5 deli
 
 | Metric | Value |
 |--------|-------|
-| **Phase** | 5 — Pizza Discovery Dashboard |
+| **Phase** | 6 — Interactive Pizza Builder |
 | **Build** | Passing |
-| **Client** | 501 modules, zero errors |
+| **Client** | 513 modules, zero errors |
 | **Server** | Syntax verified |
 | **License** | MIT |
 
@@ -56,26 +56,107 @@ This repository tracks the incremental development of the platform. Phase 5 deli
 - Dark/light theme with localStorage persistence
 - Accessibility: ARIA labels, keyboard navigation, focus-visible states, skip-to-content
 
-### Phase 3 — Premium Landing Experience
+### Phase 4 — Authentication System
 
-| Section | Description |
+| Feature | Description |
 |---------|-------------|
-| **Hero** | Large headline, gradient text, animated underline, parallax floating elements, scroll indicator |
-| **Stats Bar** | Animated counters (10K+ customers, 50+ varieties, 30min delivery, 4.9 rating) |
-| **Featured Pizzas** | 4-card showcase with hover lift, rating badges, star icons, add-to-cart |
-| **Why Choose Us** | 6 feature cards with icons, hover glow effects |
-| **How It Works** | 4-step horizontal timeline with accent gradient icons |
-| **Categories** | 6-card grid with gradient icons, pizza counts |
-| **Testimonials** | 3-card testimonial section with star ratings, avatars |
-| **CTA** | Full-width gradient section with dual CTAs, noise texture, glow orbs |
+| Registration | Name, email, password with Zod validation and strength requirements |
+| Email Verification | HTML email with branded verification link (Nodemailer + Gmail SMTP) |
+| Login | Email/password with JWT access token + HTTP-only refresh token cookie |
+| Forgot Password | Rate-limited email with reset link (3 requests/hour) |
+| Reset Password | Token-validated password update |
+| Protected Routes | Client-side (ProtectedRoute) and server-side (auth middleware) |
+| Logout | Token invalidation and cookie clearing |
 
-#### Landing Page Features
+**Security**
 
-- **Animations**: Page entrance, section reveal, stagger, hover, button interactions, card lifts, parallax, scroll indicators
-- **Responsive**: Mobile, tablet, laptop, desktop, ultrawide
-- **Accessibility**: Keyboard friendly, focus states, proper contrast, semantic HTML, ARIA labels
-- **Performance**: Lazy-load ready, optimized rendering, no layout shifts
-- **Design Quality**: Premium typography, perfect spacing, professional color theory, consistent border radius
+- bcrypt password hashing (12 rounds)
+- JWT access tokens with configurable expiry
+- HTTP-only refresh token cookies (30 day expiry)
+- Rate limiting on auth endpoints (10 req/15min, 3 resets/hour)
+- Zod input validation on all endpoints
+- Helmet security headers
+- CORS with credentials
+- Password strength requirements (uppercase, lowercase, number)
+
+**Premium UI**
+
+- AuthLayout with split-screen design
+- Password visibility toggle
+- Password strength indicator
+- Animated form transitions
+- Loading states with spinners
+- Error/success toasts
+- Responsive across all devices
+
+### Phase 5 — Pizza Discovery Dashboard
+
+| Feature | Description |
+|---------|-------------|
+| Pizza Model | Name, description, category, price, rating, prep time, tags, availability, featured/popular flags |
+| GET /pizzas | List all pizzas with search, category filter, sort, pagination |
+| GET /pizzas/:id | Single pizza details |
+| GET /pizzas/categories | Categories with counts |
+| Pizza Cards | Image, name, description, price, rating stars, prep time, category badge, hover animation |
+| Quick View Modal | Full pizza details with tags, rating, description, CTA |
+| Search | Debounced real-time search across names, descriptions, tags |
+| Category Filters | Horizontal filter chips with counts |
+| Sorting | Top Rated, Most Popular, Price, Newest, A to Z |
+| Pagination | Page navigation with current page indicator |
+| Loading Skeletons | Shimmer loading states for cards |
+| Empty States | No results, no pizzas, clear filters |
+| Error States | Dismissible error banner with retry |
+| Featured Section | Curated featured pizzas on dashboard |
+| Quick Start CTA | Promotional banner with build pizza CTA |
+| Welcome Header | Personalized greeting for authenticated users |
+
+**Pizza Data (15 seeded)**
+
+| Category | Pizzas |
+|----------|--------|
+| Classic | Margherita, Pepperoni Supreme, Hawaiian Classic |
+| Premium | Truffle Mushroom, Prosciutto & Arugula, Four Cheese |
+| Vegetarian | Garden Fresh, Mediterranean, Veggie Deluxe |
+| Specialty | Spicy Diavola, BBQ Chicken, Pesto Chicken, Buffalo Blaze |
+| Meat-Lovers | Meat Feast |
+| Signature | The Artisan |
+
+### Phase 6 — Interactive Pizza Builder
+
+| Feature | Description |
+|---------|-------------|
+| 5-Step Wizard | Base → Sauce → Cheese → Toppings → Review with step indicator |
+| Live Pizza Preview | Real-time CSS pizza visualization with photorealistic layers |
+| Drag-and-Drop Toppings | Framer Motion drag with circular boundary clamping and overlap avoidance |
+| Quantity Stepper | Per-topping −/+ controls with animated number transitions (1–5 levels) |
+| Topping Levels | Light, Regular, Extra, Double, Loaded with color-coded labels |
+| Price Calculation | Live price breakdown updating as selections change |
+| Size Selection | Small (10"), Medium (12"), Large (14"), Family (16") with pricing |
+| Base Options | Classic Hand-Tossed, Thin Crust, Stuffed Crust, Whole Wheat, Gluten-Free |
+| Sauce Options | Classic Tomato, Pesto, BBQ, Garlic White, Buffalo |
+| Cheese Options | Mozzarella, Four Cheese, Vegan, Ricotta, Blue Cheese |
+| Topping Density | Multiple visual instances per topping based on quantity |
+| Review Screen | Full breakdown with size, ingredients, quantities, total, prep time |
+
+**Builder Architecture**
+
+| File | Purpose |
+|------|---------|
+| `pizzaBuilder.js` | Constants: steps, options, max limits, topping levels |
+| `builderSlice.js` | Redux state: size, base, sauce, cheese, veggies `{id: qty}` |
+| `SelectionCard.jsx` | Premium option card with animated checkmark and layout ring |
+| `StepIndicator.jsx` | 5-step progress bar with icons, glow, fill animation |
+| `PricePanel.jsx` | Animated price breakdown with per-item breakdown |
+| `PizzaPreview.jsx` | CSS pizza with crust/sauce/cheese layers, draggable topping components |
+| `BaseStep.jsx` | Size grid + base option cards |
+| `SauceStep.jsx` | Sauce selection with pairing tip |
+| `CheeseStep.jsx` | Cheese selection grid |
+| `VeggieStep.jsx` | Topping cards with premium quantity stepper |
+| `ReviewStep.jsx` | Full order summary with ingredient chips and price breakdown |
+
+**CSS Topping Components (12)**
+
+MushroomSlice, BellPepperSlice, RedOnionRing, OliveSlice, TomatoSlice, JalapenoSlice, SpinachLeaf, ArtichokePiece, ArugulaLeaf, CaramelizedOnionStrip, SunDriedTomato, TruffleOilDrop — each with realistic gradients, inner shadows, specular highlights, and natural food shapes.
 
 ---
 
@@ -87,7 +168,7 @@ Phase 2  ✅  Design system tokens, UI component library, animation system, acce
 Phase 3  ✅  Premium landing page experience
 Phase 4  ✅  Authentication system (JWT, email verification, password reset)
 Phase 5  ✅  Pizza model, API endpoints, Pizza Discovery Dashboard
-Phase 6  ⬜  Interactive pizza builder with live inventory
+Phase 6  ✅  Interactive pizza builder with live preview and quantity controls
 Phase 7  ⬜  Shopping cart with server-side price recalculation
 Phase 8  ⬜  Checkout flow with order creation
 Phase 9  ⬜  Payment integration (Razorpay)
@@ -148,15 +229,23 @@ pizzacraft/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── auth/                # AuthLayout, ProtectedRoute
+│   │   │   ├── builder/             # Pizza Builder components
+│   │   │   │   ├── steps/           # BaseStep, SauceStep, CheeseStep, VeggieStep, ReviewStep
+│   │   │   │   ├── SelectionCard.jsx
+│   │   │   │   ├── StepIndicator.jsx
+│   │   │   │   ├── PricePanel.jsx
+│   │   │   │   └── PizzaPreview.jsx
 │   │   │   ├── layout/              # Navbar, Footer, Layout
 │   │   │   ├── pizza/               # PizzaCard, PizzaDetailModal, PizzaCardSkeleton
 │   │   │   └── ui/                  # Design system components
 │   │   │       ├── index.jsx        # All UI components
 │   │   │       └── AnimationWrapper.jsx
+│   │   ├── data/                    # Static data and constants
+│   │   │   └── pizzaBuilder.js      # Builder options, steps, topping levels
 │   │   ├── hooks/                   # useDarkMode, useMediaQuery, useScrollPosition, useDebounce
-│   │   ├── pages/                   # Home, Menu (Dashboard), Orders, Auth pages, NotFound
+│   │   ├── pages/                   # Home, Menu, PizzaBuilder, Auth pages, NotFound
 │   │   ├── services/                # API client, auth, pizza
-│   │   ├── store/                   # Redux store and slices (auth, ui, pizza)
+│   │   ├── store/                   # Redux store and slices (auth, ui, pizza, builder)
 │   │   ├── styles/                  # Global CSS and design tokens
 │   │   ├── utils/                   # Constants and helper functions
 │   │   ├── App.jsx                  # Route definitions
