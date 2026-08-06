@@ -57,23 +57,6 @@ export default function PizzaDetailModal({ pizza, onClose }) {
             'scrollbar-thin scrollbar-thumb-surface-300 dark:scrollbar-thumb-white/10'
           )}
         >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className={cn(
-              'sticky top-4 float-right z-10 p-2 rounded-xl transition-all duration-200 mr-4 mt-4',
-              'bg-white/90 dark:bg-dark-800/90 backdrop-blur-sm',
-              'text-surface-500 dark:text-white/50',
-              'hover:text-surface-900 dark:hover:text-white hover:bg-white dark:hover:bg-dark-700',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500'
-            )}
-            aria-label="Close modal"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
           {/* Image area */}
           <div className={cn(
             'relative overflow-hidden',
@@ -94,7 +77,7 @@ export default function PizzaDetailModal({ pizza, onClose }) {
                       src={photo.srcLarge || photo.src}
                       alt={photo.alt || `${pizza.name} pizza`}
                       containerClassName="w-full h-full"
-                      className="transition-transform duration-500"
+                      className="object-cover w-full h-full"
                       loading="eager"
                     />
                   ) : (
@@ -104,6 +87,23 @@ export default function PizzaDetailModal({ pizza, onClose }) {
               </motion.div>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+
+            {/* Close button overlay */}
+            <button
+              onClick={onClose}
+              className={cn(
+                'absolute top-3 right-3 z-10 p-2 rounded-full transition-all duration-200',
+                'bg-black/40 backdrop-blur-sm',
+                'text-white/80',
+                'hover:text-white hover:bg-black/60',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-white'
+              )}
+              aria-label="Close modal"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
             {/* Price overlay */}
             <div className="absolute bottom-4 right-4">
