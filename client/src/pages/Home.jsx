@@ -4,7 +4,8 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { useDarkMode } from '../hooks';
 import { cn } from '../utils/helpers';
 import { ROUTES } from '../utils/constants';
-import { PizzaMargherita, PizzaTruffleMushroom, PizzaDiavola, PizzaQuattroFormaggi } from '../components/food';
+import { PIZZA_PHOTOS } from '../data/images';
+import PizzaImage from '../components/ui/PizzaImage';
 
 const easing = [0.16, 1, 0.3, 1];
 
@@ -42,9 +43,7 @@ const featuredPizzas = [
     tag: 'Best Seller',
     gradient: 'from-red-500/20 to-orange-500/20',
     border: 'border-red-500/10',
-    iconBg: 'bg-red-500/10',
-    iconColor: 'text-red-500',
-    Illustration: PizzaMargherita,
+    photo: PIZZA_PHOTOS.margherita,
   },
   {
     name: 'Truffle Mushroom',
@@ -55,9 +54,7 @@ const featuredPizzas = [
     tag: 'Chef\'s Pick',
     gradient: 'from-amber-500/20 to-yellow-500/20',
     border: 'border-amber-500/10',
-    iconBg: 'bg-amber-500/10',
-    iconColor: 'text-amber-500',
-    Illustration: PizzaTruffleMushroom,
+    photo: PIZZA_PHOTOS.truffle_mushroom,
   },
   {
     name: 'Diavola Piccante',
@@ -68,9 +65,7 @@ const featuredPizzas = [
     tag: 'Spicy',
     gradient: 'from-orange-500/20 to-red-500/20',
     border: 'border-orange-500/10',
-    iconBg: 'bg-orange-500/10',
-    iconColor: 'text-orange-500',
-    Illustration: PizzaDiavola,
+    photo: PIZZA_PHOTOS.diavola,
   },
   {
     name: 'Quattro Formaggi',
@@ -81,9 +76,7 @@ const featuredPizzas = [
     tag: 'Popular',
     gradient: 'from-yellow-500/20 to-amber-500/20',
     border: 'border-yellow-500/10',
-    iconBg: 'bg-yellow-500/10',
-    iconColor: 'text-yellow-600',
-    Illustration: PizzaQuattroFormaggi,
+    photo: PIZZA_PHOTOS.quattro_formaggi,
   },
 ];
 
@@ -553,16 +546,21 @@ function FeaturedPizzas() {
                 </div>
 
                 <div className={cn(
-                  "w-full aspect-square rounded-xl mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-105",
+                  "w-full aspect-square rounded-xl mb-4 overflow-hidden transition-all duration-300 group-hover:scale-105",
                   isDark ? "bg-gradient-to-br from-white/5 to-white/[0.02]" : "bg-gradient-to-br from-surface-50 to-surface-100"
                 )}>
-                  {pizza.Illustration ? (
-                    <pizza.Illustration size={90} className="drop-shadow-md" />
+                  {pizza.photo ? (
+                    <PizzaImage
+                      src={pizza.photo.srcThumb || pizza.photo.src}
+                      srcLarge={pizza.photo.src}
+                      alt={pizza.photo.alt || pizza.name}
+                      containerClassName="w-full h-full"
+                      className="transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
                   ) : (
-                    <div className={cn("w-20 h-20 rounded-full flex items-center justify-center", pizza.iconBg)}>
-                      <svg className={cn("w-10 h-10", pizza.iconColor)} viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                      </svg>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-4xl">🍕</span>
                     </div>
                   )}
                 </div>

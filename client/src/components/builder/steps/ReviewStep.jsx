@@ -2,14 +2,14 @@ import { motion } from 'framer-motion';
 import { cn, formatCurrency } from '../../../utils/helpers';
 import { useDarkMode } from '../../../hooks';
 import { STEP_COLORS, SIZE_OPTIONS } from '../../../data/pizzaBuilder';
-import { BUILDER_ICONS, TOPPING_ICONS } from '../../food';
+import { INGREDIENT_PHOTOS } from '../../../data/images';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
 function IngredientChip({ emoji, name, price, qty, onRemove, iconId }) {
   const { isDark } = useDarkMode();
-  const IconComponent = BUILDER_ICONS[iconId] || TOPPING_ICONS[iconId];
+  const photo = INGREDIENT_PHOTOS[iconId];
   return (
     <motion.div
       layout
@@ -23,7 +23,17 @@ function IngredientChip({ emoji, name, price, qty, onRemove, iconId }) {
           : 'border-surface-200 bg-surface-50'
       )}
     >
-      {IconComponent ? <IconComponent size={16} /> : <span className="text-sm">{emoji}</span>}
+          {photo ? (
+            <img
+              src={photo.srcThumb || photo.src}
+              alt={photo.alt || name}
+              className="w-4 h-4 rounded-sm object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <span className="text-sm">{emoji}</span>
+          )}
       <span className={cn('text-xs font-semibold', isDark ? 'text-white/70' : 'text-surface-700')}>{name}</span>
       {qty > 1 && (
         <span className={cn('text-xs font-bold', isDark ? 'text-white/80' : 'text-surface-800')}>×{qty}</span>
@@ -142,11 +152,21 @@ export default function ReviewStep({ builder, allIngredients, basePrice, ingredi
               <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>{formatCurrency(basePrice)}</span>
             </div>
             {allChips.filter((c) => c.price > 0).map((chip, i) => {
-              const ChipIcon = BUILDER_ICONS[chip.iconId] || TOPPING_ICONS[chip.iconId];
+              const chipPhoto = INGREDIENT_PHOTOS[chip.iconId];
               return (
                 <div key={i} className="flex justify-between">
                   <span className={cn('text-xs flex items-center gap-1', isDark ? 'text-white/50' : 'text-surface-500')}>
-                    {ChipIcon ? <ChipIcon size={14} /> : <span>{chip.emoji}</span>}
+                    {chipPhoto ? (
+                      <img
+                        src={chipPhoto.srcThumb || chipPhoto.src}
+                        alt={chipPhoto.alt || chip.name}
+                        className="w-3.5 h-3.5 rounded-sm object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <span>{chip.emoji}</span>
+                    )}
                     {chip.name}{chip.qty > 1 ? ` ×${chip.qty}` : ''}
                   </span>
                   <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>+{formatCurrency(chip.price)}</span>

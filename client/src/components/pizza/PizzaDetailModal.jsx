@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
-import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../food';
+import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../../data/images';
+import PizzaImage from '../ui/PizzaImage';
 
 const categoryColors = {
   classic: 'brand',
@@ -79,14 +80,21 @@ export default function PizzaDetailModal({ pizza, onClose }) {
           )}>
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
-                initial={{ scale: 0.8, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                className="w-full h-full"
               >
                 {(() => {
-                  const PizzaIcon = PIZZA_BY_NAME[pizza.name] || PIZZA_BY_CATEGORY[pizza.category];
-                  return PizzaIcon ? (
-                    <PizzaIcon size={180} className="drop-shadow-lg" />
+                  const photo = PIZZA_BY_NAME[pizza.name] || PIZZA_BY_CATEGORY[pizza.category];
+                  return photo ? (
+                    <PizzaImage
+                      src={photo.srcLarge || photo.src}
+                      alt={photo.alt || `${pizza.name} pizza`}
+                      containerClassName="w-full h-full"
+                      className="transition-transform duration-500"
+                      loading="eager"
+                    />
                   ) : (
                     <span className="text-7xl md:text-8xl select-none drop-shadow-lg">🍕</span>
                   );

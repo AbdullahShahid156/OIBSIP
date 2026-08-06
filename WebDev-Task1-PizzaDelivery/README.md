@@ -217,33 +217,25 @@ npm run dev
 - Dark/light theme with localStorage persistence
 - Responsive across all breakpoints (480px → 1536px+)
 
-**Premium Visual Assets (Phase 7)**
+**Real Food Photography (Phase 7)**
 
 | Feature | Description |
 |---------|-------------|
-| Pizza Illustrations | 10 premium SVG pizza illustrations with radial gradients, specular highlights, and realistic food details |
-| Topping Icons | 14 premium topping SVG icons with realistic gradients and shadows |
-| Builder Icons | 15 builder option SVG icons with category-specific color palettes |
-| Category Mapping | Each pizza category mapped to its premium SVG illustration |
-| Name Mapping | Specific pizza names mapped to their SVG illustrations |
-| Fallback System | All components fall back to emoji if SVG icon is not found |
+| Pizza Images | Real high-quality pizza photographs from Unsplash |
+| Ingredient Images | Real ingredient photographs for all toppings, bases, sauces, cheeses |
+| Lazy Loading | `PizzaImage` component with `loading="lazy"`, shimmer placeholders, error fallback |
+| Responsive Images | `srcSet` for different viewport sizes, `object-cover` for consistent ratios |
+| Image Registry | Centralized `images.js` with `PIZZA_PHOTOS`, `INGREDIENT_PHOTOS`, `PIZZA_BY_CATEGORY`, `PIZZA_BY_NAME` |
+| Fallback System | All components fall back to emoji if image fails to load |
 
-**Asset Optimization**
+**Image Optimization**
 
-- All SVGs use `memo()` for render performance
-- SVGs use `role="img"` and `aria-label` for accessibility
-- SVGs use consistent gradient naming conventions
-- SVGs use `defs` for reusable gradients and filters
-- SVGs use `filter` elements for drop shadows
-- SVGs use consistent lighting direction (top-left source)
-
-**Brand Consistency**
-
-- Unified color palette across all SVG illustrations
-- Consistent warm color temperature (golden crust, rich reds, vibrant greens)
-- Consistent shadow direction and intensity
-- Consistent level of detail across all food illustrations
-- Professional food photography-inspired lighting
+- Lazy loading via `loading="lazy"` attribute
+- Responsive sizes via `srcSet` for different viewports
+- Skeleton shimmer placeholders during load
+- Graceful error fallback to gradient + emoji
+- `object-cover` for consistent aspect ratios
+- Decoding async for non-blocking render
 
 ### Coming (Phase 8-12)
 

@@ -2,7 +2,7 @@ import { memo, useMemo, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/helpers';
 import { useDarkMode, useMediaQuery } from '../../hooks';
-import { BUILDER_ICONS, TOPPING_ICONS } from '../food';
+import { INGREDIENT_PHOTOS } from '../../data/images';
 
 const PIZZA_DIM = 260;
 
@@ -843,7 +843,7 @@ function PizzaCanvas({ base, sauce, cheese, veggies, size }) {
 
 function IngredientChip({ emoji, name, price, qty, delay = 0, iconId }) {
   const { isDark } = useDarkMode();
-  const IconComponent = BUILDER_ICONS[iconId] || TOPPING_ICONS[iconId];
+  const photo = INGREDIENT_PHOTOS[iconId];
   return (
     <motion.span
       initial={{ scale: 0, opacity: 0 }}
@@ -854,7 +854,17 @@ function IngredientChip({ emoji, name, price, qty, delay = 0, iconId }) {
         isDark ? 'bg-white/[0.06] text-white/60 border border-white/[0.06]' : 'bg-surface-50 text-surface-600 border border-surface-100'
       )}
     >
-      {IconComponent ? <IconComponent size={14} /> : <span className="text-xs">{emoji}</span>}
+      {photo ? (
+        <img
+          src={photo.srcThumb || photo.src}
+          alt={photo.alt || name}
+          className="w-3.5 h-3.5 rounded-sm object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <span className="text-xs">{emoji}</span>
+      )}
       {name}
       {qty > 1 && (
         <span className={cn('font-bold', isDark ? 'text-white/70' : 'text-surface-700')}>×{qty}</span>

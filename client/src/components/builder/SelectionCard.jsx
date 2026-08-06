@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { cn } from '../../utils/helpers';
 import { useDarkMode } from '../../hooks';
 import { formatCurrency } from '../../utils/helpers';
-import { BUILDER_ICONS, TOPPING_ICONS } from '../food';
+import { INGREDIENT_PHOTOS } from '../../data/images';
 
 function SelectionCard({ option, selected, onClick, disabled, multiSelect, maxReached }) {
   const { isDark } = useDarkMode();
@@ -67,9 +67,15 @@ function SelectionCard({ option, selected, onClick, disabled, multiSelect, maxRe
           )}
         >
           {(() => {
-            const IconComponent = BUILDER_ICONS[option.id] || TOPPING_ICONS[option.id];
-            return IconComponent ? (
-              <IconComponent size={32} />
+            const photo = INGREDIENT_PHOTOS[option.id];
+            return photo ? (
+              <img
+                src={photo.srcThumb || photo.src}
+                alt={photo.alt || option.name}
+                className="w-full h-full object-cover rounded-lg"
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <span className="text-2xl">{option.emoji}</span>
             );

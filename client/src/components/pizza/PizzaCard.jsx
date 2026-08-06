@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
-import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../food';
+import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../../data/images';
+import PizzaImage from '../ui/PizzaImage';
 
 const categoryColors = {
   classic: 'brand',
@@ -95,37 +96,35 @@ const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
           'relative aspect-[4/3] overflow-hidden',
           isDark ? 'bg-gradient-to-br from-dark-850 to-dark-925' : 'bg-gradient-to-br from-surface-50 to-surface-100'
         )}>
-          {/* Pizza illustration */}
+          {/* Pizza photograph */}
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
-              whileHover={{ scale: 1.08, rotate: 5 }}
+              whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="relative"
+              className="relative w-full h-full"
             >
-              <div className={cn(
-                'w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-all duration-500',
-                isDark
-                  ? 'bg-gradient-to-br from-brand-500/15 to-brand-600/10 group-hover:from-brand-500/25 group-hover:to-brand-600/15'
-                  : 'bg-gradient-to-br from-brand-100 to-brand-50 group-hover:from-brand-200 group-hover:to-brand-100'
-              )}>
-                {(() => {
-                  const PizzaIcon = PIZZA_BY_NAME[pizza.name] || PIZZA_BY_CATEGORY[pizza.category];
-                  return PizzaIcon ? (
-                    <PizzaIcon size={100} className="drop-shadow-md transition-transform duration-500 group-hover:scale-110" />
-                  ) : (
-                    <span className={cn(
-                      'text-4xl md:text-5xl select-none transition-transform duration-500 group-hover:scale-110',
-                      'drop-shadow-sm'
-                    )}>
-                      🍕
-                    </span>
-                  );
-                })()}
-              </div>
-              <div className={cn(
-                'absolute -inset-4 rounded-full blur-2xl transition-opacity duration-500 opacity-0 group-hover:opacity-100',
-                isDark ? 'bg-brand-500/10' : 'bg-brand-500/15'
-              )} />
+              {(() => {
+                const photo = PIZZA_BY_NAME[pizza.name] || PIZZA_BY_CATEGORY[pizza.category];
+                return photo ? (
+                  <PizzaImage
+                    src={photo.srcThumb || photo.src}
+                    srcLarge={photo.src}
+                    alt={photo.alt || `${pizza.name} pizza`}
+                    containerClassName="w-full h-full rounded-t-2xl"
+                    className="transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className={cn(
+                    'w-full h-full flex items-center justify-center',
+                    isDark
+                      ? 'bg-gradient-to-br from-brand-500/15 to-brand-600/10'
+                      : 'bg-gradient-to-br from-brand-100 to-brand-50'
+                  )}>
+                    <span className="text-4xl md:text-5xl select-none">🍕</span>
+                  </div>
+                );
+              })()}
             </motion.div>
           </div>
 

@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn, formatCurrency } from '../../../utils/helpers';
 import { useDarkMode } from '../../../hooks';
 import { VEGGIE_OPTIONS, MAX_VEGGIES, MAX_QTY, QTY_LEVELS, STEP_COLORS } from '../../../data/pizzaBuilder';
-import { TOPPING_ICONS } from '../../food';
+import { INGREDIENT_PHOTOS } from '../../../data/images';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -39,9 +39,15 @@ function ToppingStepper({ option, qty, onSetQty, maxReached }) {
             : isDark ? 'bg-white/[0.06]' : 'bg-surface-100',
         )}>
           {(() => {
-            const ToppingIcon = TOPPING_ICONS[option.id];
-            return ToppingIcon ? (
-              <ToppingIcon size={32} />
+            const photo = INGREDIENT_PHOTOS[option.id];
+            return photo ? (
+              <img
+                src={photo.srcThumb || photo.src}
+                alt={photo.alt || option.name}
+                className="w-full h-full object-cover rounded-lg"
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <span className="text-2xl">{option.emoji}</span>
             );

@@ -181,54 +181,39 @@ MushroomSlice, BellPepperSlice, RedOnionRing, OliveSlice, TomatoSlice, JalapenoS
 
 ### Phase 7 — Premium Visual Assets & Brand Identity
 
-**SVG Food Illustrations**
+**Real Food Photography**
+
+All food visuals use high-quality, real photographs from Unsplash with professional food photography.
 
 | Component | Description |
 |-----------|-------------|
-| `PizzaIllustrations.jsx` | 10 premium pizza SVG illustrations (Margherita, Pepperoni, Veggie, Meat Lovers, Truffle Mushroom, Diavola, Quattro Formaggi, BBQ Chicken, Hawaiian, Cheese) with radial gradients, specular highlights, and realistic food details |
-| `ToppingIcons.jsx` | 14 premium topping SVG icons (Mushroom, Bell Pepper, Red Onion, Olive, Tomato, Jalapeño, Spinach, Artichoke, Arugula, Caramelized Onion, Sun-Dried Tomato, Truffle Oil, Pepperoni, Chicken) with realistic gradients and shadows |
-| `BuilderIcons.jsx` | 15 builder option SVG icons (5 base, 5 sauce, 5 cheese) with category-specific color palettes and food-shape details |
+| `PizzaCard.jsx` | Real pizza photographs with lazy loading, skeleton shimmer, error fallback |
+| `PizzaDetailModal.jsx` | Large hero pizza photograph with eager loading |
+| `Home.jsx` FeaturedPizzas | Real pizza photographs in 4-card showcase |
+| `SelectionCard.jsx` | Real ingredient photographs (base/sauce/cheese/toppings) |
+| `VeggieStep.jsx` | Real topping photographs with quantity stepper |
+| `ReviewStep.jsx` | Real ingredient photographs in chips and price breakdown |
+| `PizzaPreview.jsx` | Real ingredient photographs in animated chips |
 
-**Visual Asset System**
+**Image Asset System**
 
 | Feature | Description |
 |---------|-------------|
-| Category Mapping | `PIZZA_BY_CATEGORY` maps each pizza category to its premium SVG illustration |
-| Name Mapping | `PIZZA_BY_NAME` maps specific pizza names to their SVG illustrations |
-| Topping Icon Map | `TOPPING_ICONS` maps topping IDs to their SVG icon components |
-| Builder Icon Map | `BUILDER_ICONS` maps base/sauce/cheese IDs to their SVG icon components |
-| Fallback System | All components fall back to emoji if SVG icon is not found |
+| `PizzaImage.jsx` | Reusable lazy-loading component with shimmer placeholder, error fallback, responsive srcSet |
+| `images.js` | Centralized Unsplash photo URLs for all pizzas and ingredients |
+| Category Mapping | `PIZZA_BY_CATEGORY` maps each pizza category to its real photograph |
+| Name Mapping | `PIZZA_BY_NAME` maps specific pizza names to their real photographs |
+| Ingredient Mapping | `INGREDIENT_PHOTOS` maps all ingredient IDs to their real photographs |
+| Fallback System | All components fall back to 🍕 emoji if image fails to load |
 
-**Replaced Placeholders**
+**Image Optimization**
 
-| Location | Before | After |
-|----------|--------|-------|
-| PizzaCard.jsx | Category emoji (🥬🥩✨🔥👨‍🍳🍕) | Premium SVG pizza illustrations |
-| PizzaDetailModal.jsx | Category emoji | Premium SVG pizza illustrations |
-| Home.jsx FeaturedPizzas | Generic circle SVG | Premium SVG pizza illustrations |
-| SelectionCard.jsx | Builder option emoji | SVG builder icons |
-| VeggieStep.jsx | Topping emoji | SVG topping icons |
-| ReviewStep.jsx | Emoji in chips + price breakdown | SVG icons with emoji fallback |
-| PizzaPreview.jsx | Emoji in ingredient chips | SVG icons with emoji fallback |
-| helpers.js | Dead `/placeholder.png` reference | Returns `null` |
-
-**Asset Optimization**
-
-- All SVGs use `memo()` for render performance
-- SVGs use `role="img"` and `aria-label` for accessibility
-- SVGs use `className` passthrough for Tailwind integration
-- SVGs use consistent gradient naming conventions
-- SVGs use `defs` for reusable gradients and filters
-- SVGs use `filter` elements for drop shadows
-- SVGs use consistent lighting direction (top-left source)
-
-**Brand Consistency**
-
-- Unified color palette across all SVG illustrations
-- Consistent warm color temperature (golden crust, rich reds, vibrant greens)
-- Consistent shadow direction and intensity
-- Consistent level of detail across all food illustrations
-- Professional food photography-inspired lighting
+- Lazy loading via `loading="lazy"` attribute
+- Responsive sizes via `srcSet` for different viewports
+- Skeleton shimmer placeholders during load
+- Graceful error fallback to gradient + emoji
+- `object-cover` for consistent aspect ratios
+- Decoding async for non-blocking render
 
 ---
 
