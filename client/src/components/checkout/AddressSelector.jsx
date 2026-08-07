@@ -4,14 +4,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../../hooks';
 import { cn } from '../../utils/helpers';
 import { Modal } from '../ui';
+import { getAddresses, createAddress, updateAddress } from '../../store/slices/profileSlice';
 
 export default function AddressSelector({ selectedAddressId, onSelect }) {
   const { isDark } = useDarkMode();
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const addresses = user?.addresses || [];
+  const { addresses } = useSelector((state) => state.profile);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+
+  useEffect(() => {
+    dispatch(getAddresses());
+  }, [dispatch]);
 
   const handleSelect = useCallback((addressId) => {
     onSelect(addressId);
@@ -198,7 +202,9 @@ export default function AddressSelector({ selectedAddressId, onSelect }) {
 
 function AddressModal({ open, onClose, editingAddress }) {
   const { isDark } = useDarkMode();
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { isSaving } = useSelector((state) => state.profile);
 
   const [form, setForm] = useState({
     recipientName: '',
@@ -241,10 +247,17 @@ function AddressModal({ open, onClose, editingAddress }) {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In Phase 10 this will dispatch to profileSlice to add/edit address
-    onClose();
+    let result;
+    if (editingAddress) {
+      result = await dispatch(updateAddress({ id: editingAddress._id, data: form }));
+    } else {
+      result = await dispatch(createAddress(form));
+    }
+    if (!result.error) {
+      onClose();
+    }
   };
 
   return (
@@ -414,9 +427,10 @@ function AddressModal({ open, onClose, editingAddress }) {
           </button>
           <button
             type="submit"
-            className="flex-1 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300"
+            disabled={isSaving}
+            className="flex-1 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {editingAddress ? 'Save Changes' : 'Add Address'}
+            {isSaving ? 'Saving...' : editingAddress ? 'Save Changes' : 'Add Address'}
           </button>
         </div>
       </form>
