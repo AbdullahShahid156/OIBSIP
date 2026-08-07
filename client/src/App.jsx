@@ -17,6 +17,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CartDrawer from './components/cart/CartDrawer';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import { getMe } from './store/slices/authSlice';
 
 export default function App() {
@@ -31,7 +32,9 @@ export default function App() {
 
   return (
     <>
-      <CartDrawer />
+      <ErrorBoundary>
+        <CartDrawer />
+      </ErrorBoundary>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />

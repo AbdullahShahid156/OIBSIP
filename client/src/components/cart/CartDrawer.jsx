@@ -21,8 +21,8 @@ export default function CartDrawer() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const drawerRef = useRef(null);
-  const { isDrawerOpen, items, summary } = useSelector((state) => state.cart);
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isDrawerOpen = false, items = [], summary = { subtotal: 0, deliveryFee: 0, tax: 0, couponDiscount: 0, total: 0, maxPrepTime: 0 } } = useSelector((state) => state.cart || {});
+  const { isAuthenticated } = useSelector((state) => state.auth || { isAuthenticated: false });
 
   const close = useCallback(() => dispatch(closeDrawer()), [dispatch]);
 

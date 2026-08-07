@@ -29,7 +29,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { items: cartItems } = useSelector((state) => state.cart);
+  const { items: cartItems } = useSelector((state) => state.cart || { items: [] });
 
   const isHome = location.pathname === ROUTES.HOME;
 

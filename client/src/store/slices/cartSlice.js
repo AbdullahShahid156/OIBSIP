@@ -5,27 +5,53 @@ const DELIVERY_FEE_FREE_THRESHOLD = 35;
 const DELIVERY_FEE = 4.99;
 const TAX_RATE = 0.08;
 
+const DEFAULT_SUMMARY = {
+  subtotal: 0,
+  deliveryFee: 0,
+  tax: 0,
+  couponDiscount: 0,
+  total: 0,
+  maxPrepTime: 0,
+};
+
 function calculateSummary(items, couponDiscount = 0) {
-  const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
-  const deliveryFee = subtotal > 0 ? (subtotal >= DELIVERY_FEE_FREE_THRESHOLD ? 0 : DELIVERY_FEE) : 0;
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + deliveryFee + tax - couponDiscount;
-  return {
-    subtotal,
-    deliveryFee,
-    tax: Math.round(tax * 100) / 100,
-    couponDiscount,
-    total: Math.round(total * 100) / 100,
-    maxPrepTime: items.length > 0 ? Math.max(...items.map((i) => i.prepTime)) : 0,
-  };
+  try {
+    if (!Array.isArray(items) || items.length === 0) {
+      return { ...DEFAULT_SUMMARY, couponDiscount: couponDiscount || 0 };
+    }
+    const subtotal = items.reduce((sum, item) => sum + (Number(item.totalPrice) || 0), 0);
+    const deliveryFee = subtotal > 0 ? (subtotal >= DELIVERY_FEE_FREE_THRESHOLD ? 0 : DELIVERY_FEE) : 0;
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + deliveryFee + tax - (couponDiscount || 0);
+    const prepTimes = items.map((i) => Number(i.prepTime)).filter((t) => !isNaN(t) && t > 0);
+    return {
+      subtotal: Math.round(subtotal * 100) / 100,
+      deliveryFee,
+      tax: Math.round(tax * 100) / 100,
+      couponDiscount: couponDiscount || 0,
+      total: Math.round(total * 100) / 100,
+      maxPrepTime: prepTimes.length > 0 ? Math.max(...prepTimes) : 0,
+    };
+  } catch {
+    return { ...DEFAULT_SUMMARY, couponDiscount: couponDiscount || 0 };
+  }
 }
 
 function loadCartFromStorage() {
   try {
     const stored = localStorage.getItem('pizzaCart');
-    if (stored) return JSON.parse(stored);
-  } catch { /* ignore */ }
-  return { items: [], couponCode: '', couponDiscount: 0 };
+    if (!stored) return { items: [], couponCode: '', couponDiscount: 0 };
+    const parsed = JSON.parse(stored);
+    if (!parsed || typeof parsed !== 'object') return { items: [], couponCode: '', couponDiscount: 0 };
+    return {
+      items: Array.isArray(parsed.items) ? parsed.items : [],
+      couponCode: typeof parsed.couponCode === 'string' ? parsed.couponCode : '',
+      couponDiscount: typeof parsed.couponDiscount === 'number' ? parsed.couponDiscount : 0,
+    };
+  } catch {
+    try { localStorage.removeItem('pizzaCart'); } catch { /* ignore */ }
+    return { items: [], couponCode: '', couponDiscount: 0 };
+  }
 }
 
 function saveCartToStorage(data) {
