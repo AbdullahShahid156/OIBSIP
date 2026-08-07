@@ -17,9 +17,14 @@ import {
   selectBasePrice, selectIngredientCost, selectTotal, selectPrepTime, selectIsStepValid,
   resetBuilder,
 } from '../store/slices/builderSlice';
+import { addItemLocal, openDrawer } from '../store/slices/cartSlice';
 import {
   BASE_OPTIONS, SAUCE_OPTIONS, CHEESE_OPTIONS, VEGGIE_OPTIONS, BUILDER_STEPS,
 } from '../data/pizzaBuilder';
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
+}
 
 const allIngredients = { base: BASE_OPTIONS, sauce: SAUCE_OPTIONS, cheese: CHEESE_OPTIONS, veggies: VEGGIE_OPTIONS };
 
@@ -56,9 +61,48 @@ export default function PizzaBuilder() {
   }, [dispatch]);
 
   const handleAddToCart = useCallback(() => {
+    const baseObj = BASE_OPTIONS.find((b) => b.id === builder.base);
+    const sauceObj = SAUCE_OPTIONS.find((s) => s.id === builder.sauce);
+    const cheeseObj = CHEESE_OPTIONS.find((c) => c.id === builder.cheese);
+
+    const veggieNames = {};
+    const veggies = {};
+    Object.entries(builder.veggies).forEach(([vid, qty]) => {
+      const opt = VEGGIE_OPTIONS.find((v) => v.id === vid);
+      if (opt) {
+        veggies[vid] = qty;
+        veggieNames[vid] = opt.name;
+      }
+    });
+
+    const configId = generateId();
+
+    const cartItem = {
+      _id: configId,
+      pizzaId: 'custom',
+      name: 'Custom Pizza',
+      image: '',
+      size: builder.size,
+      base: builder.base,
+      baseName: baseObj?.name || '',
+      sauce: builder.sauce,
+      sauceName: sauceObj?.name || '',
+      cheese: builder.cheese,
+      cheeseName: cheeseObj?.name || '',
+      veggies,
+      veggieNames,
+      qty: 1,
+      unitPrice: total,
+      totalPrice: total,
+      prepTime,
+      isCustomized: true,
+      configurationId: configId,
+    };
+
+    dispatch(addItemLocal(cartItem));
+    dispatch(openDrawer());
     dispatch(resetBuilder());
-    navigate('/menu');
-  }, [dispatch, navigate]);
+  }, [builder, total, prepTime, dispatch]);
 
   const stepContent = useMemo(() => {
     switch (builder.currentStep) {

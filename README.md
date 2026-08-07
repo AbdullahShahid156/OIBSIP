@@ -29,9 +29,9 @@ This repository tracks the incremental development of the platform. Phase 6 deli
 
 | Metric | Value |
 |--------|-------|
-| **Phase** | 6 — Interactive Pizza Builder |
+| **Phase** | 9 — Cart & Checkout Foundation |
 | **Build** | Passing |
-| **Client** | 513 modules, zero errors |
+| **Client** | 529 modules, zero errors |
 | **Server** | Syntax verified |
 | **License** | MIT |
 
@@ -269,6 +269,82 @@ All food visuals use high-quality, real photographs from Unsplash with professio
 - Zod validation on all inputs
 - User can only access own profile/addresses
 
+### Phase 9 — Cart & Checkout Foundation
+
+**Cart System**
+
+| Feature | Description |
+|---------|-------------|
+| Cart Slice | Redux Toolkit slice with localStorage persistence and summary calculations |
+| Cart Drawer | Premium slide-in drawer with backdrop blur, scrollable items, sticky checkout |
+| Cart Page | Dedicated page with cart items, order summary, free delivery progress |
+| Cart Item | Customized pizza item with image, name, customization tags, quantity controls |
+| Cart Empty | Animated empty state with bouncing cart illustration and CTA |
+| Add to Cart | Builder integrates with cart — creates fully customized pizza entries |
+| Quantity Controls | Per-item −/+ with animated number transitions, min 1, max 10 |
+| Remove Item | Individual item removal with exit animation |
+| Clear Cart | One-click cart clearing with confirmation |
+| Cart Persistence | localStorage saves/restores cart across sessions |
+| Free Delivery Progress | Animated progress bar toward $35 free delivery threshold |
+| Mobile Sticky Bar | Fixed bottom bar on mobile with total and checkout CTA |
+
+**Checkout System**
+
+| Feature | Description |
+|---------|-------------|
+| Checkout Page | Multi-section checkout with address, coupon, notes, payment placeholder |
+| Address Selector | Select from saved profile addresses, add new, edit existing |
+| Address Modal | Full address form with recipient, phone, street, city, postal code, label |
+| Order Summary | Dynamic price breakdown: subtotal, delivery fee, tax, discount, grand total |
+| Coupon Input | UI with apply/remove, success/error states, validation placeholder |
+| Delivery Notes | Textarea for special instructions |
+| Estimated Delivery | Prep time + delivery time calculation |
+| Payment Placeholder | Ready for Razorpay integration in Phase 10 |
+| Terms Agreement | Checkbox for terms and conditions |
+| Progress Steps | Visual 3-step indicator: Cart → Checkout → Payment |
+| Mobile Sticky Bar | Fixed bottom bar on mobile with total and place order button |
+
+**Backend APIs**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/cart` | GET | Get cart with items and calculated totals |
+| `/api/v1/cart/items` | POST | Add item to cart (with configuration dedup) |
+| `/api/v1/cart/items/:id` | PATCH | Update item quantity |
+| `/api/v1/cart/items/:id` | DELETE | Remove item from cart |
+| `/api/v1/cart/clear` | DELETE | Clear entire cart |
+| `/api/v1/cart/coupon/apply` | POST | Apply coupon code |
+| `/api/v1/cart/coupon/remove` | DELETE | Remove applied coupon |
+| `/api/v1/cart/validate-checkout` | POST | Validate cart for checkout |
+
+**Cart Data Model**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| pizzaId | ObjectId | Reference to Pizza (or 'custom') |
+| name | String | Pizza name |
+| image | String | Pizza image URL |
+| size | String | small/medium/large/extra_large |
+| base | String | Base type ID |
+| sauce | String | Sauce type ID |
+| cheese | String | Cheese type ID |
+| veggies | Map | Topping quantities `{id: qty}` |
+| qty | Number | Item quantity (1-10) |
+| unitPrice | Number | Price per unit |
+| totalPrice | Number | unitPrice × qty |
+| isCustomized | Boolean | Whether this is a custom pizza |
+| configurationId | String | Unique hash for config dedup |
+
+**Pricing Architecture**
+
+| Component | Calculation |
+|-----------|-------------|
+| Subtotal | Sum of all item totalPrices |
+| Delivery Fee | Free if subtotal ≥ $35, else $4.99 |
+| Tax | 8% of subtotal |
+| Coupon Discount | Percentage or fixed amount |
+| Grand Total | Subtotal + Delivery + Tax − Discount |
+
 ---
 
 ## Roadmap
@@ -282,10 +358,10 @@ Phase 5  ✅  Pizza model, API endpoints, Pizza Discovery Dashboard
 Phase 6  ✅  Interactive pizza builder with live preview and quantity controls
 Phase 7  ✅  Premium visual assets, real food photography, brand identity system
 Phase 8  ✅  User profile, address management, avatar upload, change password
-Phase 9  ⬜  Shopping cart with server-side price recalculation
-Phase 10 ⬜  Checkout flow with order creation
-Phase 11 ⬜  Payment integration (Razorpay)
-Phase 12 ⬜  Order management and status tracking
+Phase 9  ✅  Cart & checkout foundation, localStorage persistence, address selection
+Phase 10 ⬜  Payment integration (Razorpay)
+Phase 11 ⬜  Order creation and management
+Phase 12 ⬜  Order status tracking
 Phase 13 ⬜  Admin dashboard with inventory and analytics
 Phase 14 ⬜  Real-time order tracking via WebSocket
 ```

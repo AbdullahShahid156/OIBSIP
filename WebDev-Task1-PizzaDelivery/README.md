@@ -103,24 +103,27 @@ npm run dev
 
 ## Features
 
-### Current (Phase 6 — Complete)
+### Current (Phase 9 — Complete)
 
-**Interactive Pizza Builder**
+**Cart & Checkout Foundation**
 
 | Feature | Description |
 |---------|-------------|
-| 5-Step Wizard | Base → Sauce → Cheese → Toppings → Review with step indicator |
-| Live Pizza Preview | Real-time CSS pizza visualization with photorealistic layers |
-| Drag-and-Drop Toppings | Framer Motion drag with circular boundary clamping and overlap avoidance |
-| Quantity Stepper | Per-topping −/+ controls with animated number transitions (1–5 levels) |
-| Topping Levels | Light, Regular, Extra, Double, Loaded with color-coded labels |
-| Price Calculation | Live price breakdown updating as selections change |
-| Size Selection | Small (10"), Medium (12"), Large (14"), Family (16") with pricing |
-| Base Options | Classic Hand-Tossed, Thin Crust, Stuffed Crust, Whole Wheat, Gluten-Free |
-| Sauce Options | Classic Tomato, Pesto, BBQ, Garlic White, Buffalo |
-| Cheese Options | Mozzarella, Four Cheese, Vegan, Ricotta, Blue Cheese |
-| Topping Density | Multiple visual instances per topping based on quantity |
-| Review Screen | Full breakdown with size, ingredients, quantities, total, prep time |
+| Cart Slice | Redux Toolkit slice with localStorage persistence, summary calculations |
+| Cart Drawer | Premium slide-in drawer with backdrop blur, scrollable items, sticky checkout |
+| Cart Page | Dedicated page with cart items, order summary, free delivery progress |
+| Cart Item | Customized pizza item with image, customization tags, quantity controls |
+| Cart Empty | Animated empty state with bouncing cart illustration and CTA |
+| Add to Cart | Builder integrates with cart — creates fully customized pizza entries |
+| Quantity Controls | Per-item −/+ with animated number transitions, min 1, max 10 |
+| Cart Persistence | localStorage saves/restores cart across sessions |
+| Free Delivery Progress | Animated progress bar toward $35 free delivery threshold |
+| Checkout Page | Multi-section checkout with address, coupon, notes, payment placeholder |
+| Address Selector | Select from saved profile addresses, add new, edit existing |
+| Order Summary | Dynamic price breakdown: subtotal, delivery fee, tax, discount, grand total |
+| Coupon Input | UI with apply/remove, success/error states, validation placeholder |
+| Payment Placeholder | Ready for Razorpay integration in Phase 10 |
+| Backend Cart API | Full CRUD with configuration dedup, price validation, coupon support |
 
 **Pizza Discovery Dashboard (Phase 5)**
 
@@ -252,12 +255,11 @@ npm run dev
 | Profile APIs | GET/PATCH profile, POST/DELETE avatar, PATCH password, full address CRUD |
 | Security | JWT auth, bcrypt hashing, Zod validation, file type/size validation |
 
-### Coming (Phase 9-14)
+### Coming (Phase 10-14)
 
-- Shopping cart with server-side price recalculation
-- Checkout flow with order creation
 - Payment integration (Razorpay)
-- Order management and status tracking
+- Order creation and management
+- Order status tracking
 - Admin dashboard with inventory and analytics
 - Real-time order tracking via WebSocket
 

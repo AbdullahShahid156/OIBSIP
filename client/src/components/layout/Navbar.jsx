@@ -6,6 +6,7 @@ import { useDarkMode, useMediaQuery, useScrollPosition } from '../../hooks';
 import { cn } from '../../utils/helpers';
 import { ROUTES } from '../../utils/constants';
 import { logout } from '../../store/slices/authSlice';
+import { toggleDrawer } from '../../store/slices/cartSlice';
 
 const landingLinks = [
   { label: 'Menu', href: '#featured' },
@@ -28,6 +29,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { items: cartItems } = useSelector((state) => state.cart);
 
   const isHome = location.pathname === ROUTES.HOME;
 
@@ -249,6 +251,36 @@ export default function Navbar() {
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </motion.svg>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+
+              {/* Cart Icon */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => dispatch(toggleDrawer())}
+                className={cn(
+                  "relative p-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+                  isDark
+                    ? "bg-white/[0.04] border-white/[0.06] text-white/60 hover:text-white hover:bg-white/[0.08]"
+                    : "bg-surface-100 border-surface-200 text-surface-500 hover:text-surface-700 hover:bg-surface-200"
+                )}
+                aria-label={`Shopping cart with ${cartItems.length} items`}
+              >
+                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121 0 2.09-.773 2.34-1.872l1.836-8.046A1.125 1.125 0 0018.054 3H5.106m2.394 11.25l-1.5-6h13.5" />
+                </svg>
+                <AnimatePresence>
+                  {cartItems.length > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30"
+                    >
+                      {cartItems.length > 9 ? '9+' : cartItems.length}
+                    </motion.span>
                   )}
                 </AnimatePresence>
               </motion.button>

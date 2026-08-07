@@ -4,6 +4,7 @@ import authReducer from './slices/authSlice';
 import pizzaReducer from './slices/pizzaSlice';
 import builderReducer from './slices/builderSlice';
 import profileReducer from './slices/profileSlice';
+import cartReducer from './slices/cartSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     pizza: pizzaReducer,
     builder: builderReducer,
     profile: profileReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
