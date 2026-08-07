@@ -22,6 +22,8 @@ A production-grade pizza delivery platform built with React, Express, and MongoD
 | React Router 6 | Client-side routing |
 | Axios | HTTP client |
 | React Hot Toast | Toast notifications |
+| React Hook Form | Form state management |
+| Zod | Client-side runtime validation |
 
 ### Backend
 
@@ -35,6 +37,7 @@ A production-grade pizza delivery platform built with React, Express, and MongoD
 | Winston | Structured logging |
 | Helmet | Security headers |
 | express-rate-limit | Rate limiting |
+| multer | File upload (avatar) |
 
 ---
 
@@ -44,22 +47,34 @@ A production-grade pizza delivery platform built with React, Express, and MongoD
 pizza-delivery/
 ├── client/                    # React frontend
 │   ├── src/
-│   │   ├── components/        # Reusable UI components
-│   │   ├── hooks/             # Custom React hooks
-│   │   ├── pages/             # Page components
-│   │   ├── services/          # API client
-│   │   ├── store/             # Redux store
-│   │   └── styles/            # Global styles
+│   │   ├── components/
+│   │   │   ├── auth/          # AuthLayout, ProtectedRoute
+│   │   │   ├── builder/       # Pizza Builder (5-step wizard, preview, toppings)
+│   │   │   ├── cart/          # CartDrawer, CartItem, CartEmpty
+│   │   │   ├── checkout/      # AddressSelector, OrderSummary, CouponInput
+│   │   │   ├── layout/        # Navbar, Footer, Layout
+│   │   │   ├── pizza/         # PizzaCard, PizzaDetailModal, PizzaImage
+│   │   │   └── ui/            # Design system components + ErrorBoundary
+│   │   ├── data/              # images.js, pizzaBuilder.js
+│   │   ├── hooks/             # useDarkMode, useMediaQuery, useScrollPosition, useDebounce
+│   │   ├── pages/             # Home, Menu, Cart, Checkout, PizzaBuilder, Profile, Auth
+│   │   ├── services/          # API client, auth, pizza, cart
+│   │   ├── store/slices/      # auth, ui, pizza, builder, profile, cart
+│   │   └── utils/             # helpers.js, constants.js
 │   └── index.html
 ├── server/                    # Express backend
 │   ├── src/
-│   │   ├── config/            # Database and env config
-│   │   ├── middleware/        # Express middleware
-│   │   ├── routes/            # API routes
-│   │   └── utils/             # Utilities
+│   │   ├── config/            # database.js, env.js
+│   │   ├── controllers/       # auth, pizza, profile, cart
+│   │   ├── middleware/        # auth, errorHandler, upload, validate
+│   │   ├── models/            # User, Pizza, Cart
+│   │   ├── routes/v1/         # auth, pizza, profile, cart, health
+│   │   ├── services/          # authService, emailService
+│   │   ├── templates/email/   # HTML email templates
+│   │   ├── utils/             # logger.js
+│   │   └── validations/       # auth, pizza, cart
 │   └── server.js
-├── shared/                    # Shared constants
-└── package.json               # Root scripts
+└── README.md
 ```
 
 ---
@@ -342,6 +357,36 @@ GET    /api/v1/pizzas/:id          — Get single pizza
 | isAvailable | boolean | Filter by availability |
 | isFeatured | boolean | Filter featured pizzas |
 | isPopular | boolean | Filter popular pizzas |
+
+### Profile (JWT Required)
+
+```
+GET    /api/v1/profile/me                    — Get profile with addresses
+PATCH  /api/v1/profile/me                    — Update name and phone
+POST   /api/v1/profile/avatar                — Upload avatar
+DELETE /api/v1/profile/avatar                — Remove avatar
+PATCH  /api/v1/profile/change-password       — Change password
+GET    /api/v1/profile/addresses             — Get all addresses
+POST   /api/v1/profile/addresses             — Create address
+PATCH  /api/v1/profile/addresses/:id         — Update address
+DELETE /api/v1/profile/addresses/:id         — Delete address
+PATCH  /api/v1/profile/addresses/:id/default — Set default address
+```
+
+### Cart (JWT Required)
+
+```
+GET    /api/v1/cart                  — Get cart with totals
+POST   /api/v1/cart/items            — Add item (dedup by configurationId)
+PATCH  /api/v1/cart/items/:id        — Update item quantity
+DELETE /api/v1/cart/items/:id        — Remove item
+DELETE /api/v1/cart/clear            — Clear cart
+POST   /api/v1/cart/coupon/apply     — Apply coupon code
+DELETE /api/v1/cart/coupon/remove    — Remove coupon
+POST   /api/v1/cart/validate-checkout — Validate cart for checkout
+```
+
+**Coupon Codes:** `WELCOME10` (10% off), `SAVE5` ($5 off), `PIZZA20` (20% off)
 
 ---
 

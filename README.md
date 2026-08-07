@@ -21,7 +21,7 @@
 
 PizzaCraft is a full-stack food delivery application engineered with the same architectural patterns used in production systems. The codebase emphasizes clean separation of concerns, type-safe runtime validation, and a design system built for scale.
 
-This repository tracks the incremental development of the platform. Phase 6 delivers the Interactive Pizza Builder with live preview, drag-and-drop toppings, and per-topping quantity controls.
+This repository tracks the incremental development of the platform through 9 completed phases, delivering a production-grade pizza delivery platform with cart, checkout, and user management.
 
 ---
 
@@ -31,8 +31,8 @@ This repository tracks the incremental development of the platform. Phase 6 deli
 |--------|-------|
 | **Phase** | 9 — Cart & Checkout Foundation |
 | **Build** | Passing |
-| **Client** | 529 modules, zero errors |
-| **Server** | Syntax verified |
+| **Client** | 530 modules, zero errors |
+| **Server** | Syntax verified, all deps installed |
 | **License** | MIT |
 
 ---
@@ -383,6 +383,8 @@ Phase 14 ⬜  Real-time order tracking via WebSocket
 | Axios | HTTP client |
 | React Hot Toast | Toast notifications |
 | clsx | Conditional className utility |
+| React Hook Form | Form state management |
+| Zod | Client-side runtime validation |
 
 ### Backend
 
@@ -396,6 +398,7 @@ Phase 14 ⬜  Real-time order tracking via WebSocket
 | Winston | Structured logging |
 | Helmet | Security headers |
 | express-rate-limit | Rate limiting |
+| multer | File upload (avatar) |
 
 ### Infrastructure
 
@@ -418,35 +421,36 @@ pizzacraft/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── auth/                # AuthLayout, ProtectedRoute
-│   │   │   │   ├── builder/             # Pizza Builder components
-│   │   │   │   │   ├── steps/           # BaseStep, SauceStep, CheeseStep, VeggieStep, ReviewStep
-│   │   │   │   │   ├── SelectionCard.jsx
-│   │   │   │   │   ├── StepIndicator.jsx
-│   │   │   │   │   ├── PricePanel.jsx
-│   │   │   │   │   └── PizzaPreview.jsx
-│   │   │   │   ├── food/                # Premium SVG food illustrations
-│   │   │   │   │   ├── PizzaIllustrations.jsx  # 10 pizza SVGs
-│   │   │   │   │   ├── ToppingIcons.jsx        # 14 topping SVGs
-│   │   │   │   │   ├── BuilderIcons.jsx        # 15 builder option SVGs
-│   │   │   │   │   └── index.js                # Barrel exports
-│   │   │   │   ├── layout/              # Navbar, Footer, Layout
-│   │   │   ├── pizza/               # PizzaCard, PizzaDetailModal, PizzaCardSkeleton
-│   │   │   └── ui/                  # Design system components
+│   │   │   ├── builder/             # Pizza Builder components
+│   │   │   │   ├── steps/           # BaseStep, SauceStep, CheeseStep, VeggieStep, ReviewStep
+│   │   │   │   ├── SelectionCard.jsx
+│   │   │   │   ├── StepIndicator.jsx
+│   │   │   │   ├── PricePanel.jsx
+│   │   │   │   └── PizzaPreview.jsx
+│   │   │   ├── cart/                # CartDrawer, CartItem, CartEmpty
+│   │   │   ├── checkout/            # AddressSelector, OrderSummary, CouponInput
+│   │   │   ├── layout/              # Navbar, Footer, Layout
+│   │   │   ├── pizza/               # PizzaCard, PizzaDetailModal, PizzaCardSkeleton, PizzaImage
+│   │   │   └── ui/                  # Design system components + ErrorBoundary
 │   │   │       ├── index.jsx        # All UI components
-│   │   │       └── AnimationWrapper.jsx
+│   │   │       ├── AnimationWrapper.jsx
+│   │   │       └── ErrorBoundary.jsx
 │   │   ├── data/                    # Static data and constants
+│   │   │   ├── images.js            # Unsplash photo URLs
 │   │   │   └── pizzaBuilder.js      # Builder options, steps, topping levels
 │   │   ├── hooks/                   # useDarkMode, useMediaQuery, useScrollPosition, useDebounce
-│   │   ├── pages/                   # Home, Menu, PizzaBuilder, Auth pages, NotFound
-│   │   ├── services/                # API client, auth, pizza
-│   │   ├── store/                   # Redux store and slices (auth, ui, pizza, builder)
+│   │   ├── pages/                   # Home, Menu, Cart, Checkout, PizzaBuilder, Profile, Auth pages, NotFound
+│   │   ├── services/                # API client, auth, pizza, cart
+│   │   ├── store/
+│   │   │   ├── index.js             # Store configuration
+│   │   │   └── slices/              # auth, ui, pizza, builder, profile, cart
 │   │   ├── styles/                  # Global CSS and design tokens
 │   │   ├── utils/                   # Constants and helper functions
 │   │   ├── App.jsx                  # Route definitions
 │   │   └── main.jsx                 # Application entry point
-│   ├── index.html                   # HTML shell with font loading
+│   ├── index.html
 │   ├── package.json
-│   ├── tailwind.config.js           # Extended design system
+│   ├── tailwind.config.js
 │   └── vite.config.js
 │
 ├── server/                          # Express backend
@@ -456,19 +460,26 @@ pizzacraft/
 │   │   │   └── env.js               # Zod-validated environment
 │   │   ├── controllers/
 │   │   │   ├── authController.js    # Auth endpoints
-│   │   │   └── pizzaController.js   # Pizza CRUD + search + filter
+│   │   │   ├── cartController.js    # Cart CRUD + coupon + checkout validation
+│   │   │   ├── pizzaController.js   # Pizza CRUD + search + filter
+│   │   │   └── profileController.js # Profile + address CRUD + avatar + change password
 │   │   ├── middleware/
 │   │   │   ├── auth.js              # JWT protect middleware
 │   │   │   ├── errorHandler.js      # Global error handler + AppError class
-│   │   │   └── index.js             # Helmet, CORS, rate limiting, Morgan
+│   │   │   ├── index.js             # Helmet, CORS, rate limiting, Morgan
+│   │   │   ├── upload.js            # Multer avatar upload (memory storage)
+│   │   │   └── validate.js          # Zod validation middleware
 │   │   ├── models/
+│   │   │   ├── Cart.js              # Cart schema with embedded items
 │   │   │   ├── Pizza.js             # Pizza schema (15 seeded documents)
-│   │   │   └── User.js              # User schema with bcrypt
+│   │   │   └── User.js              # User schema with bcrypt + embedded addresses
 │   │   ├── routes/
 │   │   │   ├── v1/
 │   │   │   │   ├── auth.js          # Auth routes with rate limiting
+│   │   │   │   ├── cart.js          # Cart routes (JWT protected)
 │   │   │   │   ├── health.js        # Health check endpoint
-│   │   │   │   └── pizza.js         # Pizza routes (public)
+│   │   │   │   ├── pizza.js         # Pizza routes (public)
+│   │   │   │   └── profile.js       # Profile routes (JWT protected)
 │   │   │   └── index.js             # Route aggregator
 │   │   ├── seed.js                  # Database seed script
 │   │   ├── services/
@@ -476,23 +487,20 @@ pizzacraft/
 │   │   │   └── emailService.js      # Nodemailer transport
 │   │   ├── templates/
 │   │   │   └── email/               # HTML email templates
-│   │   ├── validations/
-│   │   │   ├── auth.js              # Auth Zod schemas
-│   │   │   └── pizza.js             # Pizza Zod schemas
 │   │   ├── utils/
 │   │   │   └── logger.js            # Winston logger configuration
+│   │   ├── validations/
+│   │   │   ├── auth.js              # Auth Zod schemas
+│   │   │   ├── cart.js              # Cart Zod schemas
+│   │   │   └── pizza.js             # Pizza Zod schemas
 │   │   └── server.js                # Express + Socket.io entry
 │   ├── .env
 │   ├── package.json
 │   └── .gitignore
 │
-├── shared/                          # Cross-project constants
-│   └── constants.js
-│
 ├── .gitignore
 ├── LICENSE
-├── README.md
-└── package.json                     # Root scripts and concurrently
+└── README.md
 ```
 
 ---
