@@ -80,8 +80,8 @@ export default function Navbar() {
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
           isScrolled
             ? isDark
-              ? 'bg-dark-950/70 backdrop-blur-2xl border-b border-white/[0.04] shadow-elevation-2'
-              : 'bg-white/80 backdrop-blur-2xl border-b border-surface-200 shadow-elevation-2'
+              ? 'bg-dark-900/70 backdrop-blur-xl border-b border-white/[0.06] shadow-elevation-2'
+              : 'bg-white/80 backdrop-blur-xl border-b border-surface-200/80 shadow-elevation-2'
             : 'bg-transparent'
         )}
         role="banner"

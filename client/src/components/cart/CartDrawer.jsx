@@ -96,7 +96,7 @@ export default function CartDrawer() {
               'fixed right-0 top-0 bottom-0 z-50 flex flex-col',
               isMobile ? 'w-full' : 'w-[420px]',
               isDark
-                ? 'bg-dark-950/98 backdrop-blur-3xl border-l border-white/[0.06]'
+                ? 'bg-dark-900/98 backdrop-blur-3xl border-l border-white/[0.06]'
                 : 'bg-white/98 backdrop-blur-3xl border-l border-surface-200'
             )}
             role="dialog"
