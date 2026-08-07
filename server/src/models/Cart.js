@@ -43,8 +43,6 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-cartSchema.index({ user: 1 });
-
 cartSchema.methods.getSubtotal = function () {
   return this.items.reduce((sum, item) => sum + item.totalPrice, 0);
 };
