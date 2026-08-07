@@ -4,7 +4,7 @@
 
 @layer base {
   * {
-    @apply border-dark-800;
+    @apply border-surface-200;
   }
 
   .dark * {
@@ -876,5 +876,59 @@
 
   .size-full {
     @apply w-full h-full;
+  }
+
+  /* Premium Card Hover */
+  .card-premium {
+    @apply relative overflow-hidden rounded-2xl border transition-all duration-500;
+  }
+
+  .card-premium::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
+    background: radial-gradient(ellipse at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(230,57,70,0.06), transparent 70%);
+  }
+
+  .card-premium:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Noise Texture Overlay */
+  .noise-overlay {
+    @apply relative;
+  }
+
+  .noise-overlay::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none opacity-[0.015] z-0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+  }
+
+  .dark .noise-overlay::after {
+    @apply opacity-[0.03];
+  }
+
+  /* Smooth Image Zoom */
+  .img-zoom {
+    @apply transition-transform duration-700 ease-out;
+  }
+
+  .img-zoom:hover {
+    @apply scale-105;
+  }
+
+  /* Premium Button Glow */
+  .btn-glow {
+    @apply relative;
+  }
+
+  .btn-glow::after {
+    content: '';
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 pointer-events-none;
+    box-shadow: 0 0 20px rgba(230,57,70,0.3);
+  }
+
+  .btn-glow:hover::after {
+    @apply opacity-100;
   }
 }

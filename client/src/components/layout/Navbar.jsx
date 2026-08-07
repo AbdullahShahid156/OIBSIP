@@ -506,7 +506,10 @@ export default function Navbar() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.15 }}
-                  className="mt-2 pt-2 border-t border-surface-200 dark:border-white/[0.06]"
+                  className={cn(
+                    'mt-2 pt-2 border-t',
+                    isDark ? 'border-white/[0.06]' : 'border-surface-200'
+                  )}
                   role="none"
                 >
                   {isAuthenticated ? (

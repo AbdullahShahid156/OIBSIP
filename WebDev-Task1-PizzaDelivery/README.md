@@ -291,6 +291,21 @@ npm run dev
 - Memory leak fix in VerifyEmail timeout
 - Global shimmer keyframe for skeleton loading
 
+### Elite UI Redesign (Phase 10)
+
+- Replaced `alert()` in Checkout with animated toast notification
+- Replaced `window.confirm()` in Profile with custom confirmation modal
+- Removed dead footer links, replaced with working anchors
+- Added real pizza photography to auth page left panel with floating glass badges
+- Added focus trap and escape handling to Modal component
+- Fixed ScrollProgress to use real scroll tracking via `useScroll`
+- Added swipe-to-dismiss gesture to CartDrawer on mobile
+- Enhanced PizzaCard hover shadows for deeper elevation
+- Fixed Navbar hardcoded dark class to use `cn()` with `isDark`
+- Fixed aggressive `* { border-color }` override in global CSS
+- Added noise texture, card-premium, img-zoom, btn-glow CSS utilities
+- Fixed PricePanel white-on-white text in light mode
+
 ---
 
 ## Environment Variables

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
 import { cn, formatCurrency } from '../utils/helpers';
@@ -25,6 +25,7 @@ export default function Checkout() {
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [notes, setNotes] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showPaymentToast, setShowPaymentToast] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -46,9 +47,8 @@ export default function Checkout() {
   }, [dispatch]);
 
   const handlePlaceOrder = useCallback(() => {
-    // Phase 10 will implement payment/order creation
-    // For now, navigate to a placeholder
-    alert('Payment integration coming in Phase 10. Your order summary has been prepared!');
+    setShowPaymentToast(true);
+    setTimeout(() => setShowPaymentToast(false), 4000);
   }, []);
 
   if (items.length === 0) {
@@ -393,6 +393,53 @@ export default function Checkout() {
           }
         </motion.button>
       </motion.div>
+
+      {/* Payment info toast */}
+      <AnimatePresence>
+        {showPaymentToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className={cn(
+              'fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-md w-[calc(100%-2rem)]',
+              'px-5 py-4 rounded-2xl border shadow-2xl backdrop-blur-xl',
+              isDark
+                ? 'bg-dark-900/95 border-white/[0.08] shadow-black/40'
+                : 'bg-white/95 border-surface-200 shadow-black/10'
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <div className={cn(
+                'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
+                isDark ? 'bg-brand-500/15' : 'bg-brand-50'
+              )}>
+                <svg className={cn('w-5 h-5', isDark ? 'text-brand-400' : 'text-brand-600')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-surface-900')}>Payment Coming Soon</p>
+                <p className={cn('text-xs mt-0.5', isDark ? 'text-white/40' : 'text-surface-500')}>
+                  Payment integration will be available in the next phase. Your order summary is ready!
+                </p>
+              </div>
+              <button
+                onClick={() => setShowPaymentToast(false)}
+                className={cn(
+                  'p-1 rounded-lg transition-colors flex-shrink-0',
+                  isDark ? 'text-white/30 hover:text-white/60' : 'text-surface-400 hover:text-surface-600'
+                )}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

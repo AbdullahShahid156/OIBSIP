@@ -6,6 +6,7 @@ import { useDarkMode } from '../../hooks';
 function AnimatedPrice({ value, label, highlight }) {
   const [display, setDisplay] = useState(value);
   const prevRef = useRef(value);
+  const { isDark } = useDarkMode();
 
   useEffect(() => {
     const from = prevRef.current;
@@ -31,18 +32,22 @@ function AnimatedPrice({ value, label, highlight }) {
     <div className="flex items-center justify-between">
       <span className={cn(
         'text-xs',
-        highlight ? 'font-bold text-white' : 'text-white/50'
+        highlight
+          ? isDark ? 'font-bold text-white' : 'font-bold text-surface-900'
+          : isDark ? 'text-white/50' : 'text-surface-500'
       )}>
         {label}
       </span>
       <motion.span
         key={value}
         initial={{ scale: 1.1, color: '#F97316' }}
-        animate={{ scale: 1, color: highlight ? '#ffffff' : 'rgba(255,255,255,0.7)' }}
+        animate={{ scale: 1, color: highlight ? (isDark ? '#ffffff' : '#0B0F14') : (isDark ? 'rgba(255,255,255,0.7)' : 'rgba(11,15,20,0.7)') }}
         transition={{ duration: 0.3 }}
         className={cn(
           'text-xs font-bold tabular-nums',
-          highlight ? 'text-white' : 'text-white/70'
+          highlight
+            ? isDark ? 'text-white' : 'text-surface-900'
+            : isDark ? 'text-white/70' : 'text-surface-600'
         )}
       >
         {formatCurrency(display)}

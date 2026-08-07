@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { cn } from '../../utils/helpers';
 
 /* ============================================
@@ -209,13 +209,13 @@ export function FloatingElement({
    ============================================ */
 
 export function ScrollProgress({ className }) {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
   return (
     <motion.div
       className={cn('fixed top-0 left-0 right-0 h-0.5 bg-brand-500 origin-left z-50', className)}
-      style={{ scaleX: 0 }}
-      initial={{ scaleX: 0 }}
-      whileInView={{ scaleX: 1 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      style={{ scaleX }}
     />
   );
 }

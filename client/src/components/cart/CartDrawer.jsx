@@ -1,6 +1,6 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode, useMediaQuery } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
@@ -24,22 +24,36 @@ export default function CartDrawer() {
   const { isDrawerOpen = false, items = [], summary = { subtotal: 0, deliveryFee: 0, tax: 0, couponDiscount: 0, total: 0, maxPrepTime: 0 } } = useSelector((state) => state.cart || {});
   const { isAuthenticated } = useSelector((state) => state.auth || { isAuthenticated: false });
 
+  const x = useMotionValue(0);
+  const dragOpacity = useTransform(x, [0, 200], [1, 0.5]);
+  const [isDragging, setIsDragging] = useState(false);
+
   const close = useCallback(() => dispatch(closeDrawer()), [dispatch]);
 
   useEffect(() => {
     if (isDrawerOpen) {
       document.body.style.overflow = 'hidden';
+      x.set(0);
     } else {
       document.body.style.overflow = '';
     }
     return () => { document.body.style.overflow = ''; };
-  }, [isDrawerOpen]);
+  }, [isDrawerOpen, x]);
 
   useEffect(() => {
     const handleEsc = (e) => { if (e.key === 'Escape') close(); };
     if (isDrawerOpen) document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isDrawerOpen, close]);
+
+  const handleDragEnd = useCallback((event, info) => {
+    setIsDragging(false);
+    if (info.offset.x > 100 || info.velocity.x > 500) {
+      close();
+    } else {
+      animate(x, 0, { type: 'spring', stiffness: 300, damping: 30 });
+    }
+  }, [close, x]);
 
   const handleUpdateQty = useCallback((itemId, qty) => {
     dispatch(updateItemQtyLocal({ itemId, qty }));
@@ -92,6 +106,12 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 35, mass: 0.8 }}
+            style={isMobile ? { x, opacity: dragOpacity } : undefined}
+            drag={isMobile ? 'x' : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={handleDragEnd}
             className={cn(
               'fixed right-0 top-0 bottom-0 z-50 flex flex-col',
               isMobile ? 'w-full' : 'w-[420px]',

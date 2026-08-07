@@ -85,8 +85,8 @@ const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
         className={cn(
           'relative overflow-hidden rounded-2xl border transition-all duration-500',
           isDark
-            ? 'bg-dark-900/80 backdrop-blur-xl border-white/[0.06] hover:border-brand-500/20 hover:shadow-[0_8px_40px_-12px_rgba(230,57,70,0.15)]'
-            : 'bg-white border-surface-200 hover:border-brand-200 hover:shadow-[0_8px_40px_-12px_rgba(230,57,70,0.12)]'
+            ? 'bg-dark-900/80 backdrop-blur-xl border-white/[0.06] hover:border-brand-500/25 hover:shadow-[0_12px_50px_-12px_rgba(230,57,70,0.25)]'
+            : 'bg-white border-surface-200 hover:border-brand-200 hover:shadow-[0_12px_50px_-12px_rgba(230,57,70,0.2)]'
         )}
         role="article"
         aria-label={`${pizza.name} pizza`}

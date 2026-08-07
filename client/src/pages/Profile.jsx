@@ -491,11 +491,14 @@ function AddressesTab() {
   const { addresses, isSaving } = useSelector((s) => s.profile);
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  const [deletingAddressId, setDeletingAddressId] = useState(null);
 
   const handleEdit = (addr) => { setEditingAddress(addr); setShowForm(true); };
   const handleAdd = () => { setEditingAddress(null); setShowForm(true); };
   const handleClose = () => { setShowForm(false); setEditingAddress(null); };
-  const handleDelete = (id) => { if (window.confirm('Delete this address?')) dispatch(deleteAddress(id)); };
+  const handleDelete = (id) => { setDeletingAddressId(id); };
+  const confirmDelete = () => { if (deletingAddressId) { dispatch(deleteAddress(deletingAddressId)); setDeletingAddressId(null); } };
+  const cancelDelete = () => setDeletingAddressId(null);
   const handleSetDefault = (id) => dispatch(setDefaultAddress(id));
 
   return (
@@ -536,6 +539,17 @@ function AddressesTab() {
       )}
 
       <AddressFormModal open={showForm} onClose={handleClose} editingAddress={editingAddress} />
+
+      {/* Delete confirmation modal */}
+      <Modal open={!!deletingAddressId} onClose={cancelDelete} size="sm" title="Delete Address">
+        <p className={cn('text-sm mb-6', isDark ? 'text-white/50' : 'text-surface-500')}>
+          Are you sure you want to delete this address? This action cannot be undone.
+        </p>
+        <div className="flex items-center gap-3 justify-end">
+          <Button variant="ghost" onClick={cancelDelete}>Cancel</Button>
+          <Button variant="danger" onClick={confirmDelete}>Delete Address</Button>
+        </div>
+      </Modal>
     </motion.div>
   );
 }

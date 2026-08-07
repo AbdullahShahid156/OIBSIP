@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils/helpers';
 
@@ -531,6 +531,9 @@ export const Modal = forwardRef(({
   className,
   ...props
 }, ref) => {
+  const contentRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
   const sizes = {
     sm: 'max-w-sm',
     md: 'max-w-lg',
@@ -539,10 +542,49 @@ export const Modal = forwardRef(({
     full: 'max-w-[90vw]',
   };
 
+  useEffect(() => {
+    if (open) {
+      previousFocusRef.current = document.activeElement;
+      const timer = setTimeout(() => {
+        contentRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose?.();
+      }
+      if (e.key === 'Tab' && contentRef.current) {
+        const focusable = contentRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={title || 'Dialog'}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -551,13 +593,14 @@ export const Modal = forwardRef(({
         onClick={onClose}
       />
       <motion.div
-        ref={ref}
+        ref={(el) => { contentRef.current = el; if (ref) { if (typeof ref === 'function') ref(el); else ref.current = el; } }}
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        tabIndex={-1}
         className={cn(
-          'relative w-full bg-white rounded-2xl shadow-2xl border border-surface-200 overflow-hidden',
+          'relative w-full bg-white rounded-2xl shadow-2xl border border-surface-200 overflow-hidden outline-none',
           'dark:bg-dark-900 dark:border-white/[0.06]',
           sizes[size],
           className
