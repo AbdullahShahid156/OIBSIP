@@ -345,6 +345,22 @@ All food visuals use high-quality, real photographs from Unsplash with professio
 | Coupon Discount | Percentage or fixed amount |
 | Grand Total | Subtotal + Delivery + Tax − Discount |
 
+### Premium UI Polish
+
+| Improvement | Description |
+|-------------|-------------|
+| Dark Mode Audit | Fixed 3 hardcoded color bugs (Badge neutral dot, Profile checkbox, password toggles) |
+| Enhanced Scrollbar | Transparent track, thinner thumb, smooth hover transitions |
+| Reduced Motion | Respects `prefers-reduced-motion` media query globally |
+| Premium Animations | Added `slide-in-up`, `slide-in-down`, `scale-bounce`, `blur-in`, `count-up` keyframes |
+| Dark Mode Shadows | New `dark-sm`, `dark-md`, `dark-lg`, `dark-xl` shadow tokens for depth |
+| Focus Ring Tokens | New `ring-brand` and `ring-brand-dark` shadow tokens |
+| Font Features | Added `ss01` stylistic set for premium typography rendering |
+| Image Rendering | Optimized `image-rendering: auto` for all images |
+| Checkout UX | Empty cart shows loading spinner instead of blank flash during redirect |
+| Memory Leak Fix | VerifyEmail timeout properly cleaned up on unmount |
+| Shimmer Loading | Added global `@keyframes shimmer` for skeleton loading components |
+
 ---
 
 ## Roadmap
@@ -359,6 +375,7 @@ Phase 6  ✅  Interactive pizza builder with live preview and quantity controls
 Phase 7  ✅  Premium visual assets, real food photography, brand identity system
 Phase 8  ✅  User profile, address management, avatar upload, change password
 Phase 9  ✅  Cart & checkout foundation, localStorage persistence, address selection
+Phase 9b ✅  Premium UI polish, complete dark mode audit, animation improvements
 Phase 10 ⬜  Payment integration (Razorpay)
 Phase 11 ⬜  Order creation and management
 Phase 12 ⬜  Order status tracking

@@ -373,7 +373,7 @@ export const Badge = forwardRef(({
           variant === 'warning' && 'bg-warning-500',
           variant === 'danger' && 'bg-danger-500',
           variant === 'info' && 'bg-info-500',
-          variant === 'neutral' && 'bg-surface-400'
+          variant === 'neutral' && 'bg-surface-400 dark:bg-white/40'
         )} />
       )}
       {icon && <span className="shrink-0">{icon}</span>}

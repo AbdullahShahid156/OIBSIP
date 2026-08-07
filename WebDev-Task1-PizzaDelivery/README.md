@@ -278,6 +278,19 @@ npm run dev
 - Admin dashboard with inventory and analytics
 - Real-time order tracking via WebSocket
 
+### Premium UI Polish (Phase 9b)
+
+- Complete dark mode audit — all components use semantic tokens
+- Fixed hardcoded colors in Badge, Profile checkboxes, password toggles
+- Enhanced scrollbar (transparent track, smooth hover)
+- Reduced motion support via `prefers-reduced-motion`
+- Premium animation keyframes (slide-in-up, scale-bounce, blur-in, count-up)
+- Dark mode shadow tokens for proper depth perception
+- Font feature settings for premium typography
+- Checkout empty cart UX improvement (spinner instead of blank flash)
+- Memory leak fix in VerifyEmail timeout
+- Global shimmer keyframe for skeleton loading
+
 ---
 
 ## Environment Variables

@@ -22,17 +22,19 @@ export default function VerifyEmail() {
       return;
     }
 
+    let timeoutId;
     const verify = async () => {
       const result = await dispatch(verifyEmail(token));
       if (verifyEmail.fulfilled.match(result)) {
         setStatus('success');
-        setTimeout(() => navigate('/'), 2000);
+        timeoutId = setTimeout(() => navigate('/'), 2000);
       } else {
         setStatus('failed');
       }
     };
 
     verify();
+    return () => { if (timeoutId) clearTimeout(timeoutId); };
   }, [token, dispatch, navigate]);
 
   if (!token) {

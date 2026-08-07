@@ -16,11 +16,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'ss01' 1;
   }
 
   body {
     @apply bg-white text-surface-900 font-body transition-colors duration-300;
-    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'ss01' 1;
   }
 
   .dark body {
@@ -35,35 +36,58 @@
   }
 
   ::-webkit-scrollbar {
-    @apply w-2;
+    @apply w-1.5;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-surface-100;
-  }
-
-  .dark ::-webkit-scrollbar-track {
-    @apply bg-dark-925;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-surface-300 rounded-full hover:bg-surface-400 transition-colors;
+    @apply bg-surface-300/60 rounded-full hover:bg-surface-400/80 transition-colors duration-200;
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    @apply bg-dark-700 hover:bg-dark-600;
+    @apply bg-white/10 hover:bg-white/20;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-500/50 ring-offset-2 ring-offset-white;
+    @apply outline-none ring-2 ring-brand-500/40 ring-offset-2 ring-offset-white;
   }
 
   .dark :focus-visible {
-    @apply ring-brand-400/50 ring-offset-dark-950;
+    @apply ring-brand-400/40 ring-offset-dark-950;
   }
 
   input, textarea, select {
     @apply font-body;
+  }
+
+  /* Smooth page transitions */
+  #root {
+    @apply min-h-screen;
+  }
+
+  /* Premium image rendering */
+  img {
+    @apply max-w-full;
+    image-rendering: auto;
+  }
+
+  /* Smooth scrolling for mobile */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -588,6 +612,12 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Shimmer effect for skeleton loading */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 
   /* Visually Hidden (Accessibility) */

@@ -8,6 +8,7 @@ import { applyCouponCode, removeCouponCode } from '../store/slices/cartSlice';
 import AddressSelector from '../components/checkout/AddressSelector';
 import OrderSummary from '../components/checkout/OrderSummary';
 import CouponInput from '../components/checkout/CouponInput';
+import { Spinner } from '../components/ui';
 
 const pageTransition = {
   initial: { opacity: 0, y: 20 },
@@ -50,7 +51,16 @@ export default function Checkout() {
     alert('Payment integration coming in Phase 10. Your order summary has been prepared!');
   }, []);
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return (
+      <div className={cn('min-h-screen flex items-center justify-center transition-colors', isDark ? 'bg-dark-950' : 'bg-surface-50')}>
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className={cn('text-sm mt-4', isDark ? 'text-white/40' : 'text-surface-500')}>Redirecting to cart...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('min-h-screen transition-colors', isDark ? 'bg-dark-950' : 'bg-surface-50')}>
@@ -261,8 +271,8 @@ export default function Checkout() {
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className={cn(
-                    'w-5 h-5 mt-0.5 rounded border-2 bg-white text-brand-500 focus:ring-brand-500/50 focus:ring-offset-0 cursor-pointer transition-all',
-                    isDark ? 'border-white/20 dark:bg-dark-850' : 'border-surface-300'
+                    'w-5 h-5 mt-0.5 rounded border-2 text-brand-500 focus:ring-brand-500/50 focus:ring-offset-0 cursor-pointer transition-all',
+                    isDark ? 'border-white/20 bg-dark-850' : 'border-surface-300 bg-white'
                   )}
                 />
                 <div>
