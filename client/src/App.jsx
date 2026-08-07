@@ -19,9 +19,19 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import CartDrawer from './components/cart/CartDrawer';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { getMe } from './store/slices/authSlice';
+import { setDarkMode } from './store/slices/uiSlice';
 
 export default function App() {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const stored = localStorage.getItem('darkMode');
+    if (stored !== null) {
+      dispatch(setDarkMode(stored === 'true'));
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      dispatch(setDarkMode(true));
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');

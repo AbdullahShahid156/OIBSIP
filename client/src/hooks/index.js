@@ -1,14 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleDarkMode as toggleDarkModeAction, setDarkMode } from '../store/slices/uiSlice';
 
 export function useDarkMode() {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('darkMode');
-      if (stored !== null) return stored === 'true';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
+  const dispatch = useDispatch();
+  const isDark = useSelector((state) => state.ui.isDarkMode);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -20,7 +16,7 @@ export function useDarkMode() {
     localStorage.setItem('darkMode', isDark);
   }, [isDark]);
 
-  const toggle = useCallback(() => setIsDark((prev) => !prev), []);
+  const toggle = useCallback(() => dispatch(toggleDarkModeAction()), [dispatch]);
 
   return { isDark, toggle };
 }
