@@ -249,162 +249,316 @@ function HeroSection() {
     target: heroRef,
     offset: ['start start', 'end start'],
   });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden">
+    <section ref={heroRef} className={cn(
+      "relative min-h-screen flex items-center overflow-hidden transition-colors duration-300",
+      isDark ? "bg-dark-950" : "bg-white"
+    )}>
+
+      {/* Background layers */}
       <div className="absolute inset-0" aria-hidden="true">
         <div className={cn(
-          "absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full blur-[180px] transition-colors duration-300",
-          isDark ? "bg-brand-500/8" : "bg-brand-500/12"
+          "absolute top-0 right-0 w-[65%] h-full transition-colors duration-500",
+          isDark
+            ? "bg-gradient-to-l from-brand-500/[0.04] via-accent-500/[0.02] to-transparent"
+            : "bg-gradient-to-l from-brand-50 via-accent-50/50 to-transparent"
         )} />
         <div className={cn(
-          "absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[150px] transition-colors duration-300",
-          isDark ? "bg-accent-500/6" : "bg-accent-500/8"
+          "absolute top-1/4 right-[20%] w-[500px] h-[500px] rounded-full blur-[160px] transition-colors duration-500",
+          isDark ? "bg-brand-500/8" : "bg-brand-500/10"
         )} />
         <div className={cn(
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[250px] transition-colors duration-300",
-          isDark ? "bg-brand-500/4" : "bg-brand-500/6"
+          "absolute bottom-1/4 right-[10%] w-[400px] h-[400px] rounded-full blur-[140px] transition-colors duration-500",
+          isDark ? "bg-accent-500/5" : "bg-accent-500/8"
         )} />
+        {/* Subtle grid pattern */}
+        <div className={cn(
+          "absolute inset-0 opacity-[0.015]",
+          isDark ? "bg-white" : "bg-surface-900"
+        )} style={{
+          backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }} />
       </div>
 
-      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-        <motion.div
-          animate={{ y: [-15, 15, -15], rotate: [0, 3, -3, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-32 left-[8%] hidden xl:block"
-        >
-          <div className={cn("w-20 h-20 rounded-2xl border backdrop-blur-sm flex items-center justify-center rotate-12", isDark ? "bg-brand-500/10 border-brand-500/20" : "bg-brand-50 border-brand-200")}>
-            <svg className={cn("w-10 h-10", isDark ? "text-brand-400/40" : "text-brand-500/40")} viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-            </svg>
-          </div>
-        </motion.div>
+      <motion.div style={{ y, opacity }} className="container relative z-10 py-28 md:py-32 lg:py-36">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
-        <motion.div
-          animate={{ y: [10, -10, 10], rotate: [0, -2, 2, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          className="absolute top-48 right-[12%] hidden xl:block"
-        >
-          <div className={cn("w-16 h-16 rounded-full border backdrop-blur-sm flex items-center justify-center", isDark ? "bg-accent-500/10 border-accent-500/20" : "bg-accent-50 border-accent-200")}>
-            <svg className={cn("w-8 h-8", isDark ? "text-accent-400/40" : "text-accent-500/40")} viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-            </svg>
-          </div>
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [-8, 8, -8], rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute bottom-40 left-[15%] hidden xl:block"
-        >
-          <div className={cn("w-14 h-14 rounded-xl border backdrop-blur-sm flex items-center justify-center -rotate-12", isDark ? "bg-white/5 border-white/10" : "bg-surface-100 border-surface-200")}>
-            <svg className={cn("w-7 h-7", isDark ? "text-white/20" : "text-surface-400")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-            </svg>
-          </div>
-        </motion.div>
-      </div>
-
-      <motion.div style={{ y, opacity, scale }} className="container relative z-10 py-32 md:py-40">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: easing }}
-          >
-            <span className={cn(
-              "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-8 border",
-              isDark
-                ? "bg-brand-500/10 text-brand-400 border-brand-500/20"
-                : "bg-brand-50 text-brand-600 border-brand-200"
-            )}>
-              <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse" />
-              Premium Pizza Delivery
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.7, ease: easing }}
-            className={cn(
-              "text-[2.5rem] sm:text-hero-sm md:text-hero lg:text-hero-lg font-display font-bold mb-6 tracking-tight leading-[1.05]",
-              isDark ? "text-white" : "text-surface-900"
-            )}
-          >
-            Crafted with{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-gradient-brand">passion</span>
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.8, duration: 0.5, ease: easing }}
-                className="absolute bottom-1 md:bottom-2 left-0 right-0 h-2 md:h-3 bg-brand-500/20 -skew-x-3 origin-left"
-              />
-            </span>
-            , delivered{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-gradient-accent">fresh</span>
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.9, duration: 0.5, ease: easing }}
-                className="absolute bottom-1 md:bottom-2 left-0 right-0 h-2 md:h-3 bg-accent-500/20 -skew-x-3 origin-left"
-              />
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className={cn(
-              "text-base md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed",
-              isDark ? "text-white/50" : "text-surface-500"
-            )}
-          >
-            Experience the perfect blend of authentic Italian flavors and modern convenience.
-            Every pizza is handcrafted with the finest ingredients and delivered to your door in under 30 minutes.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link
-              to={ROUTES.MENU}
-              className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold rounded-2xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          {/* Left — Text Content */}
+          <div className="relative z-10 order-2 lg:order-1">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: easing }}
             >
-              <span>Explore Menu</span>
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-            <a
-              href="#how-it-works"
-              onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className={cn(
-                "group inline-flex items-center justify-center gap-2.5 px-8 py-4 font-semibold rounded-2xl border-2 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+              <span className={cn(
+                "inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-semibold mb-8 border transition-colors duration-300",
                 isDark
-                  ? "border-white/10 text-white hover:bg-white/5 hover:border-white/20"
-                  : "border-surface-200 text-surface-700 hover:bg-surface-50 hover:border-surface-300"
+                  ? "bg-brand-500/10 text-brand-400 border-brand-500/20"
+                  : "bg-brand-50 text-brand-600 border-brand-200"
+              )}>
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+                Premium Pizza Delivery
+              </span>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.7, ease: easing }}
+              className={cn(
+                "text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] lg:text-[3.75rem] font-display font-bold mb-6 tracking-tight leading-[1.08]",
+                isDark ? "text-white" : "text-surface-900"
               )}
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>How It Works</span>
-            </a>
+              Crafted with{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10 text-gradient-brand">passion</span>
+                <motion.span
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.8, duration: 0.5, ease: easing }}
+                  className="absolute bottom-1 md:bottom-2 left-0 right-0 h-2.5 md:h-3 bg-brand-500/15 dark:bg-brand-500/20 -skew-x-3 origin-left"
+                />
+              </span>
+              <br />
+              delivered{' '}
+              <span className="relative inline-block">
+                <span className="relative z-10 text-gradient-accent">fresh</span>
+                <motion.span
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.9, duration: 0.5, ease: easing }}
+                  className="absolute bottom-1 md:bottom-2 left-0 right-0 h-2.5 md:h-3 bg-accent-500/15 dark:bg-accent-500/20 -skew-x-3 origin-left"
+                />
+              </span>
+              {' '}&{' '}
+              <span className={isDark ? "text-white" : "text-surface-900"}>hot.</span>
+            </motion.h1>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className={cn(
+                "text-base md:text-lg mb-10 max-w-lg leading-relaxed",
+                isDark ? "text-white/45" : "text-surface-500"
+              )}
+            >
+              Handcrafted with premium ingredients and baked to perfection in our wood-fired ovens.
+              From oven to your door in under 30 minutes.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 mb-12"
+            >
+              <Link
+                to={ROUTES.MENU}
+                className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold rounded-2xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+              >
+                <span>Explore Menu</span>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+              <a
+                href="#how-it-works"
+                onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className={cn(
+                  "group inline-flex items-center justify-center gap-2.5 px-8 py-4 font-semibold rounded-2xl border-2 transition-all duration-300 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2",
+                  isDark
+                    ? "border-white/10 text-white/80 hover:bg-white/5 hover:border-white/20"
+                    : "border-surface-200 text-surface-700 hover:bg-surface-50 hover:border-surface-300"
+                )}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" />
+                </svg>
+                <span>How It Works</span>
+              </a>
+            </motion.div>
+
+            {/* Trust indicators */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.5 }}
+              className="flex flex-wrap items-center gap-6"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className={cn("text-sm font-semibold", isDark ? "text-white/70" : "text-surface-700")}>4.9</span>
+                <span className={cn("text-sm", isDark ? "text-white/35" : "text-surface-400")}>· 2,400+ reviews</span>
+              </div>
+              <div className={cn("w-px h-4", isDark ? "bg-white/10" : "bg-surface-300")} />
+              <div className="flex items-center gap-2">
+                <svg className={cn("w-4 h-4", isDark ? "text-success-400" : "text-success-600")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className={cn("text-sm", isDark ? "text-white/50" : "text-surface-500")}><span className={cn("font-semibold", isDark ? "text-white/70" : "text-surface-700")}>30 min</span> delivery</span>
+              </div>
+              <div className={cn("w-px h-4", isDark ? "bg-white/10" : "bg-surface-300")} />
+              <div className="flex items-center gap-2">
+                <svg className={cn("w-4 h-4", isDark ? "text-brand-400" : "text-brand-600")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                <span className={cn("text-sm", isDark ? "text-white/50" : "text-surface-500")}><span className={cn("font-semibold", isDark ? "text-white/70" : "text-surface-700")}>100%</span> fresh</span>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right — Hero Image */}
+          <motion.div
+            style={{ y: imageY }}
+            className="relative order-1 lg:order-2 flex justify-center lg:justify-end"
+          >
+            {/* Image glow */}
+            <div className={cn(
+              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] rounded-full blur-[80px] transition-colors duration-500",
+              isDark ? "bg-brand-500/15" : "bg-brand-500/10"
+            )} />
+
+            {/* Main image container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8, ease: easing }}
+              className="relative"
+            >
+              {/* Floating accent ring */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+                className={cn(
+                  "absolute -inset-6 rounded-full border border-dashed transition-colors duration-300",
+                  isDark ? "border-brand-500/15" : "border-brand-300/40"
+                )}
+              />
+
+              {/* Image card */}
+              <div className={cn(
+                "relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] md:w-[400px] md:h-[400px] lg:w-[440px] lg:h-[440px] rounded-[2rem] overflow-hidden transition-all duration-500",
+                isDark
+                  ? "shadow-[0_20px_60px_-15px_rgba(230,57,70,0.25),0_0_0_1px_rgba(255,255,255,0.06)]"
+                  : "shadow-[0_20px_60px_-15px_rgba(230,57,70,0.2),0_0_0_1px_rgba(0,0,0,0.05)]"
+              )}>
+                <img
+                  src={PIZZA_PHOTOS.margherita.srcLarge}
+                  alt={PIZZA_PHOTOS.margherita.alt}
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                />
+                {/* Gradient overlay */}
+                <div className={cn(
+                  "absolute inset-0 bg-gradient-to-t transition-opacity duration-500",
+                  isDark
+                    ? "from-dark-950/60 via-transparent to-transparent opacity-60"
+                    : "from-black/10 via-transparent to-transparent opacity-40"
+                )} />
+              </div>
+
+              {/* Floating badge — top left */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8, duration: 0.5, ease: easing }}
+                className={cn(
+                  "absolute -left-4 sm:-left-6 top-12 px-4 py-3 rounded-2xl border backdrop-blur-xl transition-colors duration-300",
+                  isDark
+                    ? "bg-dark-850/90 border-white/[0.08] shadow-lg shadow-black/30"
+                    : "bg-white/90 border-surface-200/80 shadow-lg shadow-black/5"
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-sm">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className={cn("text-xs font-semibold", isDark ? "text-white" : "text-surface-900")}>Wood-Fired</p>
+                    <p className={cn("text-[10px]", isDark ? "text-white/40" : "text-surface-400")}>900°F Ovens</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Floating badge — bottom right */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1, duration: 0.5, ease: easing }}
+                className={cn(
+                  "absolute -right-3 sm:-right-5 bottom-16 px-4 py-3 rounded-2xl border backdrop-blur-xl transition-colors duration-300",
+                  isDark
+                    ? "bg-dark-850/90 border-white/[0.08] shadow-lg shadow-black/30"
+                    : "bg-white/90 border-surface-200/80 shadow-lg shadow-black/5"
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center shadow-sm">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className={cn("text-xs font-semibold", isDark ? "text-white" : "text-surface-900")}>30 Minutes</p>
+                    <p className={cn("text-[10px]", isDark ? "text-white/40" : "text-surface-400")}>Fast Delivery</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Floating ingredient accent — top right */}
+              <motion.div
+                animate={{ y: [-6, 6, -6] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -top-4 -right-2 sm:right-2"
+              >
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl border backdrop-blur-sm flex items-center justify-center rotate-12 transition-colors duration-300",
+                  isDark ? "bg-white/[0.04] border-white/[0.08]" : "bg-white/80 border-surface-200/60 shadow-md"
+                )}>
+                  <span className="text-2xl">🌿</span>
+                </div>
+              </motion.div>
+
+              {/* Floating ingredient accent — bottom left */}
+              <motion.div
+                animate={{ y: [5, -5, 5] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                className="absolute bottom-8 -left-2 sm:left-0"
+              >
+                <div className={cn(
+                  "w-12 h-12 rounded-xl border backdrop-blur-sm flex items-center justify-center -rotate-12 transition-colors duration-300",
+                  isDark ? "bg-white/[0.04] border-white/[0.08]" : "bg-white/80 border-surface-200/60 shadow-md"
+                )}>
+                  <span className="text-xl">🧀</span>
+                </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
       </motion.div>
 
+      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -415,7 +569,7 @@ function HeroSection() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           className={cn(
-            "w-6 h-10 rounded-full border-2 flex items-start justify-center p-1.5",
+            "w-6 h-10 rounded-full border-2 flex items-start justify-center p-1.5 transition-colors duration-300",
             isDark ? "border-white/20" : "border-surface-300"
           )}
         >
