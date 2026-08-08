@@ -29,9 +29,9 @@ This repository tracks the incremental development of the platform through 9 com
 
 | Metric | Value |
 |--------|-------|
-| **Phase** | 10 — Elite UI Redesign |
+| **Phase** | 11 — AI Pizza Assistant |
 | **Build** | Passing |
-| **Client** | 530 modules, zero errors |
+| **Client** | 541 modules, zero errors |
 | **Server** | Syntax verified, all deps installed |
 | **License** | MIT |
 
@@ -378,6 +378,67 @@ All food visuals use high-quality, real photographs from Unsplash with professio
 | Dark Mode | Fixed PricePanel white-on-white text in light mode |
 | Design Tokens | Refined border-color override from `dark-800` to `surface-200` for light mode |
 
+### AI Pizza Assistant (Phase 11)
+
+Production-grade AI chatbot powered by Groq API with deterministic fallback engine.
+
+| Feature | Description |
+|---------|-------------|
+| Groq AI Integration | llama-3.1-8b-instant model with system prompt containing full menu context |
+| Fallback Engine | Keyword-based deterministic responses when Groq is unavailable |
+| Provider Cascade | Tries Groq first, falls back automatically on failure |
+| Conversation Memory | Last 10 messages sent as context for multi-turn conversations |
+| Pizza Recommendations | Real pizza data from MongoDB with prices, ratings, descriptions |
+| Quick Suggestions | 6 suggestion chips: recommend, popular, vegetarian, sizes, spicy, custom builder |
+| Add to Cart | One-click add from chat recommendation cards |
+| Customize | Loads pizza preset into Pizza Builder from chat |
+| Rate Limiting | 20 requests/minute per IP on chat endpoint |
+| Dark Mode | Full dark mode support across all chat components |
+| Responsive | Works on mobile (full-screen panel) and desktop (400px floating panel) |
+
+**Backend Architecture**
+
+| File | Purpose |
+|------|---------|
+| `groqProvider.js` | Groq API wrapper — model config, system prompt, error handling |
+| `fallbackEngine.js` | Deterministic keyword matcher for dietary, sizes, names, greetings |
+| `assistantService.js` | Provider abstraction, pizza data caching (5min TTL), recommendation extraction |
+| `assistantController.js` | Chat + suggestions request handlers |
+| `assistant.js` (routes) | POST /chat, GET /suggestions with rate limiting |
+| `assistant.js` (validations) | Zod schema: message 1-500 chars, conversation history max 20 |
+
+**Frontend Architecture**
+
+| File | Purpose |
+|------|---------|
+| `assistant.js` (service) | API calls via existing axios instance |
+| `assistantSlice.js` | Redux state: messages, suggestions, typing, unread count |
+| `AssistantButton.jsx` | Floating FAB with pulse animation and unread badge |
+| `AssistantPanel.jsx` | Chat panel: header, messages, suggestions, textarea input |
+| `MessageBubble.jsx` | User/assistant message bubbles with recommendation cards |
+| `ProductCard.jsx` | Pizza card: photo, rating, price, Customize/Add buttons |
+| `SuggestionChips.jsx` | 6 quick-action chips with SVG icons and stagger animation |
+| `TypingIndicator.jsx` | Animated bouncing dots while AI is processing |
+
+**Fallback Engine Capabilities**
+
+| User Intent | Response |
+|-------------|----------|
+| Greetings | Welcome message + popular pizzas |
+| "recommend" / "popular" / "best" | Top 3 by rating |
+| "vegetarian" / "vegan" / "spicy" / "meat" | Filtered pizzas with description |
+| "price" / "cheap" / "budget" | Cheapest 3 pizzas |
+| "size" / "large" / "small" | Size options with servings |
+| "custom" / "build" | Builder page info |
+| Pizza name lookup | Full details + rating + prep time |
+| "thank you" | Polite closing |
+
+**Environment Variables Added**
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GROQ_API_KEY` | Groq API key for AI responses | No (fallback if empty) |
+
 ---
 
 ## Roadmap
@@ -394,11 +455,12 @@ Phase 8   ✅  User profile, address management, avatar upload, change password
 Phase 9   ✅  Cart & checkout foundation, localStorage persistence, address selection
 Phase 9b  ✅  Premium UI polish, complete dark mode audit, animation improvements
 Phase 10  ✅  Elite UI redesign — commercial FoodTech quality, accessibility, micro-interactions
-Phase 11  ⬜  Payment integration (Razorpay)
-Phase 12  ⬜  Order creation and management
-Phase 13  ⬜  Order status tracking
-Phase 14  ⬜  Admin dashboard with inventory and analytics
-Phase 15  ⬜  Real-time order tracking via WebSocket
+Phase 11  ✅  AI Pizza Assistant — Groq-powered chatbot with fallback engine, premium UI, cart integration
+Phase 12  ⬜  Payment integration (Razorpay)
+Phase 13  ⬜  Order creation and management
+Phase 14  ⬜  Order status tracking
+Phase 15  ⬜  Admin dashboard with inventory and analytics
+Phase 16  ⬜  Real-time order tracking via WebSocket
 ```
 
 ---
@@ -434,6 +496,7 @@ Phase 15  ⬜  Real-time order tracking via WebSocket
 | Helmet | Security headers |
 | express-rate-limit | Rate limiting |
 | multer | File upload (avatar) |
+| Groq API | AI chatbot (llama-3.1-8b-instant) |
 
 ### Infrastructure
 
@@ -464,6 +527,13 @@ pizzacraft/
 │   │   │   │   └── PizzaPreview.jsx
 │   │   │   ├── cart/                # CartDrawer, CartItem, CartEmpty
 │   │   │   ├── checkout/            # AddressSelector, OrderSummary, CouponInput
+│   │   │   ├── assistant/           # AI Chatbot components
+│   │   │   │   ├── AssistantButton.jsx
+│   │   │   │   ├── AssistantPanel.jsx
+│   │   │   │   ├── MessageBubble.jsx
+│   │   │   │   ├── ProductCard.jsx
+│   │   │   │   ├── SuggestionChips.jsx
+│   │   │   │   └── TypingIndicator.jsx
 │   │   │   ├── layout/              # Navbar, Footer, Layout
 │   │   │   ├── pizza/               # PizzaCard, PizzaDetailModal, PizzaCardSkeleton, PizzaImage
 │   │   │   └── ui/                  # Design system components + ErrorBoundary
@@ -475,10 +545,10 @@ pizzacraft/
 │   │   │   └── pizzaBuilder.js      # Builder options, steps, topping levels
 │   │   ├── hooks/                   # useDarkMode, useMediaQuery, useScrollPosition, useDebounce
 │   │   ├── pages/                   # Home, Menu, Cart, Checkout, PizzaBuilder, Profile, Auth pages, NotFound
-│   │   ├── services/                # API client, auth, pizza, cart
+│   │   ├── services/                # API client, auth, pizza, cart, assistant
 │   │   ├── store/
 │   │   │   ├── index.js             # Store configuration
-│   │   │   └── slices/              # auth, ui, pizza, builder, profile, cart
+│   │   │   └── slices/              # auth, ui, pizza, builder, profile, cart, assistant
 │   │   ├── styles/                  # Global CSS and design tokens
 │   │   ├── utils/                   # Constants and helper functions
 │   │   ├── App.jsx                  # Route definitions
@@ -514,12 +584,16 @@ pizzacraft/
 │   │   │   │   ├── cart.js          # Cart routes (JWT protected)
 │   │   │   │   ├── health.js        # Health check endpoint
 │   │   │   │   ├── pizza.js         # Pizza routes (public)
-│   │   │   │   └── profile.js       # Profile routes (JWT protected)
+│   │   │   │   ├── profile.js       # Profile routes (JWT protected)
+│   │   │   │   └── assistant.js     # AI chatbot routes
 │   │   │   └── index.js             # Route aggregator
 │   │   ├── seed.js                  # Database seed script
 │   │   ├── services/
 │   │   │   ├── authService.js       # JWT generation/verification
-│   │   │   └── emailService.js      # Nodemailer transport
+│   │   │   ├── emailService.js      # Nodemailer transport
+│   │   │   ├── assistantService.js  # AI provider abstraction + pizza cache
+│   │   │   ├── groqProvider.js      # Groq API wrapper
+│   │   │   └── fallbackEngine.js    # Deterministic recommendation engine
 │   │   ├── templates/
 │   │   │   └── email/               # HTML email templates
 │   │   ├── utils/
@@ -527,7 +601,8 @@ pizzacraft/
 │   │   ├── validations/
 │   │   │   ├── auth.js              # Auth Zod schemas
 │   │   │   ├── cart.js              # Cart Zod schemas
-│   │   │   └── pizza.js             # Pizza Zod schemas
+│   │   │   ├── pizza.js             # Pizza Zod schemas
+│   │   │   └── assistant.js         # Chat Zod schemas
 │   │   └── server.js                # Express + Socket.io entry
 │   ├── .env
 │   ├── package.json
@@ -590,6 +665,7 @@ npm run dev:server    # http://localhost:5000
 | `JWT_SECRET` | Secret for JWT signing (min 16 chars) | Yes | — |
 | `JWT_EXPIRE` | Token expiration duration | No | `7d` |
 | `CLIENT_URL` | Frontend origin for CORS | Yes | — |
+| `GROQ_API_KEY` | Groq API key for AI chatbot | No | — (uses fallback) |
 
 ### Client
 

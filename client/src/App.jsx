@@ -18,6 +18,8 @@ import Checkout from './pages/Checkout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CartDrawer from './components/cart/CartDrawer';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+import AssistantButton from './components/assistant/AssistantButton';
+import AssistantPanel from './components/assistant/AssistantPanel';
 import { getMe } from './store/slices/authSlice';
 import { setDarkMode } from './store/slices/uiSlice';
 
@@ -45,6 +47,7 @@ export default function App() {
       <ErrorBoundary>
         <CartDrawer />
       </ErrorBoundary>
+      <AssistantPanel />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -86,6 +89,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
+      <AssistantButton />
     </>
   );
 }

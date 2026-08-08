@@ -17,6 +17,7 @@ const envSchema = z.object({
   FROM_EMAIL: z.string().email().optional(),
   FROM_NAME: z.string().optional(),
   SOCKET_CORS_URL: z.string().optional(),
+  GROQ_API_KEY: z.string().optional(),
 });
 
 function validateEnv() {
