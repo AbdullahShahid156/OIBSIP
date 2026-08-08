@@ -9,6 +9,8 @@ const initialState = {
   cheese: null,
   veggies: {},
   isComplete: false,
+  presetBasePrice: null,
+  presetName: null,
 };
 
 const builderSlice = createSlice({
@@ -66,13 +68,25 @@ const builderSlice = createSlice({
     resetBuilder() {
       return initialState;
     },
+    loadPreset(state, action) {
+      const { config, basePrice, name } = action.payload;
+      state.base = config.base;
+      state.sauce = config.sauce;
+      state.cheese = config.cheese;
+      state.veggies = { ...config.veggies };
+      state.size = 'medium';
+      state.currentStep = 3;
+      state.isComplete = false;
+      state.presetBasePrice = basePrice;
+      state.presetName = name;
+    },
   },
 });
 
 export const {
   setStep, nextStep, prevStep, setSize,
   setBase, setSauce, setCheese, toggleVeggie, setVeggieQty,
-  setComplete, resetBuilder,
+  setComplete, resetBuilder, loadPreset,
 } = builderSlice.actions;
 
 function getMultiplier(state) {
@@ -80,7 +94,12 @@ function getMultiplier(state) {
 }
 
 export const selectBasePrice = (state) => {
-  return BASE_PRICE * getMultiplier(state.builder);
+  const preset = state.builder.presetBasePrice;
+  const multiplier = getMultiplier(state.builder);
+  if (preset != null) {
+    return preset * multiplier;
+  }
+  return BASE_PRICE * multiplier;
 };
 
 export const selectIngredientCost = (state, allIngredients) => {

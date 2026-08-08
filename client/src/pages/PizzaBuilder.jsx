@@ -76,11 +76,12 @@ export default function PizzaBuilder() {
     });
 
     const configId = generateId();
+    const isPreset = !!builder.presetName;
 
     const cartItem = {
       _id: configId,
-      pizzaId: 'custom',
-      name: 'Custom Pizza',
+      pizzaId: isPreset ? `predefined-${builder.presetName}` : 'custom',
+      name: isPreset ? builder.presetName : 'Custom Pizza',
       image: '',
       size: builder.size,
       base: builder.base,
@@ -144,10 +145,10 @@ export default function PizzaBuilder() {
             </button>
             <div>
               <h1 className={cn('text-xl font-display font-bold', isDark ? 'text-white' : 'text-surface-900')}>
-                Pizza Builder
+                {builder.presetName ? `Customize ${builder.presetName}` : 'Pizza Builder'}
               </h1>
               <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-surface-500')}>
-                Craft your perfect pizza
+                {builder.presetName ? 'Tweak the recipe to your taste' : 'Craft your perfect pizza'}
               </p>
             </div>
           </div>

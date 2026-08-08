@@ -6,6 +6,7 @@ import { cn } from '../utils/helpers';
 import { ROUTES } from '../utils/constants';
 import { PIZZA_PHOTOS } from '../data/images';
 import PizzaImage from '../components/ui/PizzaImage';
+import TestimonialsSection from '../components/sections/TestimonialsSection';
 
 const easing = [0.16, 1, 0.3, 1];
 
@@ -189,30 +190,6 @@ const categories = [
   { name: 'Meat Lovers', count: '9+', icon: 'M15.362 5.214A8.252 8.252 0 0112 21', color: 'from-red-500 to-rose-600' },
   { name: 'Seafood', count: '6+', icon: 'M12 21a9.004 9.004 0 008.716-6.747', color: 'from-cyan-500 to-blue-600' },
   { name: 'Sweet', count: '5+', icon: 'M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166', color: 'from-pink-500 to-fuchsia-600' },
-];
-
-const testimonials = [
-  {
-    name: 'Sarah Chen',
-    role: 'Food Blogger',
-    text: 'The Margherita Classica is the best pizza I\'ve had outside of Naples. The crust is perfectly charred, and the San Marzano tomatoes are incredible.',
-    rating: 5,
-    avatar: 'SC',
-  },
-  {
-    name: 'Marcus Rodriguez',
-    role: 'Regular Customer',
-    text: 'I\'ve tried every pizza place in the city. PizzaCraft is the only one that consistently delivers quality. The truffle mushroom is absolutely divine.',
-    rating: 5,
-    avatar: 'MR',
-  },
-  {
-    name: 'Emily Watson',
-    role: 'Event Planner',
-    text: 'We ordered 50 pizzas for a corporate event. Every single one arrived hot and on time. The catering service is exceptional.',
-    rating: 5,
-    avatar: 'EW',
-  },
 ];
 
 const stats = [
@@ -1018,98 +995,6 @@ function Categories() {
               )}>
                 {category.count} pizzas
               </span>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TestimonialsSection() {
-  const { isDark } = useDarkMode();
-  return (
-    <section id="testimonials" className="section">
-      <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.6, ease: easing }}
-          className="text-center mb-12 md:mb-16"
-        >
-          <span className={cn(
-            "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-4 border",
-            isDark ? "bg-brand-500/10 text-brand-400 border-brand-500/20" : "bg-brand-50 text-brand-600 border-brand-200"
-          )}>
-            <span className="w-1.5 h-1.5 bg-brand-500 rounded-full" />
-            Testimonials
-          </span>
-          <h2 className={cn(
-            "text-section font-display font-bold mb-4 tracking-tight",
-            isDark ? "text-white" : "text-surface-900"
-          )}>
-            Loved by{' '}
-            <span className="text-gradient-brand">Thousands</span>
-          </h2>
-          <p className={cn(
-            "max-w-xl mx-auto",
-            isDark ? "text-white/40" : "text-surface-500"
-          )}>
-            Don't just take our word for it. Here's what our customers say.
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ delay: index * 0.1, duration: 0.5, ease: easing }}
-              className={cn(
-                "relative p-6 rounded-2xl border transition-all duration-500",
-                isDark
-                  ? "bg-dark-900/60 border-white/[0.04] hover:border-brand-500/20"
-                  : "bg-white border-surface-200 hover:shadow-lg"
-              )}
-            >
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className={cn(
-                "text-sm leading-relaxed mb-6",
-                isDark ? "text-white/60" : "text-surface-600"
-              )}>
-                "{testimonial.text}"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm",
-                  isDark ? "bg-brand-500/20 text-brand-400" : "bg-brand-50 text-brand-600"
-                )}>
-                  {testimonial.avatar}
-                </div>
-                <div>
-                  <div className={cn(
-                    "font-semibold text-sm",
-                    isDark ? "text-white" : "text-surface-900"
-                  )}>
-                    {testimonial.name}
-                  </div>
-                  <div className={cn(
-                    "text-xs",
-                    isDark ? "text-white/40" : "text-surface-500"
-                  )}>
-                    {testimonial.role}
-                  </div>
-                </div>
-              </div>
             </motion.div>
           ))}
         </div>

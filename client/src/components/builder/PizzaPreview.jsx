@@ -4,188 +4,87 @@ import { cn } from '../../utils/helpers';
 import { useDarkMode, useMediaQuery } from '../../hooks';
 import { INGREDIENT_PHOTOS } from '../../data/images';
 
-const PIZZA_DIM = 260;
+const PIZZA_DIM = 300;
 
-/* ── Sauce visual config ─────────────────────────────────── */
+/* ── Premium Sauce palette ─────────────────────────────────── */
 const SAUCE_STYLES = {
-  marinara:     { base: '#C0392B', mid: '#E74C3C', highlight: '#FF6B5A', shadow: '#7B241C', gloss: 'rgba(255,120,90,0.35)' },
-  pesto:        { base: '#2D6A4F', mid: '#40916C', highlight: '#52B788', shadow: '#1B4332', gloss: 'rgba(82,183,136,0.35)' },
-  bbq:          { base: '#5C2D0E', mid: '#784212', highlight: '#A0522D', shadow: '#3E1A06', gloss: 'rgba(160,82,45,0.3)' },
-  garlic_white: { base: '#EDE0CC', mid: '#F5E6CA', highlight: '#FFF8E7', shadow: '#C4B89A', gloss: 'rgba(255,248,231,0.5)' },
-  buffalo:      { base: '#C0392B', mid: '#D35400', highlight: '#E67E22', shadow: '#7B1F0E', gloss: 'rgba(230,126,34,0.35)' },
+  marinara:     { base: '#B5342A', mid: '#D94438', highlight: '#F06050', shadow: '#7A1E16', gloss: 'rgba(255,95,65,0.4)' },
+  pesto:        { base: '#1E6B42', mid: '#2D8F5A', highlight: '#44B874', shadow: '#0F3D24', gloss: 'rgba(68,184,116,0.4)' },
+  bbq:          { base: '#4A2208', mid: '#6B3510', highlight: '#8E4D1C', shadow: '#2C1405', gloss: 'rgba(142,77,28,0.35)' },
+  garlic_white: { base: '#E8D8BE', mid: '#F2E6D0', highlight: '#FFF6E8', shadow: '#C4B090', gloss: 'rgba(255,246,232,0.55)' },
+  buffalo:      { base: '#C44020', mid: '#E05828', highlight: '#F47840', shadow: '#842810', gloss: 'rgba(244,120,64,0.4)' },
 };
 
-/* ── Cheese visual config ─────────────────────────────────── */
+/* ── Premium Cheese palette ─────────────────────────────────── */
 const CHEESE_STYLES = {
-  mozzarella: { base: '#FFF3CD', mid: '#FFEAA7', highlight: '#FFFEF5', shadow: '#E8D5A3', gloss: 'rgba(255,254,245,0.6)', name: 'Mozzarella' },
-  parmesan:   { base: '#F0DEB4', mid: '#E8D5A3', highlight: '#FFF8E1', shadow: '#C9B88B', gloss: 'rgba(255,248,225,0.4)', name: 'Parmigiano' },
-  provolone:  { base: '#F5E6A0', mid: '#EDDA7A', highlight: '#FFF9C4', shadow: '#D4C06A', gloss: 'rgba(255,249,196,0.5)', name: 'Provolone' },
-  gouda:      { base: '#FFD54F', mid: '#FFC107', highlight: '#FFE082', shadow: '#C49000', gloss: 'rgba(255,224,130,0.45)', name: 'Gouda' },
-  vegan:      { base: '#F5F0E1', mid: '#EDE8D5', highlight: '#FFFEF8', shadow: '#D5D0C1', gloss: 'rgba(255,254,248,0.4)', name: 'Vegan' },
+  mozzarella: { base: '#F5E6B8', mid: '#FCEFD0', highlight: '#FFFDF5', shadow: '#D4C48E', gloss: 'rgba(255,253,245,0.65)', name: 'Mozzarella' },
+  parmesan:   { base: '#E8D49A', mid: '#F0DEB0', highlight: '#FFF6DC', shadow: '#C4A86A', gloss: 'rgba(255,246,220,0.45)', name: 'Parmigiano' },
+  provolone:  { base: '#ECD888', mid: '#F4E4A0', highlight: '#FFFCDA', shadow: '#C4A850', gloss: 'rgba(255,252,218,0.5)', name: 'Provolone' },
+  gouda:      { base: '#F0C040', mid: '#F8D060', highlight: '#FFE888', shadow: '#C09020', gloss: 'rgba(255,232,136,0.5)', name: 'Gouda' },
+  vegan:      { base: '#EAE4D0', mid: '#F0ECE0', highlight: '#FDFCF8', shadow: '#C8C2B0', gloss: 'rgba(253,252,248,0.45)', name: 'Vegan' },
 };
 
-/* ── Crust visual config ─────────────────────────────────── */
+/* ── Premium Crust palette ─────────────────────────────────── */
 const BASE_STYLES = {
-  thin:        { w: 8,  d: '#7A5C1F', m: '#A0793D', l: '#C49A5E', hl: '#D4B87A', label: 'Thin' },
-  regular:     { w: 12, d: '#8B5E34', m: '#A0724A', l: '#C49466', hl: '#D4A87E', label: 'Regular' },
-  thick:       { w: 16, d: '#6B3A1A', m: '#8B5E34', l: '#B8844C', hl: '#CD9A66', label: 'Thick' },
-  stuffed:     { w: 18, d: '#7A5C1F', m: '#9B7838', l: '#C49A5E', hl: '#D4B87A', label: 'Stuffed' },
-  gluten_free: { w: 10, d: '#5A7A4A', m: '#7A9A6A', l: '#9AB88A', hl: '#B0D0A0', label: 'GF Cauliflower' },
-};
-
-/* ── Topping rendering configs ─────────────────────────────── */
-const TOPPING_RENDER = {
-  mushrooms: {
-    label: 'Mushrooms',
-    positions: [
-      { x: 35, y: 32, r: -12 }, { x: 58, y: 35, r: 8 }, { x: 42, y: 50, r: -5 },
-      { x: 65, y: 48, r: 15 }, { x: 28, y: 58, r: -8 }, { x: 55, y: 65, r: 3 },
-      { x: 38, y: 72, r: -18 }, { x: 62, y: 70, r: 10 }, { x: 48, y: 42, r: -3 },
-    ],
-  },
-  bell_peppers: {
-    label: 'Bell Peppers',
-    positions: [
-      { x: 32, y: 35, r: 25 }, { x: 58, y: 32, r: -15 }, { x: 45, y: 48, r: 40 },
-      { x: 65, y: 55, r: -30 }, { x: 35, y: 60, r: 10 }, { x: 52, y: 68, r: -20 },
-      { x: 72, y: 45, r: 35 }, { x: 40, y: 75, r: -10 }, { x: 60, y: 78, r: 20 },
-    ],
-  },
-  red_onion: {
-    label: 'Red Onion',
-    positions: [
-      { x: 48, y: 30, r: 5 }, { x: 30, y: 42, r: -10 }, { x: 68, y: 40, r: 15 },
-      { x: 42, y: 55, r: -8 }, { x: 58, y: 58, r: 12 }, { x: 25, y: 55, r: -5 },
-      { x: 72, y: 55, r: 8 }, { x: 45, y: 70, r: -15 }, { x: 62, y: 72, r: 10 },
-    ],
-  },
-  olives: {
-    label: 'Olives',
-    positions: [
-      { x: 50, y: 28, r: 0 }, { x: 35, y: 38, r: 15 }, { x: 65, y: 36, r: -10 },
-      { x: 28, y: 52, r: 8 }, { x: 52, y: 50, r: -5 }, { x: 75, y: 48, r: 12 },
-      { x: 40, y: 65, r: -8 }, { x: 60, y: 62, r: 5 }, { x: 50, y: 75, r: -12 },
-    ],
-  },
-  tomatoes: {
-    label: 'Cherry Tomatoes',
-    positions: [
-      { x: 42, y: 34, r: 10 }, { x: 62, y: 32, r: -8 }, { x: 38, y: 50, r: 15 },
-      { x: 58, y: 52, r: -12 }, { x: 32, y: 62, r: 5 }, { x: 55, y: 68, r: -15 },
-      { x: 72, y: 58, r: 8 }, { x: 45, y: 75, r: -5 }, { x: 65, y: 72, r: 12 },
-    ],
-  },
-  spinach: {
-    label: 'Spinach',
-    positions: [
-      { x: 45, y: 32, r: 20 }, { x: 55, y: 40, r: -25 }, { x: 35, y: 45, r: 35 },
-      { x: 65, y: 48, r: -15 }, { x: 48, y: 58, r: 10 }, { x: 30, y: 58, r: -30 },
-      { x: 70, y: 55, r: 25 }, { x: 52, y: 70, r: -20 }, { x: 40, y: 68, r: 15 },
-    ],
-  },
-  jalapenos: {
-    label: 'Jalapeños',
-    positions: [
-      { x: 52, y: 30, r: 15 }, { x: 38, y: 40, r: -20 }, { x: 62, y: 38, r: 5 },
-      { x: 45, y: 52, r: -10 }, { x: 28, y: 52, r: 25 }, { x: 68, y: 50, r: -15 },
-      { x: 55, y: 65, r: 10 }, { x: 35, y: 65, r: -8 }, { x: 65, y: 68, r: 20 },
-    ],
-  },
-  artichoke: {
-    label: 'Artichoke',
-    positions: [
-      { x: 40, y: 35, r: 10 }, { x: 60, y: 35, r: -15 }, { x: 35, y: 50, r: 20 },
-      { x: 55, y: 50, r: -10 }, { x: 70, y: 45, r: 5 }, { x: 42, y: 62, r: -20 },
-      { x: 58, y: 65, r: 15 }, { x: 48, y: 75, r: -5 }, { x: 32, y: 72, r: 10 },
-    ],
-  },
-  arugula: {
-    label: 'Arugula',
-    positions: [
-      { x: 50, y: 35, r: 30 }, { x: 35, y: 45, r: -20 }, { x: 65, y: 42, r: 15 },
-      { x: 45, y: 55, r: -25 }, { x: 60, y: 58, r: 10 }, { x: 30, y: 60, r: -15 },
-      { x: 72, y: 55, r: 25 }, { x: 52, y: 70, r: -10 }, { x: 40, y: 72, r: 20 },
-    ],
-  },
-  caramelized_onion: {
-    label: 'Onion Jam',
-    positions: [
-      { x: 48, y: 32, r: -5 }, { x: 38, y: 42, r: 10 }, { x: 58, y: 40, r: -15 },
-      { x: 42, y: 55, r: 8 }, { x: 62, y: 52, r: -12 }, { x: 35, y: 62, r: 5 },
-      { x: 55, y: 62, r: -8 }, { x: 68, y: 60, r: 15 }, { x: 50, y: 75, r: -10 },
-    ],
-  },
-  sun_dried_tomato: {
-    label: 'Sun-Dried Tomato',
-    positions: [
-      { x: 52, y: 35, r: 12 }, { x: 40, y: 38, r: -8 }, { x: 60, y: 42, r: 18 },
-      { x: 35, y: 52, r: -15 }, { x: 55, y: 55, r: 5 }, { x: 70, y: 50, r: -10 },
-      { x: 42, y: 65, r: 15 }, { x: 62, y: 68, r: -12 }, { x: 50, y: 78, r: 8 },
-    ],
-  },
-  truffle_oil: {
-    label: 'Truffle Oil',
-    positions: [
-      { x: 50, y: 30, r: 0 }, { x: 35, y: 40, r: 0 }, { x: 65, y: 38, r: 0 },
-      { x: 45, y: 50, r: 0 }, { x: 58, y: 55, r: 0 }, { x: 30, y: 55, r: 0 },
-      { x: 70, y: 52, r: 0 }, { x: 52, y: 68, r: 0 }, { x: 42, y: 72, r: 0 },
-      { x: 60, y: 65, r: 0 }, { x: 38, y: 58, r: 0 }, { x: 68, y: 72, r: 0 },
-    ],
-  },
+  thin:        { w: 9,  d: '#6A4A18', m: '#8E6830', l: '#B89050', hl: '#D0A868', label: 'Thin' },
+  regular:     { w: 13, d: '#7A5020', m: '#9A6A38', l: '#BE8C54', hl: '#D4A46C', label: 'Regular' },
+  thick:       { w: 17, d: '#5A3010', m: '#7A4A20', l: '#A06A38', hl: '#BC8250', label: 'Thick' },
+  stuffed:     { w: 19, d: '#6A4A18', m: '#8A6430', l: '#B89050', hl: '#CCA464', label: 'Stuffed' },
+  gluten_free: { w: 11, d: '#4A6838', m: '#6A8A58', l: '#8AAA78', hl: '#A0C490', label: 'GF Cauliflower' },
 };
 
 /* ══════════════════════════════════════════════════════════════
-   CSS-BASED INGREDIENT RENDERERS
-   Each creates a realistic food-shaped element using
-   gradients, shadows, and shaped containers.
+   PREMIUM 3D TOPPING COMPONENTS
+   Each renders a polished, stylized food illustration with
+   layered gradients, specular highlights, and soft shadows.
    ══════════════════════════════════════════════════════════════ */
 
-function MushroomSlice({ size = 24 }) {
+function MushroomSlice({ size = 28 }) {
   return (
     <div style={{ width: size, height: size, position: 'relative' }}>
-      {/* Cap */}
+      {/* Shadow underneath */}
       <div style={{
-        position: 'absolute', bottom: '30%', left: '10%', right: '10%', height: '55%',
-        borderRadius: '50% 50% 10% 10%',
-        background: 'linear-gradient(135deg, #D4A574 0%, #A0724A 40%, #7A5232 100%)',
-        boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 3px rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.25)',
-      }} />
-      {/* Cap highlight */}
-      <div style={{
-        position: 'absolute', bottom: '55%', left: '22%', width: '30%', height: '20%',
+        position: 'absolute', bottom: '2%', left: '15%', width: '70%', height: '20%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(0,0,0,0.18) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Cap — 3D dome shape */}
+      <div style={{
+        position: 'absolute', bottom: '28%', left: '8%', right: '8%', height: '52%',
+        borderRadius: '52% 52% 12% 12%',
+        background: `
+          radial-gradient(ellipse at 35% 30%, rgba(255,255,255,0.18) 0%, transparent 45%),
+          linear-gradient(160deg, #D4A878 0%, #B08050 25%, #8A6038 55%, #6A4428 85%, #4A2E18 100%)
+        `,
+        boxShadow: `
+          0 3px 8px rgba(60,30,10,0.4),
+          inset 0 -3px 6px rgba(0,0,0,0.15),
+          inset 0 2px 4px rgba(255,220,180,0.2)
+        `,
+      }} />
+      {/* Cap top highlight — specular */}
+      <div style={{
+        position: 'absolute', bottom: '58%', left: '20%', width: '35%', height: '16%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.35) 0%, transparent 70%)',
+      }} />
+      {/* Gills — underside texture */}
+      <div style={{
+        position: 'absolute', bottom: '28%', left: '18%', right: '18%', height: '18%',
+        borderRadius: '0 0 40% 40%',
+        background: 'linear-gradient(180deg, rgba(120,80,40,0.3) 0%, rgba(80,50,20,0.15) 100%)',
       }} />
       {/* Stem */}
       <div style={{
-        position: 'absolute', bottom: '5%', left: '32%', right: '32%', height: '35%',
-        borderRadius: '20%',
-        background: 'linear-gradient(180deg, #F5E6CA 0%, #E8D5A3 100%)',
-        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3)',
+        position: 'absolute', bottom: '6%', left: '30%', right: '30%', height: '30%',
+        borderRadius: '25% 25% 30% 30%',
+        background: 'linear-gradient(180deg, #F0E0C8 0%, #E0CCA8 40%, #D0B888 100%)',
+        boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.35), 0 2px 4px rgba(0,0,0,0.15)',
       }} />
-    </div>
-  );
-}
-
-function BellPepperSlice({ size = 22 }) {
-  return (
-    <div style={{
-      width: size, height: size * 0.7,
-      borderRadius: '45% 45% 35% 35%',
-      background: 'linear-gradient(160deg, #4CAF50 0%, #2E7D32 40%, #1B5E20 100%)',
-      boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.25)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Inner wall highlight */}
+      {/* Stem highlight */}
       <div style={{
-        position: 'absolute', top: '15%', left: '15%', right: '15%', bottom: '25%',
-        borderRadius: '40%',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%)',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }} />
-      {/* Gloss */}
-      <div style={{
-        position: 'absolute', top: '8%', left: '20%', width: '35%', height: '25%',
+        position: 'absolute', bottom: '18%', left: '36%', width: '20%', height: '12%',
         borderRadius: '50%',
         background: 'radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)',
       }} />
@@ -193,271 +92,482 @@ function BellPepperSlice({ size = 22 }) {
   );
 }
 
-function RedOnionRing({ size = 22 }) {
+function BellPepperSlice({ size = 26 }) {
   return (
-    <div style={{
-      width: size, height: size,
-      borderRadius: '50%',
-      border: `${size * 0.18}px solid transparent`,
-      background: `linear-gradient(145deg, #8B1A4A, #C2185B 30%, #E91E63 60%, #AD1457) padding-box,
-                   linear-gradient(145deg, #F8BBD0, #F48FB1, #FCE4EC) border-box`,
-      boxShadow: '0 2px 5px rgba(139,26,74,0.3), inset 0 1px 3px rgba(255,255,255,0.1)',
-      position: 'relative',
-    }}>
+    <div style={{ width: size, height: size * 0.72, position: 'relative' }}>
+      {/* Shadow */}
       <div style={{
-        position: 'absolute', inset: '15%',
+        position: 'absolute', bottom: '0%', left: '12%', width: '76%', height: '18%',
         borderRadius: '50%',
-        background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.2) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse, rgba(0,0,0,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Outer wall — 3D curved shape */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '48% 48% 36% 36%',
+        background: `
+          radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.2) 0%, transparent 40%),
+          linear-gradient(165deg, #5CB860 0%, #3A9040 25%, #287830 55%, #1A5A20 85%)
+        `,
+        boxShadow: `
+          0 3px 10px rgba(20,60,20,0.35),
+          inset 0 3px 6px rgba(255,255,255,0.15),
+          inset 0 -3px 8px rgba(0,0,0,0.12)
+        `,
+      }} />
+      {/* Inner wall — hollow center */}
+      <div style={{
+        position: 'absolute', top: '18%', left: '16%', right: '16%', bottom: '22%',
+        borderRadius: '42%',
+        background: 'linear-gradient(180deg, rgba(200,240,200,0.15) 0%, rgba(180,230,180,0.08) 100%)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }} />
+      {/* Specular highlight — glossy pepper skin */}
+      <div style={{
+        position: 'absolute', top: '10%', left: '18%', width: '40%', height: '28%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.32) 0%, transparent 65%)',
+      }} />
+      {/* Secondary highlight */}
+      <div style={{
+        position: 'absolute', top: '20%', right: '20%', width: '20%', height: '15%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.15) 0%, transparent 70%)',
       }} />
     </div>
   );
 }
 
-function OliveSlice({ size = 18 }) {
+function RedOnionRing({ size = 26 }) {
   return (
-    <div style={{
-      width: size, height: size,
-      borderRadius: '50%',
-      border: `${size * 0.22}px solid #2C2C2C`,
-      background: `linear-gradient(145deg, #1B5E20, #2E7D32 30%, #1B5E20 70%, #0D3311)`,
-      boxShadow: '0 2px 5px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.1)',
-      position: 'relative',
-    }}>
-      {/* Center pit hole */}
+    <div style={{ width: size, height: size, position: 'relative' }}>
+      {/* Shadow */}
       <div style={{
-        position: 'absolute', inset: '30%',
+        position: 'absolute', bottom: '5%', left: '10%', width: '80%', height: '20%',
         borderRadius: '50%',
-        background: 'radial-gradient(circle at 40% 40%, #5D4037, #3E2723)',
-        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)',
+        background: 'radial-gradient(ellipse, rgba(80,10,40,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
       }} />
-      {/* Gloss */}
+      {/* Outer ring — layered onion skin effect */}
       <div style={{
-        position: 'absolute', top: '5%', left: '15%', width: '35%', height: '25%',
+        position: 'absolute', inset: 0,
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)',
+        border: `${size * 0.2}px solid transparent`,
+        background: `
+          linear-gradient(150deg, #9A1850 0%, #C22068 25%, #E03080 50%, #C22068 75%, #8A1040 100%) padding-box,
+          linear-gradient(150deg, #F0C0D8 0%, #E8A0C0 30%, #D080A0 70%, #F0C0D8 100%) border-box
+        `,
+        boxShadow: `
+          0 3px 10px rgba(120,20,60,0.3),
+          inset 0 2px 4px rgba(255,255,255,0.12),
+          inset 0 -2px 4px rgba(0,0,0,0.1)
+        `,
+      }} />
+      {/* Inner layers — concentric rings */}
+      <div style={{
+        position: 'absolute', inset: '28%',
+        borderRadius: '50%',
+        border: `${size * 0.06}px solid rgba(220,160,190,0.3)`,
+        background: 'radial-gradient(circle, rgba(255,220,240,0.12) 0%, transparent 70%)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: '40%',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 40% 40%, rgba(255,240,248,0.15) 0%, rgba(200,140,170,0.08) 60%, transparent 80%)',
+      }} />
+      {/* Specular */}
+      <div style={{
+        position: 'absolute', top: '12%', left: '18%', width: '30%', height: '22%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.28) 0%, transparent 70%)',
       }} />
     </div>
   );
 }
 
-function TomatoSlice({ size = 20 }) {
+function OliveSlice({ size = 22 }) {
   return (
-    <div style={{
-      width: size, height: size * 0.6,
-      borderRadius: '50% 50% 45% 45%',
-      background: 'linear-gradient(150deg, #FF6B5A 0%, #E53935 30%, #C62828 70%, #8E0000 100%)',
-      boxShadow: '0 2px 5px rgba(198,40,40,0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Seed chambers */}
-      {[0.25, 0.5, 0.75].map((p, i) => (
+    <div style={{ width: size, height: size, position: 'relative' }}>
+      {/* Shadow */}
+      <div style={{
+        position: 'absolute', bottom: '5%', left: '8%', width: '84%', height: '20%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(0,0,0,0.18) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Olive flesh — dark glossy ring */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '50%',
+        border: `${size * 0.24}px solid #2A2520`,
+        background: `linear-gradient(150deg, #3A5030 0%, #2A4020 30%, #1A3010 70%, #102008 100%)`,
+        boxShadow: `
+          0 3px 8px rgba(0,0,0,0.4),
+          inset 0 2px 4px rgba(255,255,255,0.08),
+          inset 0 -2px 4px rgba(0,0,0,0.2)
+        `,
+      }} />
+      {/* Pit cavity — depth illusion */}
+      <div style={{
+        position: 'absolute', inset: '32%',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 42% 40%, #5A4030 0%, #3A2818 50%, #2A1A10 100%)',
+        boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.5), inset 0 -1px 3px rgba(100,80,60,0.15)',
+      }} />
+      {/* Glossy highlight */}
+      <div style={{
+        position: 'absolute', top: '6%', left: '12%', width: '38%', height: '28%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.22) 0%, transparent 65%)',
+      }} />
+    </div>
+  );
+}
+
+function TomatoSlice({ size = 24 }) {
+  return (
+    <div style={{ width: size, height: size * 0.65, position: 'relative' }}>
+      {/* Shadow */}
+      <div style={{
+        position: 'absolute', bottom: '0%', left: '10%', width: '80%', height: '18%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(120,10,10,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Tomato body — 3D curved half */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '52% 52% 42% 42%',
+        background: `
+          radial-gradient(ellipse at 32% 28%, rgba(255,255,255,0.22) 0%, transparent 35%),
+          linear-gradient(160deg, #F06040 0%, #E04030 25%, #C82820 55%, #A01810 85%)
+        `,
+        boxShadow: `
+          0 3px 10px rgba(140,20,15,0.35),
+          inset 0 3px 5px rgba(255,150,120,0.2),
+          inset 0 -2px 5px rgba(0,0,0,0.12)
+        `,
+      }} />
+      {/* Seed chambers — subtle golden gel */}
+      {[0.28, 0.5, 0.72].map((p, i) => (
         <div key={i} style={{
-          position: 'absolute', top: '25%', left: `${p * 80}%`, width: '18%', height: '50%',
+          position: 'absolute', top: '28%', left: `${p * 78 + 8}%`, width: '16%', height: '48%',
           borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(255,200,100,0.35) 0%, rgba(255,150,50,0.15) 60%, transparent 80%)',
+          background: 'radial-gradient(ellipse, rgba(255,210,120,0.3) 0%, rgba(255,180,80,0.12) 55%, transparent 80%)',
           transform: 'translate(-50%, 0)',
         }} />
       ))}
-      {/* Gloss */}
+      {/* Glossy skin highlight */}
       <div style={{
-        position: 'absolute', top: '10%', left: '15%', width: '40%', height: '30%',
+        position: 'absolute', top: '12%', left: '14%', width: '38%', height: '28%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.32) 0%, transparent 65%)',
       }} />
     </div>
   );
 }
 
-function JalapenoSlice({ size = 18 }) {
+function JalapenoSlice({ size = 22 }) {
   return (
-    <div style={{
-      width: size, height: size,
-      borderRadius: '50%',
-      background: 'linear-gradient(150deg, #4CAF50 0%, #388E3C 35%, #2E7D32 65%, #1B5E20 100%)',
-      boxShadow: '0 2px 5px rgba(30,94,32,0.35), inset 0 1px 3px rgba(255,255,255,0.12)',
-      position: 'relative', overflow: 'hidden',
-    }}>
+    <div style={{ width: size, height: size, position: 'relative' }}>
+      {/* Shadow */}
+      <div style={{
+        position: 'absolute', bottom: '5%', left: '8%', width: '84%', height: '18%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(20,50,20,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Outer ring — pepper wall */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '50%',
+        background: `
+          radial-gradient(circle at 35% 30%, rgba(255,255,255,0.15) 0%, transparent 40%),
+          linear-gradient(155deg, #48A048 0%, #348034 30%, #246824 65%, #184A18 100%)
+        `,
+        boxShadow: `
+          0 3px 8px rgba(20,50,20,0.35),
+          inset 0 2px 4px rgba(255,255,255,0.12),
+          inset 0 -2px 4px rgba(0,0,0,0.1)
+        `,
+      }} />
       {/* Inner membrane */}
       <div style={{
-        position: 'absolute', inset: '12%',
+        position: 'absolute', inset: '14%',
         borderRadius: '50%',
-        border: '1px solid rgba(200,230,200,0.2)',
-        background: 'radial-gradient(circle, rgba(180,230,180,0.15) 0%, transparent 70%)',
+        border: '1px solid rgba(180,230,180,0.18)',
+        background: 'radial-gradient(circle, rgba(160,220,160,0.1) 0%, transparent 65%)',
       }} />
-      {/* Seeds */}
+      {/* Seeds — realistic oval shape */}
       {[
-        { x: 30, y: 30 }, { x: 55, y: 25 }, { x: 40, y: 50 },
-        { x: 60, y: 48 }, { x: 45, y: 68 }, { x: 65, y: 65 },
+        { x: 32, y: 32 }, { x: 56, y: 28 }, { x: 42, y: 52 },
+        { x: 62, y: 50 }, { x: 48, y: 70 }, { x: 68, y: 66 },
       ].map((p, i) => (
         <div key={i} style={{
           position: 'absolute', left: `${p.x}%`, top: `${p.y}%`,
-          width: '10%', height: '14%',
+          width: '9%', height: '13%',
           borderRadius: '50%',
-          transform: 'translate(-50%,-50%) rotate(15deg)',
-          background: 'linear-gradient(180deg, #FFF8E1 0%, #F5E6A0 100%)',
-          boxShadow: '0 0 1px rgba(0,0,0,0.15)',
+          transform: 'translate(-50%,-50%) rotate(18deg)',
+          background: 'linear-gradient(180deg, #FFF8E0 0%, #F0E0A0 50%, #E0C870 100%)',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.15), inset 0 0.5px 1px rgba(255,255,255,0.4)',
         }} />
       ))}
-      {/* Gloss */}
+      {/* Glossy highlight */}
       <div style={{
-        position: 'absolute', top: '8%', left: '15%', width: '35%', height: '25%',
+        position: 'absolute', top: '8%', left: '14%', width: '38%', height: '26%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.28) 0%, transparent 65%)',
       }} />
     </div>
   );
 }
 
-function SpinachLeaf({ size = 22 }) {
+function SpinachLeaf({ size = 26 }) {
   return (
-    <div style={{
-      width: size, height: size * 0.7,
-      borderRadius: '70% 30% 65% 35%',
-      background: 'linear-gradient(135deg, #66BB6A 0%, #43A047 30%, #2E7D32 70%, #1B5E20 100%)',
-      boxShadow: '0 2px 5px rgba(27,94,32,0.3), inset 0 1px 3px rgba(255,255,255,0.12)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Center vein */}
+    <div style={{ width: size, height: size * 0.72, position: 'relative' }}>
+      {/* Shadow */}
       <div style={{
-        position: 'absolute', top: '20%', left: '48%', width: '4%', height: '65%',
-        borderRadius: '2px',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
+        position: 'absolute', bottom: '2%', left: '10%', width: '80%', height: '18%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(20,60,20,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Leaf body — organic shape with depth */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '72% 28% 68% 32%',
+        background: `
+          radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.15) 0%, transparent 40%),
+          linear-gradient(140deg, #5AAA50 0%, #3A8A38 25%, #286A28 55%, #1A4A1A 85%)
+        `,
+        boxShadow: `
+          0 3px 10px rgba(20,60,20,0.3),
+          inset 0 2px 4px rgba(255,255,255,0.12),
+          inset 0 -2px 4px rgba(0,0,0,0.1)
+        `,
+      }} />
+      {/* Center vein — main rib */}
+      <div style={{
+        position: 'absolute', top: '18%', left: '47%', width: '5%', height: '68%',
+        borderRadius: '3px',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(200,230,200,0.08) 100%)',
       }} />
       {/* Side veins */}
-      {[25, 40, 55, 70].map((p, i) => (
+      {[28, 42, 56, 68].map((p, i) => (
         <div key={i} style={{
-          position: 'absolute', top: `${p}%`, left: '25%', width: '50%', height: '1px',
+          position: 'absolute', top: `${p}%`, left: '22%', width: '56%', height: '1px',
           background: 'rgba(255,255,255,0.08)',
-          transform: `rotate(${i % 2 ? 15 : -15}deg)`,
+          transform: `rotate(${i % 2 ? 12 : -12}deg)`,
         }} />
       ))}
-      {/* Gloss */}
+      {/* Glossy highlight */}
       <div style={{
-        position: 'absolute', top: '10%', left: '15%', width: '40%', height: '30%',
+        position: 'absolute', top: '10%', left: '14%', width: '42%', height: '28%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.22) 0%, transparent 65%)',
       }} />
     </div>
   );
 }
 
-function ArtichokePiece({ size = 22 }) {
+function ArtichokePiece({ size = 26 }) {
   return (
-    <div style={{
-      width: size, height: size * 0.8,
-      borderRadius: '50% 50% 30% 30%',
-      background: 'linear-gradient(150deg, #8BC34A 0%, #689F38 30%, #558B2F 60%, #33691E 100%)',
-      boxShadow: '0 2px 5px rgba(51,105,30,0.3), inset 0 1px 3px rgba(255,255,255,0.1)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Layer lines */}
-      {[30, 45, 60].map((p, i) => (
+    <div style={{ width: size, height: size * 0.82, position: 'relative' }}>
+      {/* Shadow */}
+      <div style={{
+        position: 'absolute', bottom: '2%', left: '10%', width: '80%', height: '18%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(30,60,20,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Artichoke body — layered leaf shape */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '50% 50% 28% 28%',
+        background: `
+          radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.15) 0%, transparent 40%),
+          linear-gradient(155deg, #8AB848 0%, #6A9838 25%, #508028 55%, #386018 85%)
+        `,
+        boxShadow: `
+          0 3px 8px rgba(40,70,20,0.3),
+          inset 0 2px 4px rgba(255,255,255,0.1),
+          inset 0 -2px 4px rgba(0,0,0,0.1)
+        `,
+      }} />
+      {/* Layer lines — overlapping leaves */}
+      {[28, 42, 56].map((p, i) => (
         <div key={i} style={{
-          position: 'absolute', top: `${p}%`, left: '15%', right: '15%', height: '1px',
-          background: 'rgba(255,255,255,0.12)',
+          position: 'absolute', top: `${p}%`, left: '14%', right: '14%', height: '1px',
+          background: 'rgba(255,255,255,0.1)',
           borderRadius: '50%',
         }} />
       ))}
-      {/* Gloss */}
+      {/* Glossy highlight */}
       <div style={{
-        position: 'absolute', top: '10%', left: '20%', width: '35%', height: '25%',
+        position: 'absolute', top: '10%', left: '18%', width: '38%', height: '26%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 65%)',
       }} />
     </div>
   );
 }
 
-function ArugulaLeaf({ size = 22 }) {
+function ArugulaLeaf({ size = 26 }) {
   return (
-    <div style={{
-      width: size, height: size * 0.65,
-      borderRadius: '60% 40% 55% 45% / 50% 50% 50% 50%',
-      background: 'linear-gradient(130deg, #7CB342 0%, #558B2F 40%, #33691E 100%)',
-      boxShadow: '0 2px 4px rgba(51,105,30,0.25), inset 0 1px 2px rgba(255,255,255,0.1)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Jagged edges effect via pseudo-shadow */}
+    <div style={{ width: size, height: size * 0.68, position: 'relative' }}>
+      {/* Shadow */}
+      <div style={{
+        position: 'absolute', bottom: '2%', left: '8%', width: '84%', height: '16%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(30,60,20,0.12) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Leaf body — elongated jagged shape */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '62% 38% 58% 42% / 52% 48% 52% 48%',
+        background: `
+          radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.12) 0%, transparent 38%),
+          linear-gradient(135deg, #6AAA38 0%, #4A8828 30%, #386820 65%, #285018 100%)
+        `,
+        boxShadow: `
+          0 2px 8px rgba(30,60,20,0.28),
+          inset 0 2px 3px rgba(255,255,255,0.1),
+          inset 0 -1px 3px rgba(0,0,0,0.08)
+        `,
+      }} />
+      {/* Jagged edge illusion */}
       <div style={{
         position: 'absolute', inset: 0,
         borderRadius: 'inherit',
-        boxShadow: 'inset 2px 0 3px -2px rgba(51,105,30,0.3), inset -2px 0 3px -2px rgba(51,105,30,0.3)',
+        boxShadow: 'inset 2px 0 4px -2px rgba(30,60,20,0.25), inset -2px 0 4px -2px rgba(30,60,20,0.25)',
       }} />
       {/* Center vein */}
       <div style={{
-        position: 'absolute', top: '20%', left: '48%', width: '4%', height: '60%',
+        position: 'absolute', top: '18%', left: '47%', width: '5%', height: '62%',
         borderRadius: '2px',
         background: 'rgba(255,255,255,0.1)',
       }} />
-      {/* Gloss */}
+      {/* Glossy highlight */}
       <div style={{
-        position: 'absolute', top: '10%', left: '20%', width: '35%', height: '25%',
+        position: 'absolute', top: '10%', left: '18%', width: '38%', height: '24%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.2) 0%, transparent 65%)',
       }} />
     </div>
   );
 }
 
-function CaramelizedOnionStrip({ size = 20 }) {
+function CaramelizedOnionStrip({ size = 24 }) {
   return (
-    <div style={{
-      width: size, height: size * 0.3,
-      borderRadius: '40% 60% 50% 50% / 80% 80% 20% 20%',
-      background: 'linear-gradient(90deg, #8D6E3F, #A0793D 30%, #C49A5E 60%, #8D6E3F)',
-      boxShadow: '0 1px 3px rgba(100,70,30,0.35), inset 0 1px 2px rgba(255,255,255,0.15)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Gloss */}
+    <div style={{ width: size, height: size * 0.32, position: 'relative' }}>
+      {/* Shadow */}
       <div style={{
-        position: 'absolute', top: '10%', left: '20%', width: '40%', height: '40%',
+        position: 'absolute', bottom: '0%', left: '5%', width: '90%', height: '30%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.25) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(80,50,10,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Onion strip — caramelized golden color */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '42% 58% 52% 48% / 82% 78% 22% 18%',
+        background: `
+          linear-gradient(90deg, #7A5828 0%, #9A7038 20%, #C49850 45%, #B08840 65%, #8A6030 85%, #6A4420 100%)
+        `,
+        boxShadow: `
+          0 2px 6px rgba(60,35,10,0.3),
+          inset 0 1px 3px rgba(255,220,140,0.2),
+          inset 0 -1px 2px rgba(0,0,0,0.1)
+        `,
+      }} />
+      {/* Glossy caramel sheen */}
+      <div style={{
+        position: 'absolute', top: '10%', left: '18%', width: '45%', height: '40%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,230,150,0.3) 0%, transparent 65%)',
+      }} />
+      {/* Texture lines */}
+      <div style={{
+        position: 'absolute', top: '35%', left: '15%', right: '15%', height: '1px',
+        background: 'rgba(255,220,140,0.15)',
       }} />
     </div>
   );
 }
 
-function SunDriedTomato({ size = 18 }) {
+function SunDriedTomato({ size = 22 }) {
   return (
-    <div style={{
-      width: size, height: size * 0.7,
-      borderRadius: '45% 55% 50% 50% / 55% 55% 45% 45%',
-      background: 'linear-gradient(140deg, #B71C1C 0%, #8B0000 40%, #5D0000 100%)',
-      boxShadow: '0 2px 4px rgba(93,0,0,0.4), inset 0 1px 3px rgba(255,200,200,0.1)',
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Wrinkle lines */}
-      {[30, 50, 70].map((p, i) => (
+    <div style={{ width: size, height: size * 0.72, position: 'relative' }}>
+      {/* Shadow */}
+      <div style={{
+        position: 'absolute', bottom: '2%', left: '8%', width: '84%', height: '18%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(80,0,0,0.15) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Tomato body — dark red, wrinkled */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '46% 54% 52% 48% / 58% 56% 44% 42%',
+        background: `
+          radial-gradient(ellipse at 30% 25%, rgba(255,180,180,0.15) 0%, transparent 35%),
+          linear-gradient(145deg, #A01818 0%, #801010 30%, #600808 65%, #400404 100%)
+        `,
+        boxShadow: `
+          0 3px 8px rgba(60,0,0,0.4),
+          inset 0 2px 3px rgba(255,160,160,0.1),
+          inset 0 -1px 3px rgba(0,0,0,0.15)
+        `,
+      }} />
+      {/* Wrinkle texture — dehydration lines */}
+      {[28, 45, 62].map((p, i) => (
         <div key={i} style={{
-          position: 'absolute', top: `${p}%`, left: '10%', right: '10%', height: '1px',
-          background: 'rgba(0,0,0,0.15)',
-          transform: `rotate(${(i - 1) * 8}deg)`,
+          position: 'absolute', top: `${p}%`, left: '12%', right: '12%', height: '1px',
+          background: 'rgba(0,0,0,0.18)',
+          transform: `rotate(${(i - 1) * 6}deg)`,
         }} />
       ))}
-      {/* Gloss */}
+      {/* Subtle gloss */}
       <div style={{
-        position: 'absolute', top: '10%', left: '15%', width: '35%', height: '30%',
+        position: 'absolute', top: '12%', left: '14%', width: '35%', height: '28%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,200,200,0.2) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(255,200,200,0.18) 0%, transparent 65%)',
       }} />
     </div>
   );
 }
 
-function TruffleOilDrop({ size = 14 }) {
+function TruffleOilDrop({ size = 16 }) {
   return (
-    <div style={{
-      width: size, height: size,
-      borderRadius: '50%',
-      background: 'radial-gradient(circle at 35% 35%, #C8A84E 0%, #A08230 40%, #785A18 100%)',
-      boxShadow: '0 2px 6px rgba(120,90,24,0.4), 0 0 8px rgba(200,168,78,0.3)',
-      position: 'relative',
-    }}>
+    <div style={{ width: size, height: size, position: 'relative' }}>
+      {/* Shadow */}
       <div style={{
-        position: 'absolute', top: '15%', left: '20%', width: '30%', height: '25%',
+        position: 'absolute', bottom: '8%', left: '10%', width: '80%', height: '25%',
         borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, transparent 70%)',
+        filter: 'blur(2px)',
+      }} />
+      {/* Oil droplet — golden, glossy */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '50%',
+        background: `
+          radial-gradient(circle at 32% 30%, rgba(255,255,255,0.35) 0%, transparent 40%),
+          radial-gradient(circle at 50% 55%, #D4A830 0%, #B89020 40%, #987818 70%, #786010 100%)
+        `,
+        boxShadow: `
+          0 2px 8px rgba(120,90,20,0.4),
+          0 0 10px rgba(200,160,50,0.25),
+          inset 0 1px 3px rgba(255,255,255,0.25)
+        `,
+      }} />
+      {/* Specular highlight */}
+      <div style={{
+        position: 'absolute', top: '14%', left: '18%', width: '32%', height: '28%',
+        borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.5) 0%, transparent 70%)',
       }} />
     </div>
   );
@@ -479,9 +589,98 @@ const TOPPING_COMPONENTS = {
 };
 
 const TOPPING_SIZES = {
-  mushrooms: 26, bell_peppers: 24, red_onion: 22, olives: 20,
-  tomatoes: 22, jalapenos: 18, spinach: 24, artichoke: 24,
-  arugula: 24, caramelized_onion: 22, sun_dried_tomato: 20, truffle_oil: 14,
+  mushrooms: 30, bell_peppers: 28, red_onion: 28, olives: 24,
+  tomatoes: 26, jalapenos: 24, spinach: 28, artichoke: 28,
+  arugula: 28, caramelized_onion: 26, sun_dried_tomato: 24, truffle_oil: 16,
+};
+
+/* ── Topping rendering positions ─────────────────────────────── */
+const TOPPING_RENDER = {
+  mushrooms: {
+    positions: [
+      { x: 35, y: 32, r: -12 }, { x: 58, y: 35, r: 8 }, { x: 42, y: 50, r: -5 },
+      { x: 65, y: 48, r: 15 }, { x: 28, y: 58, r: -8 }, { x: 55, y: 65, r: 3 },
+      { x: 38, y: 72, r: -18 }, { x: 62, y: 70, r: 10 }, { x: 48, y: 42, r: -3 },
+    ],
+  },
+  bell_peppers: {
+    positions: [
+      { x: 32, y: 35, r: 25 }, { x: 58, y: 32, r: -15 }, { x: 45, y: 48, r: 40 },
+      { x: 65, y: 55, r: -30 }, { x: 35, y: 60, r: 10 }, { x: 52, y: 68, r: -20 },
+      { x: 72, y: 45, r: 35 }, { x: 40, y: 75, r: -10 }, { x: 60, y: 78, r: 20 },
+    ],
+  },
+  red_onion: {
+    positions: [
+      { x: 48, y: 30, r: 5 }, { x: 30, y: 42, r: -10 }, { x: 68, y: 40, r: 15 },
+      { x: 42, y: 55, r: -8 }, { x: 58, y: 58, r: 12 }, { x: 25, y: 55, r: -5 },
+      { x: 72, y: 55, r: 8 }, { x: 45, y: 70, r: -15 }, { x: 62, y: 72, r: 10 },
+    ],
+  },
+  olives: {
+    positions: [
+      { x: 50, y: 28, r: 0 }, { x: 35, y: 38, r: 15 }, { x: 65, y: 36, r: -10 },
+      { x: 28, y: 52, r: 8 }, { x: 52, y: 50, r: -5 }, { x: 75, y: 48, r: 12 },
+      { x: 40, y: 65, r: -8 }, { x: 60, y: 62, r: 5 }, { x: 50, y: 75, r: -12 },
+    ],
+  },
+  tomatoes: {
+    positions: [
+      { x: 42, y: 34, r: 10 }, { x: 62, y: 32, r: -8 }, { x: 38, y: 50, r: 15 },
+      { x: 58, y: 52, r: -12 }, { x: 32, y: 62, r: 5 }, { x: 55, y: 68, r: -15 },
+      { x: 72, y: 58, r: 8 }, { x: 45, y: 75, r: -5 }, { x: 65, y: 72, r: 12 },
+    ],
+  },
+  spinach: {
+    positions: [
+      { x: 45, y: 32, r: 20 }, { x: 55, y: 40, r: -25 }, { x: 35, y: 45, r: 35 },
+      { x: 65, y: 48, r: -15 }, { x: 48, y: 58, r: 10 }, { x: 30, y: 58, r: -30 },
+      { x: 70, y: 55, r: 25 }, { x: 52, y: 70, r: -20 }, { x: 40, y: 68, r: 15 },
+    ],
+  },
+  jalapenos: {
+    positions: [
+      { x: 52, y: 30, r: 15 }, { x: 38, y: 40, r: -20 }, { x: 62, y: 38, r: 5 },
+      { x: 45, y: 52, r: -10 }, { x: 28, y: 52, r: 25 }, { x: 68, y: 50, r: -15 },
+      { x: 55, y: 65, r: 10 }, { x: 35, y: 65, r: -8 }, { x: 65, y: 68, r: 20 },
+    ],
+  },
+  artichoke: {
+    positions: [
+      { x: 40, y: 35, r: 10 }, { x: 60, y: 35, r: -15 }, { x: 35, y: 50, r: 20 },
+      { x: 55, y: 50, r: -10 }, { x: 70, y: 45, r: 5 }, { x: 42, y: 62, r: -20 },
+      { x: 58, y: 65, r: 15 }, { x: 48, y: 75, r: -5 }, { x: 32, y: 72, r: 10 },
+    ],
+  },
+  arugula: {
+    positions: [
+      { x: 50, y: 35, r: 30 }, { x: 35, y: 45, r: -20 }, { x: 65, y: 42, r: 15 },
+      { x: 45, y: 55, r: -25 }, { x: 60, y: 58, r: 10 }, { x: 30, y: 60, r: -15 },
+      { x: 72, y: 55, r: 25 }, { x: 52, y: 70, r: -10 }, { x: 40, y: 72, r: 20 },
+    ],
+  },
+  caramelized_onion: {
+    positions: [
+      { x: 48, y: 32, r: -5 }, { x: 38, y: 42, r: 10 }, { x: 58, y: 40, r: -15 },
+      { x: 42, y: 55, r: 8 }, { x: 62, y: 52, r: -12 }, { x: 35, y: 62, r: 5 },
+      { x: 55, y: 62, r: -8 }, { x: 68, y: 60, r: 15 }, { x: 50, y: 75, r: -10 },
+    ],
+  },
+  sun_dried_tomato: {
+    positions: [
+      { x: 52, y: 35, r: 12 }, { x: 40, y: 38, r: -8 }, { x: 60, y: 42, r: 18 },
+      { x: 35, y: 52, r: -15 }, { x: 55, y: 55, r: 5 }, { x: 70, y: 50, r: -10 },
+      { x: 42, y: 65, r: 15 }, { x: 62, y: 68, r: -12 }, { x: 50, y: 78, r: 8 },
+    ],
+  },
+  truffle_oil: {
+    positions: [
+      { x: 50, y: 30, r: 0 }, { x: 35, y: 40, r: 0 }, { x: 65, y: 38, r: 0 },
+      { x: 45, y: 50, r: 0 }, { x: 58, y: 55, r: 0 }, { x: 30, y: 55, r: 0 },
+      { x: 70, y: 52, r: 0 }, { x: 52, y: 68, r: 0 }, { x: 42, y: 72, r: 0 },
+      { x: 60, y: 65, r: 0 }, { x: 38, y: 58, r: 0 }, { x: 68, y: 72, r: 0 },
+    ],
+  },
 };
 
 /* ══════════════════════════════════════════════════════════════
@@ -491,7 +690,7 @@ const TOPPING_SIZES = {
 function clampToCircle(xPct, yPct, dim, toppingRadius) {
   const cx = dim / 2;
   const cy = dim / 2;
-  const maxR = dim / 2 - toppingRadius - 8;
+  const maxR = dim / 2 - toppingRadius - 10;
   const px = (xPct / 100) * dim;
   const py = (yPct / 100) * dim;
   const dx = px - cx;
@@ -528,7 +727,7 @@ function snapAwayOverlap(xPct, yPct, dim, toppingRadius, occupied, selfKey) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MAIN PIZZA RENDERING
+   MAIN PIZZA CANVAS — Premium 3D stylized rendering
    ══════════════════════════════════════════════════════════════ */
 
 function PizzaCanvas({ base, sauce, cheese, veggies, size }) {
@@ -557,183 +756,348 @@ function PizzaCanvas({ base, sauce, cheese, veggies, size }) {
     setDragVersions((prev) => ({ ...prev, [key]: (prev[key] || 0) + 1 }));
   }, [DIM]);
 
+  /* ── Pre-compute layer geometry ── */
+  const crustOuter = DIM - 4;
+  const crustCx = crustOuter / 2;
+  const crustCy = crustOuter / 2;
+  const sauceSize = DIM - bs.w * 2 - 18;
+  const sauceOff = (DIM - sauceSize) / 2;
+  const cheeseSize = DIM - bs.w * 2 - 30;
+  const cheeseOff = (DIM - cheeseSize) / 2;
+
   return (
     <div className="relative" style={{ width: DIM, height: DIM, transform: `scale(${s})` }}>
-      {/* ── Ground shadow ── */}
+
+      {/* ── 1. Ground shadow ── */}
       <div className="absolute" style={{
-        width: DIM - 10, height: DIM - 10, left: 5, top: 12,
+        width: crustOuter + 16, height: crustOuter + 10,
+        left: -6, top: 16,
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.06) 55%, transparent 72%)',
-        filter: 'blur(14px)',
+        background: 'radial-gradient(ellipse, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.07) 48%, transparent 70%)',
+        filter: 'blur(18px)',
       }} />
 
-      {/* ── Crust base ring ── */}
+      {/* ════════════════════════════════════════════════════════
+         2. CRUST — Raised rim with 3D depth
+         ════════════════════════════════════════════════════════ */}
+
+      {/* Crust body — the raised outer ring */}
       <div className="absolute" style={{
-        width: DIM - 6, height: DIM - 6, left: 3, top: 3,
-        borderRadius: '50%',
+        width: crustOuter, height: crustOuter, left: 2, top: 2,
+        borderRadius: '49% 51% 50% 50% / 50% 49% 51% 50%',
         background: `
-          radial-gradient(circle at 32% 28%, ${bs.hl} 0%, ${bs.l} 25%, ${bs.m} 55%, ${bs.d} 80%, #4A2A0A 100%)
+          radial-gradient(circle at 28% 24%, ${bs.hl} 0%, ${bs.l} 18%, ${bs.m} 45%, ${bs.d} 72%, #3A1A08 100%)
         `,
         boxShadow: `
-          inset 0 3px 10px rgba(255,255,255,0.18),
-          inset 0 -4px 12px rgba(0,0,0,0.25),
-          0 6px 24px rgba(0,0,0,0.35)
+          inset 0 5px 18px rgba(255,255,255,0.18),
+          inset 0 -6px 20px rgba(0,0,0,0.28),
+          0 8px 36px rgba(0,0,0,0.38),
+          0 3px 10px rgba(0,0,0,0.22)
         `,
       }} />
 
-      {/* ── Crust browning texture ── */}
+      {/* Crust surface texture — scattered browning */}
       <div className="absolute" style={{
-        width: DIM - 6, height: DIM - 6, left: 3, top: 3,
-        borderRadius: '50%',
+        width: crustOuter, height: crustOuter, left: 2, top: 2,
+        borderRadius: '49% 51% 50% 50% / 50% 49% 51% 50%',
         background: `
-          radial-gradient(circle at 18% 12%, rgba(160,114,74,0.4) 0%, transparent 6%),
-          radial-gradient(circle at 82% 18%, rgba(139,94,52,0.35) 0%, transparent 5%),
-          radial-gradient(circle at 88% 65%, rgba(160,114,74,0.3) 0%, transparent 7%),
-          radial-gradient(circle at 35% 90%, rgba(139,94,52,0.35) 0%, transparent 5%),
-          radial-gradient(circle at 12% 72%, rgba(160,114,74,0.3) 0%, transparent 6%),
-          radial-gradient(circle at 65% 8%, rgba(210,168,90,0.2) 0%, transparent 4%),
-          radial-gradient(circle at 92% 40%, rgba(139,94,52,0.2) 0%, transparent 5%)
+          radial-gradient(circle at 14% 8%, rgba(130,88,42,0.45) 0%, transparent 5.5%),
+          radial-gradient(circle at 86% 14%, rgba(110,74,36,0.4) 0%, transparent 5%),
+          radial-gradient(circle at 92% 60%, rgba(130,88,42,0.35) 0%, transparent 6%),
+          radial-gradient(circle at 28% 94%, rgba(110,74,36,0.4) 0%, transparent 5%),
+          radial-gradient(circle at 8% 68%, rgba(130,88,42,0.35) 0%, transparent 5.5%),
+          radial-gradient(circle at 60% 4%, rgba(170,130,60,0.25) 0%, transparent 4%),
+          radial-gradient(circle at 96% 36%, rgba(110,74,36,0.25) 0%, transparent 4.5%),
+          radial-gradient(circle at 48% 98%, rgba(130,88,42,0.2) 0%, transparent 3.5%)
         `,
       }} />
 
-      {/* ── Crust edge bubbles ── */}
+      {/* Crust bubble highlights — raised air pockets */}
       <div className="absolute" style={{
-        width: DIM - 6, height: DIM - 6, left: 3, top: 3,
-        borderRadius: '50%',
+        width: crustOuter, height: crustOuter, left: 2, top: 2,
+        borderRadius: '49% 51% 50% 50% / 50% 49% 51% 50%',
         background: `
-          radial-gradient(circle at 22% 8%, rgba(255,255,255,0.12) 0%, transparent 4%),
-          radial-gradient(circle at 78% 14%, rgba(255,255,255,0.09) 0%, transparent 3.5%),
-          radial-gradient(circle at 90% 58%, rgba(255,255,255,0.11) 0%, transparent 4%),
-          radial-gradient(circle at 42% 92%, rgba(255,255,255,0.08) 0%, transparent 3%),
-          radial-gradient(circle at 8% 68%, rgba(255,255,255,0.1) 0%, transparent 3.5%),
-          radial-gradient(circle at 55% 5%, rgba(255,255,255,0.07) 0%, transparent 3%),
-          radial-gradient(circle at 95% 30%, rgba(255,255,255,0.06) 0%, transparent 2.5%)
+          radial-gradient(circle at 18% 4%, rgba(255,255,255,0.16) 0%, transparent 3.8%),
+          radial-gradient(circle at 82% 10%, rgba(255,255,255,0.12) 0%, transparent 3.2%),
+          radial-gradient(circle at 94% 54%, rgba(255,255,255,0.14) 0%, transparent 3.8%),
+          radial-gradient(circle at 36% 96%, rgba(255,255,255,0.1) 0%, transparent 2.8%),
+          radial-gradient(circle at 4% 64%, rgba(255,255,255,0.13) 0%, transparent 3.2%),
+          radial-gradient(circle at 52% 2%, rgba(255,255,255,0.09) 0%, transparent 2.8%),
+          radial-gradient(circle at 70% 90%, rgba(255,255,255,0.08) 0%, transparent 2.5%)
         `,
       }} />
 
-      {/* ── Stuffed crust cheese dots ── */}
+      {/* Crust rim — inner shadow to create "raised edge" 3D illusion */}
+      <div className="absolute pointer-events-none" style={{
+        width: crustOuter, height: crustOuter, left: 2, top: 2,
+        borderRadius: '49% 51% 50% 50% / 50% 49% 51% 50%',
+        boxShadow: `
+          inset 0 0 ${bs.w + 2}px ${bs.w - 2}px rgba(0,0,0,0.12),
+          inset 0 0 ${bs.w - 2}px ${bs.w - 6}px rgba(0,0,0,0.06)
+        `,
+      }} />
+
+      {/* Crust top-left specular — 3D highlight on the raised edge */}
+      <div className="absolute pointer-events-none" style={{
+        width: crustOuter, height: crustOuter, left: 2, top: 2,
+        borderRadius: '49% 51% 50% 50% / 50% 49% 51% 50%',
+        background: `
+          radial-gradient(ellipse at 24% 14%, rgba(255,255,255,0.14) 0%, transparent 22%),
+          radial-gradient(ellipse at 76% 86%, rgba(0,0,0,0.08) 0%, transparent 22%)
+        `,
+        zIndex: 35,
+      }} />
+
+      {/* ════════════════════════════════════════════════════════
+         3. CRUST CENTER WELL — depressed flat area
+         ════════════════════════════════════════════════════════ */}
+
+      {/* Inner depression — slightly darker, flatter surface */}
+      <div className="absolute" style={{
+        width: sauceSize + 8, height: sauceSize + 8,
+        left: sauceOff - 4, top: sauceOff - 4,
+        borderRadius: '49% 51% 50% 50% / 50% 50% 50% 50%',
+        background: `
+          radial-gradient(circle at 48% 46%,
+            ${bs.m}cc 0%,
+            ${bs.d}dd 45%,
+            ${bs.d} 100%
+          )
+        `,
+        boxShadow: `
+          inset 0 2px 8px rgba(0,0,0,0.15),
+          inset 0 -1px 4px rgba(0,0,0,0.08)
+        `,
+      }} />
+
+      {/* Stuffed crust cheese peek */}
       {base === 'stuffed' && (
-        <div className="absolute" style={{ width: DIM - 6, height: DIM - 6, left: 3, top: 3 }}>
-          {Array.from({ length: 24 }).map((_, i) => {
-            const angle = (i / 24) * Math.PI * 2;
-            const r = (DIM - 6) / 2 - bs.w / 2 + 2;
-            const cx = (DIM - 6) / 2;
-            const cy = (DIM - 6) / 2;
-            const x = cx + Math.cos(angle) * r - 4;
-            const y = cy + Math.sin(angle) * r - 4;
+        <div className="absolute" style={{ width: crustOuter, height: crustOuter, left: 2, top: 2 }}>
+          {Array.from({ length: 30 }).map((_, i) => {
+            const angle = (i / 30) * Math.PI * 2;
+            const r = crustOuter / 2 - bs.w / 2 + 3;
+            const x = crustCx + Math.cos(angle) * r - 4;
+            const y = crustCy + Math.sin(angle) * r - 4;
             return (
               <div key={i} className="absolute" style={{
-                left: x, top: y, width: 9, height: 9, borderRadius: '50%',
-                background: 'radial-gradient(circle at 35% 35%, #FFF8DC, #F5DEB3, #D4A574)',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.3)',
+                left: x, top: y, width: 8, height: 8, borderRadius: '50%',
+                background: 'radial-gradient(circle at 35% 35%, #FFF8DC, #F0DCA0, #D4A860)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.35)',
               }} />
             );
           })}
         </div>
       )}
 
-      {/* ── Sauce layer ── */}
+      {/* ════════════════════════════════════════════════════════
+         4. SAUCE — Spread on dough, textured, depth
+         ════════════════════════════════════════════════════════ */}
+
       <AnimatePresence>
         {sauce && (
           <motion.div
             key={`sauce-${sauce}`}
             className="absolute"
             style={{
-              width: DIM - bs.w * 2 - 14, height: DIM - bs.w * 2 - 14,
-              left: bs.w + 7, top: bs.w + 7,
-              borderRadius: '50%',
+              width: sauceSize, height: sauceSize,
+              left: sauceOff, top: sauceOff,
+              borderRadius: '50% 49% 51% 50% / 50% 51% 49% 50%',
               background: `
-                radial-gradient(circle at 38% 32%, ${ss.gloss} 0%, transparent 40%),
-                radial-gradient(circle at 42% 38%, ${ss.highlight} 0%, ${ss.mid} 35%, ${ss.base} 65%, ${ss.shadow} 100%)
+                radial-gradient(circle at 34% 28%, ${ss.gloss} 0%, transparent 36%),
+                radial-gradient(circle at 62% 68%, ${ss.shadow}88 0%, transparent 30%),
+                radial-gradient(ellipse at 40% 35%, ${ss.highlight} 0%, ${ss.mid} 28%, ${ss.base} 55%, ${ss.shadow} 100%)
               `,
               boxShadow: `
-                inset 0 2px 12px rgba(0,0,0,0.12),
-                inset 0 -1px 6px rgba(0,0,0,0.08)
+                inset 0 3px 14px rgba(0,0,0,0.12),
+                inset 0 -2px 10px rgba(0,0,0,0.08),
+                inset 3px 0 8px rgba(0,0,0,0.04),
+                inset -3px 0 8px rgba(0,0,0,0.04)
               `,
             }}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 150, damping: 20 }}
+            transition={{ type: 'spring', stiffness: 140, damping: 18 }}
           />
         )}
       </AnimatePresence>
 
-      {/* ── Cheese layer ── */}
+      {/* Sauce texture — subtle spread marks and uneven surface */}
+      {sauce && (
+        <div className="absolute pointer-events-none" style={{
+          width: sauceSize, height: sauceSize,
+          left: sauceOff, top: sauceOff,
+          borderRadius: '50% 49% 51% 50% / 50% 51% 49% 50%',
+        }}>
+          {/* Spread ripple — concentric rings from center */}
+          <div style={{
+            position: 'absolute', inset: '8%',
+            borderRadius: '50%',
+            border: `1px solid rgba(255,255,255,0.04)`,
+          }} />
+          <div style={{
+            position: 'absolute', inset: '18%',
+            borderRadius: '50%',
+            border: `1px solid rgba(255,255,255,0.03)`,
+          }} />
+          <div style={{
+            position: 'absolute', inset: '28%',
+            borderRadius: '50%',
+            border: `1px solid rgba(255,255,255,0.02)`,
+          }} />
+          {/* Darker edge ring — sauce pools near crust */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            borderRadius: 'inherit',
+            boxShadow: `
+              inset 0 0 ${Math.max(sauceSize * 0.12, 8)}px ${Math.max(sauceSize * 0.04, 3)}px rgba(0,0,0,0.1)
+            `,
+          }} />
+          {/* Surface texture — tomato pulp spots */}
+          {[
+            { x: 30, y: 25, s: 14, o: 0.08 },
+            { x: 65, y: 30, s: 12, o: 0.06 },
+            { x: 45, y: 55, s: 16, o: 0.07 },
+            { x: 25, y: 60, s: 11, o: 0.06 },
+            { x: 70, y: 65, s: 13, o: 0.08 },
+            { x: 50, y: 40, s: 10, o: 0.05 },
+            { x: 35, y: 75, s: 12, o: 0.06 },
+          ].map((p, i) => (
+            <div key={`sp-${i}`} style={{
+              position: 'absolute',
+              left: `${p.x}%`, top: `${p.y}%`,
+              width: p.s, height: p.s,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, rgba(255,255,255,${p.o}) 0%, transparent 70%)`,
+              transform: 'translate(-50%, -50%)',
+            }} />
+          ))}
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════════
+         5. CHEESE — Melted layer with texture and depth
+         ════════════════════════════════════════════════════════ */}
+
       <AnimatePresence>
         {cheese && (
           <motion.div
             key={`cheese-${cheese}`}
             className="absolute"
             style={{
-              width: DIM - bs.w * 2 - 22, height: DIM - bs.w * 2 - 22,
-              left: bs.w + 11, top: bs.w + 11,
-              borderRadius: '50%',
+              width: cheeseSize, height: cheeseSize,
+              left: cheeseOff, top: cheeseOff,
+              borderRadius: '51% 49% 50% 50% / 49% 51% 50% 50%',
               background: `
-                radial-gradient(ellipse at 28% 22%, rgba(255,255,255,0.35) 0%, transparent 35%),
-                radial-gradient(circle at 50% 50%, ${cs.highlight} 0%, ${cs.mid} 30%, ${cs.base} 60%, ${cs.shadow} 100%)
+                radial-gradient(ellipse at 24% 18%, rgba(255,255,255,0.42) 0%, transparent 30%),
+                radial-gradient(circle at 65% 70%, ${cs.shadow}55 0%, transparent 25%),
+                radial-gradient(circle at 50% 50%, ${cs.highlight} 0%, ${cs.mid} 26%, ${cs.base} 52%, ${cs.shadow} 100%)
               `,
               boxShadow: `
-                inset 0 2px 8px rgba(255,255,255,0.2),
-                inset 0 -3px 8px rgba(0,0,0,0.06),
-                0 1px 4px rgba(0,0,0,0.05)
+                inset 0 3px 12px rgba(255,255,255,0.22),
+                inset 0 -4px 12px rgba(0,0,0,0.06),
+                inset 3px 0 8px rgba(255,255,255,0.08),
+                inset -3px 0 8px rgba(0,0,0,0.04),
+                0 2px 8px rgba(0,0,0,0.05)
               `,
             }}
             initial={{ scale: 0.4, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.4, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 140, damping: 18, delay: 0.08 }}
+            transition={{ type: 'spring', stiffness: 130, damping: 16, delay: 0.06 }}
           />
         )}
       </AnimatePresence>
 
-      {/* ── Cheese melt bubbles ── */}
+      {/* Cheese melt details — texture, bubbles, browning */}
       {cheese && (
-        <div className="absolute" style={{
-          width: DIM - bs.w * 2 - 22, height: DIM - bs.w * 2 - 22,
-          left: bs.w + 11, top: bs.w + 11, borderRadius: '50%', pointerEvents: 'none',
+        <div className="absolute pointer-events-none" style={{
+          width: cheeseSize, height: cheeseSize,
+          left: cheeseOff, top: cheeseOff,
+          borderRadius: '51% 49% 50% 50% / 49% 51% 50% 50%',
         }}>
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i / 12) * Math.PI * 2 + 0.4;
-            const r = 28 + (i % 3) * 18;
-            const cx = (DIM - bs.w * 2 - 22) / 2;
-            const cy = (DIM - bs.w * 2 - 22) / 2;
+          {/* Melt pools — glossy golden areas */}
+          {Array.from({ length: 10 }).map((_, i) => {
+            const angle = (i / 10) * Math.PI * 2 + 0.5;
+            const r = 18 + (i % 3) * 14;
+            const cx = cheeseSize / 2;
+            const cy = cheeseSize / 2;
             const x = cx + Math.cos(angle) * r;
             const y = cy + Math.sin(angle) * r;
-            const sz = 6 + (i % 4) * 2;
+            const sz = 6 + (i % 4) * 2.5;
             return (
-              <div key={`cb-${i}`} className="absolute" style={{
-                left: x - sz / 2, top: y - sz / 2, width: sz, height: sz, borderRadius: '50%',
-                background: `radial-gradient(circle at 35% 35%, ${cs.highlight}ee, ${cs.mid}88 60%, transparent 100%)`,
-                boxShadow: `inset 0 0 2px rgba(255,255,255,0.15)`,
-                opacity: 0.4 + (i % 3) * 0.15,
+              <div key={`mp-${i}`} className="absolute" style={{
+                left: x - sz / 2, top: y - sz / 2, width: sz, height: sz,
+                borderRadius: '50%',
+                background: `radial-gradient(circle at 32% 30%, ${cs.highlight}cc, ${cs.mid}55 65%, transparent 100%)`,
+                boxShadow: `inset 0 0 3px rgba(255,255,255,0.15)`,
+                opacity: 0.3 + (i % 3) * 0.1,
               }} />
             );
           })}
-        </div>
-      )}
 
-      {/* ── Cheese browning spots ── */}
-      {cheese && (
-        <div className="absolute" style={{
-          width: DIM - bs.w * 2 - 22, height: DIM - bs.w * 2 - 22,
-          left: bs.w + 11, top: bs.w + 11, borderRadius: '50%', pointerEvents: 'none',
-        }}>
+          {/* Browning spots — baked cheese marks */}
           {Array.from({ length: 6 }).map((_, i) => {
-            const angle = (i / 6) * Math.PI * 2 + 1.2;
-            const r = 25 + (i % 2) * 22;
-            const cx = (DIM - bs.w * 2 - 22) / 2;
-            const cy = (DIM - bs.w * 2 - 22) / 2;
+            const angle = (i / 6) * Math.PI * 2 + 0.8;
+            const r = 16 + (i % 2) * 18;
+            const cx = cheeseSize / 2;
+            const cy = cheeseSize / 2;
             const x = cx + Math.cos(angle) * r;
             const y = cy + Math.sin(angle) * r;
             return (
-              <div key={`br-${i}`} className="absolute" style={{
+              <div key={`bs-${i}`} className="absolute" style={{
                 left: x - 5, top: y - 5, width: 10, height: 10, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(180,140,60,0.25) 0%, transparent 70%)',
-                filter: 'blur(1px)',
+                background: 'radial-gradient(circle, rgba(160,120,40,0.22) 0%, transparent 65%)',
+                filter: 'blur(1.5px)',
               }} />
             );
           })}
+
+          {/* Folded areas — cheese ridges */}
+          {[
+            { x: 35, y: 30, w: 22, h: 6, r: -8 },
+            { x: 60, y: 55, w: 18, h: 5, r: 12 },
+            { x: 42, y: 70, w: 20, h: 5, r: -5 },
+          ].map((f, i) => (
+            <div key={`fd-${i}`} className="absolute" style={{
+              left: `${f.x}%`, top: `${f.y}%`,
+              width: f.w, height: f.h,
+              borderRadius: '50%',
+              background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)`,
+              transform: `rotate(${f.r}deg) translate(-50%, -50%)`,
+              boxShadow: `0 1px 2px rgba(0,0,0,0.04)`,
+            }} />
+          ))}
+
+          {/* Edge drip — cheese flowing toward crust */}
+          {[
+            { x: 20, y: 50, r: 0 }, { x: 80, y: 48, r: 0 },
+            { x: 50, y: 18, r: 90 }, { x: 48, y: 82, r: 90 },
+          ].map((d, i) => (
+            <div key={`ed-${i}`} className="absolute" style={{
+              left: `${d.x}%`, top: `${d.y}%`,
+              width: 6, height: 10,
+              borderRadius: '40% 40% 50% 50%',
+              background: `linear-gradient(${d.r || 0}deg, ${cs.base}dd, ${cs.shadow}66)`,
+              transform: `translate(-50%, -50%) rotate(${d.r}deg)`,
+              opacity: 0.3,
+            }} />
+          ))}
+
+          {/* Specular highlights — melted glossy surface */}
+          {[
+            { x: 28, y: 22, w: 18, h: 10, o: 0.25 },
+            { x: 55, y: 38, w: 12, h: 7, o: 0.18 },
+            { x: 40, y: 62, w: 14, h: 8, o: 0.2 },
+          ].map((h, i) => (
+            <div key={`sh-${i}`} className="absolute" style={{
+              left: `${h.x}%`, top: `${h.y}%`,
+              width: h.w, height: h.h,
+              borderRadius: '50%',
+              background: `radial-gradient(ellipse, rgba(255,255,255,${h.o}) 0%, transparent 70%)`,
+              transform: 'translate(-50%, -50%)',
+            }} />
+          ))}
         </div>
       )}
 
@@ -748,7 +1112,7 @@ function PizzaCanvas({ base, sauce, cheese, veggies, size }) {
               if (!cfg || qty <= 0) return;
               const positions = cfg.positions || [];
               const ToppingComp = TOPPING_COMPONENTS[vid];
-              const tSize = TOPPING_SIZES[vid] || 22;
+              const tSize = TOPPING_SIZES[vid] || 24;
               for (let q = 0; q < qty; q++) {
                 const defaultPos = positions[globalIdx % positions.length] || { x: 50, y: 50, r: 0 };
                 const key = `${vid}-${globalIdx}`;
@@ -759,35 +1123,35 @@ function PizzaCanvas({ base, sauce, cheese, veggies, size }) {
                     key={`drag-${key}-${version}`}
                     drag
                     dragConstraints={pizzaRef}
-                    dragElastic={0.08}
+                    dragElastic={0.06}
                     dragMomentum={false}
                     dragTransition={{
-                      bounceStiffness: 500,
-                      bounceDamping: 30,
-                      power: 0.3,
-                      timeConstant: 200,
+                      bounceStiffness: 400,
+                      bounceDamping: 28,
+                      power: 0.25,
+                      timeConstant: 180,
                     }}
                     whileDrag={{
-                      scale: 1.25,
+                      scale: 1.2,
                       zIndex: 200,
                       cursor: 'grabbing',
-                      filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.5))',
-                      transition: { type: 'spring', stiffness: 400, damping: 25 },
+                      filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.45))',
+                      transition: { type: 'spring', stiffness: 350, damping: 22 },
                     }}
                     onDragEnd={(e, info) => handleDragEnd(vid, globalIdx, defaultPos, tSize, e, info)}
-                    initial={{ scale: 0.6, opacity: 0, y: -12 }}
+                    initial={{ scale: 0.5, opacity: 0, y: -10 }}
                     animate={{
                       scale: 1,
                       opacity: 1,
                       rotate: defaultPos.r,
-                      filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.35))',
+                      filter: 'drop-shadow(0 3px 7px rgba(0,0,0,0.3))',
                     }}
-                    exit={{ scale: 0.4, opacity: 0, y: 8 }}
+                    exit={{ scale: 0.3, opacity: 0, y: 6 }}
                     transition={{
                       type: 'spring',
-                      stiffness: 320,
-                      damping: 22,
-                      delay: globalIdx * 0.04,
+                      stiffness: 280,
+                      damping: 20,
+                      delay: globalIdx * 0.035,
                     }}
                     style={{
                       position: 'absolute',
@@ -811,27 +1175,16 @@ function PizzaCanvas({ base, sauce, cheese, veggies, size }) {
         </AnimatePresence>
       </div>
 
-      {/* ── Top lighting overlay ── */}
+      {/* ── Warm lighting overlay — food photography feel ── */}
       <div className="absolute pointer-events-none" style={{
-        width: DIM - bs.w * 2 - 22, height: DIM - bs.w * 2 - 22,
-        left: bs.w + 11, top: bs.w + 11,
-        borderRadius: '50%',
+        width: cheeseSize, height: cheeseSize,
+        left: cheeseOff, top: cheeseOff,
+        borderRadius: '51% 49% 50% 50% / 49% 51% 50% 50%',
         background: `
-          radial-gradient(ellipse at 32% 22%, rgba(255,255,255,0.12) 0%, transparent 45%),
-          radial-gradient(ellipse at 68% 78%, rgba(0,0,0,0.04) 0%, transparent 35%)
+          radial-gradient(ellipse at 28% 18%, rgba(255,255,255,0.16) 0%, transparent 40%),
+          radial-gradient(ellipse at 72% 82%, rgba(0,0,0,0.06) 0%, transparent 30%)
         `,
         zIndex: 30,
-      }} />
-
-      {/* ── Outer rim specular highlight ── */}
-      <div className="absolute pointer-events-none" style={{
-        width: DIM - 6, height: DIM - 6, left: 3, top: 3,
-        borderRadius: '50%',
-        background: `
-          radial-gradient(ellipse at 28% 18%, rgba(255,255,255,0.1) 0%, transparent 25%),
-          radial-gradient(ellipse at 72% 82%, rgba(0,0,0,0.06) 0%, transparent 25%)
-        `,
-        zIndex: 35,
       }} />
     </div>
   );
@@ -867,7 +1220,7 @@ function IngredientChip({ emoji, name, price, qty, delay = 0, iconId }) {
       )}
       {name}
       {qty > 1 && (
-        <span className={cn('font-bold', isDark ? 'text-white/70' : 'text-surface-700')}>×{qty}</span>
+        <span className={cn('font-bold', isDark ? 'text-white/70' : 'text-surface-700')}>x{qty}</span>
       )}
       {price > 0 && (
         <span className={cn('ml-0.5', isDark ? 'text-accent-400' : 'text-accent-600')}>
@@ -939,19 +1292,19 @@ export default function PizzaPreview({ builder, allIngredients, isOpen, onToggle
       <div
         className="relative flex items-center justify-center overflow-hidden"
         style={{
-          minHeight: 300,
+          minHeight: 360,
           background: isDark
-            ? 'radial-gradient(circle at 50% 45%, rgba(230,57,70,0.05) 0%, transparent 60%)'
-            : 'radial-gradient(circle at 50% 45%, rgba(230,57,70,0.03) 0%, transparent 60%)',
+            ? 'radial-gradient(circle at 50% 45%, rgba(230,57,70,0.04) 0%, transparent 55%)'
+            : 'radial-gradient(circle at 50% 45%, rgba(230,57,70,0.025) 0%, transparent 55%)',
         }}
       >
         {/* Ambient warm glow */}
         <div className="absolute pointer-events-none" style={{
-          width: 220, height: 220,
+          width: 280, height: 280,
           left: '50%', top: '50%',
-          transform: 'translate(-50%, -55%)',
-          background: 'radial-gradient(circle, rgba(230,57,70,0.06) 0%, transparent 70%)',
-          filter: 'blur(50px)',
+          transform: 'translate(-50%, -52%)',
+          background: 'radial-gradient(circle, rgba(230,57,70,0.04) 0%, transparent 65%)',
+          filter: 'blur(60px)',
         }} />
 
         {/* Pizza */}
@@ -959,7 +1312,7 @@ export default function PizzaPreview({ builder, allIngredients, isOpen, onToggle
           className="relative"
           style={{ transformOrigin: 'center center' }}
           animate={{ y: [0, -3, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
         >
           <PizzaCanvas
             base={builder.base}

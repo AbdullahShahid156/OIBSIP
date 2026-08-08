@@ -114,8 +114,72 @@ export const PIZZA_PHOTOS = {
    ══════════════════════════════════════════════════════════════ */
 
 export const INGREDIENT_PHOTOS = {
+  // Bases
+  thin: {
+    src: img('photo-1513104890138-7c749659a591', { w: 200, h: 200, q: 75 }),
+    alt: 'Thin crust dough',
+  },
+  regular: {
+    src: img('photo-1509440159596-0249088772ff', { w: 200, h: 200, q: 75 }),
+    alt: 'Regular crust dough',
+  },
+  thick: {
+    src: img('photo-1509440159596-0249088772ff', { w: 200, h: 200, q: 75 }),
+    alt: 'Thick crust dough',
+  },
+  stuffed: {
+    src: img('photo-1509440159596-0249088772ff', { w: 200, h: 200, q: 75 }),
+    alt: 'Stuffed crust dough',
+  },
+  gluten_free: {
+    src: img('photo-1509440159596-0249088772ff', { w: 200, h: 200, q: 75 }),
+    alt: 'Gluten-free crust',
+  },
+  // Sauces
+  marinara: {
+    src: img('photo-1472476443507-c7a5948772fc', { w: 200, h: 200, q: 75 }),
+    alt: 'San Marzano marinara sauce',
+  },
+  pesto: {
+    src: img('photo-1743352388509-835796029c79', { w: 200, h: 200, q: 75 }),
+    alt: 'Basil pesto sauce',
+  },
+  bbq: {
+    src: img('photo-1766589221240-7514d2b0f919', { w: 200, h: 200, q: 75 }),
+    alt: 'Smoky BBQ sauce',
+  },
+  garlic_white: {
+    src: img('photo-1550583724-b2692b85b150', { w: 200, h: 200, q: 75 }),
+    alt: 'Garlic cream white sauce',
+  },
+  buffalo: {
+    src: img('photo-1519666213631-be6e024eac6a', { w: 200, h: 200, q: 75 }),
+    alt: 'Spicy buffalo sauce',
+  },
+  // Cheeses
+  mozzarella: {
+    src: img('photo-1676300185089-8781af127fee', { w: 200, h: 200, q: 75 }),
+    alt: 'Fresh mozzarella cheese',
+  },
+  parmesan: {
+    src: img('photo-1752253509987-f92fd1cf4a78', { w: 200, h: 200, q: 75 }),
+    alt: 'Parmesan cheese',
+  },
+  provolone: {
+    src: img('photo-1634925353703-451b16b6d1a8', { w: 200, h: 200, q: 75 }),
+    alt: 'Provolone cheese',
+  },
+  gouda: {
+    src: img('photo-1519411792752-25c2468cccb3', { w: 200, h: 200, q: 75 }),
+    alt: 'Gouda cheese',
+  },
+  vegan: {
+    src: img('photo-1625943553852-781c6dd46faa', { w: 200, h: 200, q: 75 }),
+    alt: 'Vegan cashew cheese',
+  },
+  // Veggies
   mushrooms: {
-    src: img('photo-1504674900247-0877df9cc836', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1504545102780-26774c1bb073', { w: 200, h: 200, q: 75 }),
     alt: 'Fresh sliced mushrooms',
   },
   bell_peppers: {
@@ -123,7 +187,7 @@ export const INGREDIENT_PHOTOS = {
     alt: 'Fresh bell peppers',
   },
   red_onion: {
-    src: img('photo-1587049352846-4a222e784d38', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1618512496248-a07fe83aa8cb', { w: 200, h: 200, q: 75 }),
     alt: 'Sliced red onions',
   },
   olives: {
@@ -131,7 +195,7 @@ export const INGREDIENT_PHOTOS = {
     alt: 'Kalamata olives',
   },
   tomatoes: {
-    src: img('photo-1546470427-0d4db154ceb8', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1576659185898-ed54d56a55c8', { w: 200, h: 200, q: 75 }),
     alt: 'Fresh cherry tomatoes',
   },
   spinach: {
@@ -139,11 +203,11 @@ export const INGREDIENT_PHOTOS = {
     alt: 'Fresh baby spinach leaves',
   },
   jalapenos: {
-    src: img('photo-1583119022894-919a384403d5', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1563565375-f3fdfdbefa83', { w: 200, h: 200, q: 75 }),
     alt: 'Sliced jalapenos',
   },
   artichoke: {
-    src: img('photo-1580291459949-34d2b4f48e9c', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1670843627697-14eae1947046', { w: 200, h: 200, q: 75 }),
     alt: 'Artichoke hearts',
   },
   arugula: {
@@ -151,28 +215,16 @@ export const INGREDIENT_PHOTOS = {
     alt: 'Fresh arugula leaves',
   },
   caramelized_onion: {
-    src: img('photo-1587049352846-4a222e784d38', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1575475240735-0b191257c762', { w: 200, h: 200, q: 75 }),
     alt: 'Caramelized onions',
   },
   sun_dried_tomato: {
-    src: img('photo-1546470427-0d4db154ceb8', { w: 200, h: 200, q: 75 }),
+    src: img('photo-1582284540020-8acbe03f4924', { w: 200, h: 200, q: 75 }),
     alt: 'Sun-dried tomatoes',
   },
   truffle_oil: {
     src: img('photo-1474979266404-7eaacbcd87c5', { w: 200, h: 200, q: 75 }),
     alt: 'Truffle oil',
-  },
-  pepperoni: {
-    src: img('photo-1506354666786-959d6d497f1a', { w: 200, h: 200, q: 75 }),
-    alt: 'Pepperoni slices',
-  },
-  chicken: {
-    src: img('photo-1598103442097-8b74394b95c6', { w: 200, h: 200, q: 75 }),
-    alt: 'Grilled chicken',
-  },
-  mozzarella: {
-    src: img('photo-1486297678162-eb2c1ad55c1f', { w: 200, h: 200, q: 75 }),
-    alt: 'Fresh mozzarella cheese',
   },
 };
 

@@ -1,9 +1,14 @@
-import { memo } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useDispatch } from 'react-redux';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
 import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../../data/images';
+import { addItemLocal, toggleDrawer } from '../../store/slices/cartSlice';
+import PIZZA_CONFIGS from '../../data/pizzaConfigs';
+import { loadPreset } from '../../store/slices/builderSlice';
+import { BASE_OPTIONS, SAUCE_OPTIONS, CHEESE_OPTIONS, VEGGIE_OPTIONS } from '../../data/pizzaBuilder';
 import PizzaImage from '../ui/PizzaImage';
 
 const categoryColors = {
@@ -60,8 +65,69 @@ function StarRating({ rating, reviewCount }) {
 
 const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isDark } = useDarkMode();
+  const [addedToCart, setAddedToCart] = useState(false);
   const colorVariant = categoryColors[pizza.category] || 'neutral';
+
+  const handleAddToCart = useCallback(() => {
+    if (!pizza.isAvailable) return;
+    const config = PIZZA_CONFIGS[pizza.name];
+    if (!config) return;
+
+    const baseObj = BASE_OPTIONS.find((b) => b.id === config.base);
+    const sauceObj = SAUCE_OPTIONS.find((s) => s.id === config.sauce);
+    const cheeseObj = CHEESE_OPTIONS.find((c) => c.id === config.cheese);
+
+    const veggies = {};
+    const veggieNames = {};
+    Object.entries(config.veggies).forEach(([vid, qty]) => {
+      const opt = VEGGIE_OPTIONS.find((v) => v.id === vid);
+      if (opt) {
+        veggies[vid] = qty;
+        veggieNames[vid] = opt.name;
+      }
+    });
+
+    const configId = `predefined-${pizza._id}-${Date.now()}`;
+
+    dispatch(addItemLocal({
+      _id: configId,
+      pizzaId: pizza._id,
+      name: pizza.name,
+      image: pizza.image || '',
+      size: 'medium',
+      base: config.base,
+      baseName: baseObj?.name || '',
+      sauce: config.sauce,
+      sauceName: sauceObj?.name || '',
+      cheese: config.cheese,
+      cheeseName: cheeseObj?.name || '',
+      veggies,
+      veggieNames,
+      qty: 1,
+      unitPrice: pizza.basePrice,
+      totalPrice: pizza.basePrice,
+      prepTime: pizza.preparationTime,
+      isCustomized: false,
+      configurationId: configId,
+    }));
+
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 1500);
+  }, [pizza, dispatch]);
+
+  const handleCustomize = useCallback(() => {
+    const config = PIZZA_CONFIGS[pizza.name];
+    if (config) {
+      dispatch(loadPreset({
+        config,
+        basePrice: pizza.basePrice,
+        name: pizza.name,
+      }));
+    }
+    navigate('/builder');
+  }, [pizza, navigate, dispatch]);
 
   const badgeStyles = {
     brand: 'bg-brand-50 text-brand-600 border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 dark:border-brand-500/20',
@@ -219,29 +285,80 @@ const PizzaCard = memo(function PizzaCard({ pizza, onQuickView, index = 0 }) {
               </span>
             </div>
 
-            <motion.button
-              onClick={() => navigate('/builder')}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className={cn(
-                'inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold',
-                'transition-all duration-300',
-                'bg-gradient-to-r from-brand-500 to-brand-600 text-white',
-                'shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30',
-                'hover:from-brand-400 hover:to-brand-500',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
-                !pizza.isAvailable && 'opacity-50 cursor-not-allowed'
-              )}
-              disabled={!pizza.isAvailable}
-              aria-label={`Customize ${pizza.name}`}
-            >
-              {pizza.isAvailable ? 'Customize' : 'Unavailable'}
-              {pizza.isAvailable && (
+            <div className="flex items-center gap-2">
+              {/* Add to Cart — predefined */}
+              <motion.button
+                onClick={handleAddToCart}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                disabled={!pizza.isAvailable}
+                className={cn(
+                  'relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold',
+                  'transition-all duration-300',
+                  'border',
+                  addedToCart
+                    ? 'bg-success-50 border-success-200 text-success-600 dark:bg-success-500/10 dark:border-success-500/20 dark:text-success-400'
+                    : isDark
+                      ? 'bg-white/[0.04] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.12]'
+                      : 'bg-surface-50 border-surface-200 text-surface-600 hover:bg-surface-100 hover:text-surface-900',
+                  !pizza.isAvailable && 'opacity-50 cursor-not-allowed'
+                )}
+                aria-label={`Add ${pizza.name} to cart`}
+              >
+                <AnimatePresence mode="wait">
+                  {addedToCart ? (
+                    <motion.span
+                      key="check"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                      Added
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="cart"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                      </svg>
+                      Add
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+
+              {/* Customize — open builder */}
+              <motion.button
+                onClick={handleCustomize}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold',
+                  'transition-all duration-300',
+                  'bg-gradient-to-r from-brand-500 to-brand-600 text-white',
+                  'shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30',
+                  'hover:from-brand-400 hover:to-brand-500',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                  !pizza.isAvailable && 'opacity-50 cursor-not-allowed'
+                )}
+                disabled={!pizza.isAvailable}
+                aria-label={`Customize ${pizza.name}`}
+              >
+                Customize
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              )}
-            </motion.button>
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>

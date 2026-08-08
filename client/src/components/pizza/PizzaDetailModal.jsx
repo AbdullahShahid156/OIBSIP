@@ -1,9 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
 import { PIZZA_BY_CATEGORY, PIZZA_BY_NAME } from '../../data/images';
+import { addItemLocal, openDrawer } from '../../store/slices/cartSlice';
+import { loadPreset } from '../../store/slices/builderSlice';
+import PIZZA_CONFIGS from '../../data/pizzaConfigs';
+import { BASE_OPTIONS, SAUCE_OPTIONS, CHEESE_OPTIONS, VEGGIE_OPTIONS } from '../../data/pizzaBuilder';
 import PizzaImage from '../ui/PizzaImage';
 
 const categoryColors = {
@@ -18,6 +23,72 @@ const categoryColors = {
 export default function PizzaDetailModal({ pizza, onClose }) {
   const { isDark } = useDarkMode();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const handleAddToCart = useCallback(() => {
+    if (!pizza?.isAvailable) return;
+    const config = PIZZA_CONFIGS[pizza.name];
+    if (!config) return;
+
+    const baseObj = BASE_OPTIONS.find((b) => b.id === config.base);
+    const sauceObj = SAUCE_OPTIONS.find((s) => s.id === config.sauce);
+    const cheeseObj = CHEESE_OPTIONS.find((c) => c.id === config.cheese);
+
+    const veggies = {};
+    const veggieNames = {};
+    Object.entries(config.veggies).forEach(([vid, qty]) => {
+      const opt = VEGGIE_OPTIONS.find((v) => v.id === vid);
+      if (opt) {
+        veggies[vid] = qty;
+        veggieNames[vid] = opt.name;
+      }
+    });
+
+    const configId = `predefined-${pizza._id}-${Date.now()}`;
+
+    dispatch(addItemLocal({
+      _id: configId,
+      pizzaId: pizza._id,
+      name: pizza.name,
+      image: pizza.image || '',
+      size: 'medium',
+      base: config.base,
+      baseName: baseObj?.name || '',
+      sauce: config.sauce,
+      sauceName: sauceObj?.name || '',
+      cheese: config.cheese,
+      cheeseName: cheeseObj?.name || '',
+      veggies,
+      veggieNames,
+      qty: 1,
+      unitPrice: pizza.basePrice,
+      totalPrice: pizza.basePrice,
+      prepTime: pizza.preparationTime,
+      isCustomized: false,
+      configurationId: configId,
+    }));
+
+    setAddedToCart(true);
+    setTimeout(() => {
+      setAddedToCart(false);
+      onClose();
+      dispatch(openDrawer());
+    }, 1200);
+  }, [pizza, dispatch, onClose]);
+
+  const handleCustomize = useCallback(() => {
+    const config = PIZZA_CONFIGS[pizza.name];
+    if (config) {
+      dispatch(loadPreset({
+        config,
+        basePrice: pizza.basePrice,
+        name: pizza.name,
+      }));
+    }
+    onClose();
+    navigate('/builder');
+  }, [pizza, navigate, dispatch, onClose]);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -224,23 +295,43 @@ export default function PizzaDetailModal({ pizza, onClose }) {
             </div>
 
             {/* CTA */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => { onClose(); navigate('/builder'); }}
-              className={cn(
-                'w-full py-3.5 rounded-xl text-sm font-semibold',
-                'bg-gradient-to-r from-brand-500 to-brand-600 text-white',
-                'shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40',
-                'hover:from-brand-400 hover:to-brand-500',
-                'transition-all duration-300',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
-                !pizza.isAvailable && 'opacity-50 cursor-not-allowed'
-              )}
-              disabled={!pizza.isAvailable}
-            >
-              {pizza.isAvailable ? 'Start Customizing' : 'Unavailable'}
-            </motion.button>
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAddToCart}
+                disabled={!pizza.isAvailable}
+                className={cn(
+                  'flex-1 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 border',
+                  addedToCart
+                    ? 'bg-success-50 border-success-200 text-success-600 dark:bg-success-500/10 dark:border-success-500/20 dark:text-success-400'
+                    : isDark
+                      ? 'bg-white/[0.04] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white'
+                      : 'bg-surface-50 border-surface-200 text-surface-600 hover:bg-surface-100',
+                  !pizza.isAvailable && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                {addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleCustomize}
+                disabled={!pizza.isAvailable}
+                className={cn(
+                  'flex-1 py-3.5 rounded-xl text-sm font-semibold',
+                  'bg-gradient-to-r from-brand-500 to-brand-600 text-white',
+                  'shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40',
+                  'hover:from-brand-400 hover:to-brand-500',
+                  'transition-all duration-300',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                  !pizza.isAvailable && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                {pizza.isAvailable ? 'Customize' : 'Unavailable'}
+              </motion.button>
+            </div>
           </div>
         </motion.div>
       </div>
