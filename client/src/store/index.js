@@ -6,6 +6,7 @@ import builderReducer from './slices/builderSlice';
 import profileReducer from './slices/profileSlice';
 import cartReducer from './slices/cartSlice';
 import assistantReducer from './slices/assistantSlice';
+import orderReducer from './slices/orderSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     profile: profileReducer,
     cart: cartReducer,
     assistant: assistantReducer,
+    orders: orderReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

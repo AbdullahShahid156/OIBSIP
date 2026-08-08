@@ -270,10 +270,54 @@ npm run dev
 | Profile APIs | GET/PATCH profile, POST/DELETE avatar, PATCH password, full address CRUD |
 | Security | JWT auth, bcrypt hashing, Zod validation, file type/size validation |
 
-### Coming (Phase 10-14)
+### Razorpay Payment Integration (Phase 12)
 
-- Payment integration (Razorpay)
-- Order creation and management
+| Feature | Description |
+|---------|-------------|
+| Order Model | Full order schema with items, summary, address, payment, status tracking |
+| Razorpay SDK | Official Node.js SDK for order creation and HMAC-SHA256 signature verification |
+| Create Order | Server validates cart, calculates amount, creates Razorpay order + DB record |
+| Verify Payment | Server-side HMAC-SHA256 signature verification, prevents tampering |
+| Duplicate Protection | Completed orders cannot be re-verified |
+| Payment States | pending → completed/failed → refunded with full status tracking |
+| Checkout Flow | Load Razorpay script → open modal → verify → redirect to success page |
+| Order Success Page | Full order details with items, summary, delivery address, estimated time |
+| Error Handling | Payment failures, cancellations, verification errors with user-friendly messages |
+| Dark Mode | Full dark mode support across all payment components |
+| Test Mode | Razorpay test mode — no real money, test card support |
+| Cart Clearing | Cart automatically cleared after successful payment verification |
+
+**Payment Flow:**
+
+```
+User clicks "Pay" → Backend creates Razorpay order → Razorpay modal opens
+→ User completes payment → Frontend calls verify endpoint
+→ Server verifies signature → Order confirmed → Cart cleared → Redirect to success
+```
+
+**Order Model:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| user | ObjectId | Reference to User |
+| items[] | Array | Order items with pizza details, qty, pricing |
+| summary | Object | subtotal, deliveryFee, tax, couponCode, couponDiscount, total, currency |
+| address | Object | Delivery address snapshot |
+| payment | Object | method, status, razorpayOrderId/ PaymentId/Signature, amount, paidAt |
+| status | Enum | pending, confirmed, preparing, out_for_delivery, delivered, cancelled |
+| estimatedDelivery | Object | min/max delivery time in minutes |
+
+**Backend APIs:**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/orders/create` | POST | Create Razorpay order from cart |
+| `/api/v1/orders/verify` | POST | Verify payment signature |
+| `/api/v1/orders` | GET | Get user's order history |
+| `/api/v1/orders/:id` | GET | Get single order details |
+
+### Coming (Phase 13-15)
+
 - Order status tracking
 - Admin dashboard with inventory and analytics
 - Real-time order tracking via WebSocket
@@ -320,6 +364,8 @@ npm run dev
 | `JWT_SECRET` | Secret for tokens (min 16 chars) | Yes |
 | `JWT_EXPIRE` | Token expiration | No (default: 7d) |
 | `CLIENT_URL` | Frontend origin | Yes |
+| `RAZORPAY_KEY_ID` | Razorpay test mode key ID | No |
+| `RAZORPAY_KEY_SECRET` | Razorpay test mode key secret | No |
 
 ### Client
 
@@ -415,6 +461,15 @@ POST   /api/v1/cart/validate-checkout — Validate cart for checkout
 ```
 
 **Coupon Codes:** `WELCOME10` (10% off), `SAVE5` ($5 off), `PIZZA20` (20% off)
+
+### Orders & Payment (JWT Required)
+
+```
+POST   /api/v1/orders/create        — Create Razorpay order from cart
+POST   /api/v1/orders/verify        — Verify payment signature
+GET    /api/v1/orders               — Get user's order history
+GET    /api/v1/orders/:id           — Get single order details
+```
 
 ---
 

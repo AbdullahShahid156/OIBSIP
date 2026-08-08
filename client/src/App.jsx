@@ -15,6 +15,7 @@ import PizzaBuilder from './pages/PizzaBuilder';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import OrderSuccess from './pages/OrderSuccess';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CartDrawer from './components/cart/CartDrawer';
 import ErrorBoundary from './components/ui/ErrorBoundary';
@@ -62,6 +63,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Checkout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/order/:id/success"
+            element={
+              <ProtectedRoute>
+                <OrderSuccess />
               </ProtectedRoute>
             }
           />

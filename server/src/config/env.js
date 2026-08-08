@@ -18,6 +18,8 @@ const envSchema = z.object({
   FROM_NAME: z.string().optional(),
   SOCKET_CORS_URL: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
 });
 
 function validateEnv() {

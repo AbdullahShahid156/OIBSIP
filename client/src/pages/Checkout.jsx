@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
 import { cn, formatCurrency } from '../utils/helpers';
-import { applyCouponCode, removeCouponCode } from '../store/slices/cartSlice';
+import { applyCouponCode, removeCouponCode, clearCartLocal } from '../store/slices/cartSlice';
+import { createOrder, verifyPayment, clearError } from '../store/slices/orderSlice';
 import AddressSelector from '../components/checkout/AddressSelector';
 import OrderSummary from '../components/checkout/OrderSummary';
 import CouponInput from '../components/checkout/CouponInput';
-import { Spinner } from '../components/ui';
+import { ROUTES } from '../utils/constants';
 
 const pageTransition = {
   initial: { opacity: 0, y: 20 },
@@ -16,26 +17,48 @@ const pageTransition = {
   transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
 };
 
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function Checkout() {
   const { isDark } = useDarkMode();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { items, summary, couponCode } = useSelector((state) => state.cart);
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isLoading, isVerifying, error: orderError, razorpayOrderData } = useSelector((state) => state.orders);
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [notes, setNotes] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [showPaymentToast, setShowPaymentToast] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isLoading) {
       navigate('/cart');
     }
-  }, [items.length, navigate]);
+  }, [items.length, navigate, isLoading]);
+
+  useEffect(() => {
+    if (orderError) {
+      setPaymentError(orderError);
+      dispatch(clearError());
+    }
+  }, [orderError, dispatch]);
 
   const handleApplyCoupon = useCallback(async (code) => {
     const result = await dispatch(applyCouponCode(code));
@@ -46,17 +69,84 @@ export default function Checkout() {
     dispatch(removeCouponCode());
   }, [dispatch]);
 
-  const handlePlaceOrder = useCallback(() => {
-    setShowPaymentToast(true);
-    setTimeout(() => setShowPaymentToast(false), 4000);
-  }, []);
+  const handlePlaceOrder = useCallback(async () => {
+    if (!selectedAddressId || !agreedToTerms || isLoading) return;
+    setPaymentError(null);
+
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      setPaymentError('Failed to load payment gateway. Please try again.');
+      return;
+    }
+
+    const result = await dispatch(createOrder({ addressId: selectedAddressId, notes }));
+    if (result.error) {
+      setPaymentError(result.payload || 'Failed to create order. Please try again.');
+      return;
+    }
+
+    const orderData = result.payload;
+    if (!orderData?.order) {
+      setPaymentError('Invalid order response. Please try again.');
+      return;
+    }
+
+    const options = {
+      key: orderData.order.razorpayKeyId,
+      amount: orderData.order.amount,
+      currency: orderData.order.currency,
+      name: 'PizzaCraft',
+      description: `Order #${orderData.order._id.slice(-8).toUpperCase()}`,
+      order_id: orderData.order.razorpayOrderId,
+      prefill: {
+        name: user?.name || '',
+        contact: user?.phone || '',
+      },
+      theme: {
+        color: isDark ? '#6366f1' : '#6366f1',
+      },
+      modal: {
+        ondismiss: () => {
+          setPaymentError('Payment was cancelled. Your order has not been placed.');
+        },
+      },
+      handler: async (response) => {
+        try {
+          const verifyResult = await dispatch(verifyPayment({
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+            orderId: orderData.order._id,
+          }));
+
+          if (verifyResult.error) {
+            setPaymentError('Payment verification failed. Please contact support.');
+            return;
+          }
+
+          dispatch(clearCartLocal());
+          navigate(ROUTES.ORDER_SUCCESS.replace(':id', orderData.order._id));
+        } catch {
+          setPaymentError('Payment verification failed. Please contact support.');
+        }
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', (response) => {
+      setPaymentError(response.error?.description || 'Payment failed. Please try again.');
+    });
+    rzp.open();
+  }, [selectedAddressId, agreedToTerms, isLoading, dispatch, navigate, user, isDark, notes]);
+
+  const isProcessing = isLoading || isVerifying;
 
   if (items.length === 0) {
     return (
       <div className={cn('min-h-screen flex items-center justify-center transition-colors', isDark ? 'bg-dark-950' : 'bg-surface-50')}>
         <div className="text-center">
-          <Spinner size="lg" />
-          <p className={cn('text-sm mt-4', isDark ? 'text-white/40' : 'text-surface-500')}>Redirecting to cart...</p>
+          <div className="w-12 h-12 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className={cn('text-sm', isDark ? 'text-white/40' : 'text-surface-500')}>Redirecting to cart...</p>
         </div>
       </div>
     );
@@ -84,7 +174,7 @@ export default function Checkout() {
                 Checkout
               </h1>
               <p className={cn('text-xs', isDark ? 'text-white/35' : 'text-surface-400')}>
-                Review your order and complete checkout
+                Review your order and complete payment
               </p>
             </div>
           </div>
@@ -98,9 +188,7 @@ export default function Checkout() {
                   i < 2
                     ? 'bg-brand-500 text-white'
                     : i === 2
-                      ? isDark
-                        ? 'bg-white/[0.06] text-white/30 border border-white/[0.1]'
-                        : 'bg-surface-100 text-surface-400 border border-surface-200'
+                      ? 'bg-brand-500/15 text-brand-500 border border-brand-500/30'
                       : isDark
                         ? 'bg-white/[0.04] text-white/20'
                         : 'bg-surface-50 text-surface-300'
@@ -118,10 +206,7 @@ export default function Checkout() {
                   {step}
                 </span>
                 {i < 2 && (
-                  <div className={cn(
-                    'w-8 h-px mx-1',
-                    isDark ? 'bg-white/[0.1]' : 'bg-surface-200'
-                  )} />
+                  <div className={cn('w-8 h-px mx-1', isDark ? 'bg-white/[0.1]' : 'bg-surface-200')} />
                 )}
               </div>
             ))}
@@ -132,50 +217,21 @@ export default function Checkout() {
           {/* Left: Checkout Sections */}
           <motion.div {...pageTransition} className="space-y-6 pb-32 lg:pb-0">
             {/* Address Section */}
-            <div className={cn(
-              'rounded-2xl border p-6',
-              isDark
-                ? 'bg-white/[0.02] border-white/[0.06]'
-                : 'bg-white border-surface-200 shadow-sm'
-            )}>
-              <AddressSelector
-                selectedAddressId={selectedAddressId}
-                onSelect={setSelectedAddressId}
-              />
+            <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
+              <AddressSelector selectedAddressId={selectedAddressId} onSelect={setSelectedAddressId} />
             </div>
 
             {/* Coupon Section */}
-            <div className={cn(
-              'rounded-2xl border p-6',
-              isDark
-                ? 'bg-white/[0.02] border-white/[0.06]'
-                : 'bg-white border-surface-200 shadow-sm'
-            )}>
-              <h3 className={cn(
-                'text-sm font-display font-bold uppercase tracking-wider mb-4',
-                isDark ? 'text-white/50' : 'text-surface-400'
-              )}>
+            <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
+              <h3 className={cn('text-sm font-display font-bold uppercase tracking-wider mb-4', isDark ? 'text-white/50' : 'text-surface-400')}>
                 Have a Coupon?
               </h3>
-              <CouponInput
-                onApply={handleApplyCoupon}
-                onRemove={handleRemoveCoupon}
-                appliedCoupon={couponCode}
-                discount={summary.couponDiscount}
-              />
+              <CouponInput onApply={handleApplyCoupon} onRemove={handleRemoveCoupon} appliedCoupon={couponCode} discount={summary.couponDiscount} />
             </div>
 
             {/* Delivery Notes */}
-            <div className={cn(
-              'rounded-2xl border p-6',
-              isDark
-                ? 'bg-white/[0.02] border-white/[0.06]'
-                : 'bg-white border-surface-200 shadow-sm'
-            )}>
-              <h3 className={cn(
-                'text-sm font-display font-bold uppercase tracking-wider mb-4',
-                isDark ? 'text-white/50' : 'text-surface-400'
-              )}>
+            <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
+              <h3 className={cn('text-sm font-display font-bold uppercase tracking-wider mb-4', isDark ? 'text-white/50' : 'text-surface-400')}>
                 Delivery Notes
               </h3>
               <textarea
@@ -193,17 +249,9 @@ export default function Checkout() {
             </div>
 
             {/* Estimated Delivery */}
-            <div className={cn(
-              'rounded-2xl border p-6',
-              isDark
-                ? 'bg-white/[0.02] border-white/[0.06]'
-                : 'bg-white border-surface-200 shadow-sm'
-            )}>
+            <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
               <div className="flex items-center gap-4">
-                <div className={cn(
-                  'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0',
-                  isDark ? 'bg-brand-500/15' : 'bg-brand-50'
-                )}>
+                <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0', isDark ? 'bg-brand-500/15' : 'bg-brand-50')}>
                   <svg className={cn('w-6 h-6', isDark ? 'text-brand-400' : 'text-brand-600')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -220,51 +268,36 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Payment Placeholder */}
-            <div className={cn(
-              'rounded-2xl border p-6',
-              isDark
-                ? 'bg-white/[0.02] border-white/[0.06]'
-                : 'bg-white border-surface-200 shadow-sm'
-            )}>
-              <h3 className={cn(
-                'text-sm font-display font-bold uppercase tracking-wider mb-4',
-                isDark ? 'text-white/50' : 'text-surface-400'
-              )}>
+            {/* Payment Method - Razorpay */}
+            <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
+              <h3 className={cn('text-sm font-display font-bold uppercase tracking-wider mb-4', isDark ? 'text-white/50' : 'text-surface-400')}>
                 Payment Method
               </h3>
               <div className={cn(
-                'flex items-center gap-4 p-4 rounded-xl border-2 border-dashed',
+                'flex items-center gap-4 p-4 rounded-xl border-2',
                 isDark
-                  ? 'border-white/[0.08] bg-white/[0.02]'
-                  : 'border-surface-200 bg-surface-50'
+                  ? 'border-brand-500/30 bg-brand-500/5'
+                  : 'border-brand-200 bg-brand-50/50'
               )}>
-                <div className={cn(
-                  'w-10 h-10 rounded-xl flex items-center justify-center',
-                  isDark ? 'bg-white/[0.06]' : 'bg-surface-100'
-                )}>
-                  <svg className={cn('w-5 h-5', isDark ? 'text-white/30' : 'text-surface-400')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', isDark ? 'bg-brand-500/15' : 'bg-brand-100')}>
+                  <svg className={cn('w-5 h-5', isDark ? 'text-brand-400' : 'text-brand-600')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
                   </svg>
                 </div>
-                <div>
-                  <p className={cn('text-sm font-medium', isDark ? 'text-white/50' : 'text-surface-500')}>
-                    Payment integration coming soon
+                <div className="flex-1">
+                  <p className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-surface-900')}>Razorpay</p>
+                  <p className={cn('text-[10px]', isDark ? 'text-white/35' : 'text-surface-400')}>
+                    Secure payment via Razorpay (Test Mode)
                   </p>
-                  <p className={cn('text-[10px]', isDark ? 'text-white/25' : 'text-surface-400')}>
-                    Razorpay will be integrated in the next phase
-                  </p>
+                </div>
+                <div className={cn('px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider', isDark ? 'bg-success-500/15 text-success-400' : 'bg-success-50 text-success-600')}>
+                  Test Mode
                 </div>
               </div>
             </div>
 
             {/* Terms */}
-            <div className={cn(
-              'rounded-2xl border p-6',
-              isDark
-                ? 'bg-white/[0.02] border-white/[0.06]'
-                : 'bg-white border-surface-200 shadow-sm'
-            )}>
+            <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -287,6 +320,38 @@ export default function Checkout() {
                 </div>
               </label>
             </div>
+
+            {/* Payment Error */}
+            <AnimatePresence>
+              {paymentError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={cn(
+                    'rounded-2xl border p-4 flex items-start gap-3',
+                    isDark ? 'border-danger-500/30 bg-danger-500/5' : 'border-danger-200 bg-danger-50'
+                  )}
+                >
+                  <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0', isDark ? 'bg-danger-500/15' : 'bg-danger-100')}>
+                    <svg className={cn('w-4 h-4', isDark ? 'text-danger-400' : 'text-danger-500')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className={cn('text-sm font-medium', isDark ? 'text-danger-300' : 'text-danger-700')}>{paymentError}</p>
+                  </div>
+                  <button
+                    onClick={() => setPaymentError(null)}
+                    className={cn('p-1 rounded-lg transition-colors', isDark ? 'text-danger-400/50 hover:text-danger-400' : 'text-danger-400 hover:text-danger-600')}
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* Right: Order Summary */}
@@ -297,35 +362,36 @@ export default function Checkout() {
             className="hidden lg:block"
           >
             <div className="sticky top-24">
-              <div className={cn(
-                'rounded-2xl border p-6',
-                isDark
-                  ? 'bg-white/[0.02] border-white/[0.06]'
-                  : 'bg-white border-surface-200 shadow-sm'
-              )}>
+              <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
                 <OrderSummary items={items} summary={summary} />
 
                 <div className="mt-6 space-y-3">
                   <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                    whileHover={!isProcessing ? { scale: 1.01 } : {}}
+                    whileTap={!isProcessing ? { scale: 0.99 } : {}}
                     onClick={handlePlaceOrder}
-                    disabled={!selectedAddressId || !agreedToTerms}
+                    disabled={!selectedAddressId || !agreedToTerms || isProcessing}
                     className={cn(
                       'w-full py-4 rounded-xl font-bold text-sm transition-all duration-300',
-                      selectedAddressId && agreedToTerms
+                      selectedAddressId && agreedToTerms && !isProcessing
                         ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2'
                         : isDark
                           ? 'bg-white/[0.04] text-white/20 cursor-not-allowed'
                           : 'bg-surface-200 text-surface-400 cursor-not-allowed'
                     )}
                   >
-                    {!selectedAddressId
-                      ? 'Select a Delivery Address'
-                      : !agreedToTerms
-                        ? 'Agree to Terms to Continue'
-                        : `Place Order — ${formatCurrency(summary.total)}`
-                    }
+                    {isProcessing ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        {isVerifying ? 'Verifying Payment...' : 'Processing Order...'}
+                      </span>
+                    ) : (
+                      !selectedAddressId
+                        ? 'Select a Delivery Address'
+                        : !agreedToTerms
+                          ? 'Agree to Terms to Continue'
+                          : `Pay ${formatCurrency(summary.total)}`
+                    )}
                   </motion.button>
 
                   {!selectedAddressId && (
@@ -333,6 +399,13 @@ export default function Checkout() {
                       Please select a delivery address to proceed
                     </p>
                   )}
+                </div>
+
+                {/* Test mode notice */}
+                <div className={cn('mt-4 p-3 rounded-xl text-center', isDark ? 'bg-warning-500/5 border border-warning-500/10' : 'bg-warning-50 border border-warning-100')}>
+                  <p className={cn('text-[10px] font-medium', isDark ? 'text-warning-400' : 'text-warning-600')}>
+                    Test Mode — No real money will be charged
+                  </p>
                 </div>
               </div>
             </div>
@@ -347,9 +420,7 @@ export default function Checkout() {
         className={cn(
           'fixed bottom-0 left-0 right-0 z-40 lg:hidden',
           'border-t p-4 backdrop-blur-xl',
-          isDark
-            ? 'border-white/[0.06] bg-dark-950/90'
-            : 'border-surface-200 bg-white/90'
+          isDark ? 'border-white/[0.06] bg-dark-950/90' : 'border-surface-200 bg-white/90'
         )}
       >
         <div className="flex items-center justify-between mb-3">
@@ -372,74 +443,33 @@ export default function Checkout() {
           </div>
         </div>
         <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
+          whileHover={!isProcessing ? { scale: 1.01 } : {}}
+          whileTap={!isProcessing ? { scale: 0.99 } : {}}
           onClick={handlePlaceOrder}
-          disabled={!selectedAddressId || !agreedToTerms}
+          disabled={!selectedAddressId || !agreedToTerms || isProcessing}
           className={cn(
             'w-full py-4 rounded-xl font-bold text-sm transition-all',
-            selectedAddressId && agreedToTerms
+            selectedAddressId && agreedToTerms && !isProcessing
               ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/25'
               : isDark
                 ? 'bg-white/[0.04] text-white/20 cursor-not-allowed'
                 : 'bg-surface-200 text-surface-400 cursor-not-allowed'
           )}
         >
-          {!selectedAddressId
-            ? 'Select Address'
-            : !agreedToTerms
-              ? 'Agree to Terms'
-              : `Place Order — ${formatCurrency(summary.total)}`
-          }
+          {isProcessing ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              {isVerifying ? 'Verifying...' : 'Processing...'}
+            </span>
+          ) : (
+            !selectedAddressId
+              ? 'Select Address'
+              : !agreedToTerms
+                ? 'Agree to Terms'
+                : `Pay ${formatCurrency(summary.total)}`
+          )}
         </motion.button>
       </motion.div>
-
-      {/* Payment info toast */}
-      <AnimatePresence>
-        {showPaymentToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className={cn(
-              'fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-md w-[calc(100%-2rem)]',
-              'px-5 py-4 rounded-2xl border shadow-2xl backdrop-blur-xl',
-              isDark
-                ? 'bg-dark-900/95 border-white/[0.08] shadow-black/40'
-                : 'bg-white/95 border-surface-200 shadow-black/10'
-            )}
-          >
-            <div className="flex items-start gap-3">
-              <div className={cn(
-                'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
-                isDark ? 'bg-brand-500/15' : 'bg-brand-50'
-              )}>
-                <svg className={cn('w-5 h-5', isDark ? 'text-brand-400' : 'text-brand-600')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-surface-900')}>Payment Coming Soon</p>
-                <p className={cn('text-xs mt-0.5', isDark ? 'text-white/40' : 'text-surface-500')}>
-                  Payment integration will be available in the next phase. Your order summary is ready!
-                </p>
-              </div>
-              <button
-                onClick={() => setShowPaymentToast(false)}
-                className={cn(
-                  'p-1 rounded-lg transition-colors flex-shrink-0',
-                  isDark ? 'text-white/30 hover:text-white/60' : 'text-surface-400 hover:text-surface-600'
-                )}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

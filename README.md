@@ -29,7 +29,7 @@ This repository tracks the incremental development of the platform through 9 com
 
 | Metric | Value |
 |--------|-------|
-| **Phase** | 11 — AI Pizza Assistant |
+| **Phase** | 12 — Razorpay Payment Integration |
 | **Build** | Passing |
 | **Client** | 541 modules, zero errors |
 | **Server** | Syntax verified, all deps installed |
@@ -456,11 +456,10 @@ Phase 9   ✅  Cart & checkout foundation, localStorage persistence, address sel
 Phase 9b  ✅  Premium UI polish, complete dark mode audit, animation improvements
 Phase 10  ✅  Elite UI redesign — commercial FoodTech quality, accessibility, micro-interactions
 Phase 11  ✅  AI Pizza Assistant — Groq-powered chatbot with fallback engine, premium UI, cart integration
-Phase 12  ⬜  Payment integration (Razorpay)
-Phase 13  ⬜  Order creation and management
-Phase 14  ⬜  Order status tracking
-Phase 15  ⬜  Admin dashboard with inventory and analytics
-Phase 16  ⬜  Real-time order tracking via WebSocket
+Phase 12  ✅  Razorpay Payment Integration — Full Cart → Checkout → Payment → Order Confirmation flow
+Phase 13  ⬜  Order status tracking
+Phase 14  ⬜  Admin dashboard with inventory and analytics
+Phase 15  ⬜  Real-time order tracking via WebSocket
 ```
 
 ---
@@ -496,6 +495,7 @@ Phase 16  ⬜  Real-time order tracking via WebSocket
 | Helmet | Security headers |
 | express-rate-limit | Rate limiting |
 | multer | File upload (avatar) |
+| Razorpay | Payment gateway (test mode) |
 | Groq API | AI chatbot (llama-3.1-8b-instant) |
 
 ### Infrastructure
@@ -544,11 +544,11 @@ pizzacraft/
 │   │   │   ├── images.js            # Unsplash photo URLs
 │   │   │   └── pizzaBuilder.js      # Builder options, steps, topping levels
 │   │   ├── hooks/                   # useDarkMode, useMediaQuery, useScrollPosition, useDebounce
-│   │   ├── pages/                   # Home, Menu, Cart, Checkout, PizzaBuilder, Profile, Auth pages, NotFound
-│   │   ├── services/                # API client, auth, pizza, cart, assistant
+│   │   ├── pages/                   # Home, Menu, Cart, Checkout, OrderSuccess, PizzaBuilder, Profile, Auth pages, NotFound
+│   │   ├── services/                # API client, auth, pizza, cart, order, assistant
 │   │   ├── store/
 │   │   │   ├── index.js             # Store configuration
-│   │   │   └── slices/              # auth, ui, pizza, builder, profile, cart, assistant
+│   │   │   └── slices/              # auth, ui, pizza, builder, profile, cart, assistant, orders
 │   │   ├── styles/                  # Global CSS and design tokens
 │   │   ├── utils/                   # Constants and helper functions
 │   │   ├── App.jsx                  # Route definitions
@@ -576,6 +576,7 @@ pizzacraft/
 │   │   │   └── validate.js          # Zod validation middleware
 │   │   ├── models/
 │   │   │   ├── Cart.js              # Cart schema with embedded items
+│   │   │   ├── Order.js             # Order schema with payment tracking
 │   │   │   ├── Pizza.js             # Pizza schema (15 seeded documents)
 │   │   │   └── User.js              # User schema with bcrypt + embedded addresses
 │   │   ├── routes/
@@ -583,6 +584,7 @@ pizzacraft/
 │   │   │   │   ├── auth.js          # Auth routes with rate limiting
 │   │   │   │   ├── cart.js          # Cart routes (JWT protected)
 │   │   │   │   ├── health.js        # Health check endpoint
+│   │   │   │   ├── order.js         # Order routes (JWT protected)
 │   │   │   │   ├── pizza.js         # Pizza routes (public)
 │   │   │   │   ├── profile.js       # Profile routes (JWT protected)
 │   │   │   │   └── assistant.js     # AI chatbot routes
@@ -591,6 +593,7 @@ pizzacraft/
 │   │   ├── services/
 │   │   │   ├── authService.js       # JWT generation/verification
 │   │   │   ├── emailService.js      # Nodemailer transport
+│   │   │   ├── paymentService.js    # Razorpay SDK wrapper + signature verification
 │   │   │   ├── assistantService.js  # AI provider abstraction + pizza cache
 │   │   │   ├── groqProvider.js      # Groq API wrapper
 │   │   │   └── fallbackEngine.js    # Deterministic recommendation engine
@@ -601,6 +604,7 @@ pizzacraft/
 │   │   ├── validations/
 │   │   │   ├── auth.js              # Auth Zod schemas
 │   │   │   ├── cart.js              # Cart Zod schemas
+│   │   │   ├── order.js             # Order Zod schemas
 │   │   │   ├── pizza.js             # Pizza Zod schemas
 │   │   │   └── assistant.js         # Chat Zod schemas
 │   │   └── server.js                # Express + Socket.io entry
@@ -666,6 +670,8 @@ npm run dev:server    # http://localhost:5000
 | `JWT_EXPIRE` | Token expiration duration | No | `7d` |
 | `CLIENT_URL` | Frontend origin for CORS | Yes | — |
 | `GROQ_API_KEY` | Groq API key for AI chatbot | No | — (uses fallback) |
+| `RAZORPAY_KEY_ID` | Razorpay test mode key ID | No | — (disables payment) |
+| `RAZORPAY_KEY_SECRET` | Razorpay test mode key secret | No | — (disables payment) |
 
 ### Client
 
@@ -674,6 +680,13 @@ npm run dev:server    # http://localhost:5000
 | `VITE_API_URL` | Backend API base URL | Yes |
 | `VITE_APP_NAME` | Application display name | No |
 | `VITE_APP_VERSION` | Application version string | No |
+
+### Razorpay Test Mode
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `RAZORPAY_KEY_ID` | Test mode key ID (starts with `rzp_test_`) | No |
+| `RAZORPAY_KEY_SECRET` | Test mode key secret | No |
 
 ---
 
