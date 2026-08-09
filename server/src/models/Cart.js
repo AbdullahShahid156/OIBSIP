@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 const cartItemSchema = new mongoose.Schema(
   {
     pizzaId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Pizza',
+      type: mongoose.Schema.Types.Mixed,
       required: true,
     },
     name: { type: String, required: true },
