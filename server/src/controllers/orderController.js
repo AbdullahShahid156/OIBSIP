@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 import User from '../models/User.js';
+import env from '../config/env.js';
 import { AppError } from '../middleware/errorHandler.js';
 import {
   createRazorpayOrder,
@@ -11,6 +12,19 @@ import {
 export async function createOrder(req, res, next) {
   try {
     const { addressId, notes } = req.body;
+
+    const existingPending = await Order.findOne({
+      user: req.user.id,
+      status: 'pending',
+      'payment.status': 'pending',
+    }).sort({ createdAt: -1 });
+
+    if (existingPending) {
+      const age = Date.now() - existingPending.createdAt.getTime();
+      if (age < 10 * 60 * 1000) {
+        throw new AppError('You already have a pending order. Please complete or wait for it to expire.', 409);
+      }
+    }
 
     const cart = await Cart.findOne({ user: req.user.id });
     if (!cart || cart.items.length === 0) {
@@ -107,7 +121,7 @@ export async function createOrder(req, res, next) {
         order: {
           _id: order._id,
           razorpayOrderId: razorpayOrder.id,
-          razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+          razorpayKeyId: env.RAZORPAY_KEY_ID,
           amount: amountInPaise,
           currency: 'INR',
           summary: order.summary,

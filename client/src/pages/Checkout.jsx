@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
 import { cn, formatCurrency } from '../utils/helpers';
 import { applyCouponCode, removeCouponCode, clearCartLocal } from '../store/slices/cartSlice';
-import { createOrder, verifyPayment, clearError } from '../store/slices/orderSlice';
+import { createOrder, verifyPayment, clearError, clearCurrentOrder } from '../store/slices/orderSlice';
 import AddressSelector from '../components/checkout/AddressSelector';
 import OrderSummary from '../components/checkout/OrderSummary';
 import CouponInput from '../components/checkout/CouponInput';
@@ -45,7 +45,11 @@ export default function Checkout() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    return () => {
+      dispatch(clearError());
+      dispatch(clearCurrentOrder());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (items.length === 0 && !isLoading) {

@@ -6,6 +6,9 @@ import { AppError } from '../middleware/errorHandler.js';
 let razorpay = null;
 
 function getRazorpayInstance() {
+  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+    throw new AppError('Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.', 503);
+  }
   if (!razorpay) {
     razorpay = new Razorpay({
       key_id: env.RAZORPAY_KEY_ID,
@@ -26,6 +29,9 @@ export async function createRazorpayOrder(amountInPaise, receipt, notes = {}) {
     });
     return order;
   } catch (error) {
+    if (error.statusCode) {
+      throw new AppError(`Razorpay: ${error.error?.description || error.message}`, error.statusCode);
+    }
     throw new AppError(`Payment gateway error: ${error.message}`, 502);
   }
 }
@@ -36,9 +42,20 @@ export function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razor
     .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
     .update(body)
     .digest('hex');
-  return expectedSignature === razorpaySignature;
+
+  if (expectedSignature.length !== razorpaySignature.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(
+    Buffer.from(expectedSignature, 'utf8'),
+    Buffer.from(razorpaySignature, 'utf8')
+  );
 }
 
+let receiptCounter = 0;
+
 export function generateReceiptPrefix() {
-  return `order_${Date.now()}`;
+  receiptCounter += 1;
+  return `order_${Date.now()}_${receiptCounter}`;
 }

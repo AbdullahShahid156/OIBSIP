@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
-import { cn, formatCurrency, formatDate } from '../utils/helpers';
+import { cn, formatCurrency } from '../utils/helpers';
 import { getOrder, clearCurrentOrder } from '../store/slices/orderSlice';
 import { ROUTES } from '../utils/constants';
 
