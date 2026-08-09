@@ -165,7 +165,11 @@ export const syncCartToServer = createAsyncThunk(
         const serverCart = await cartAPI.getCart();
         return serverCart;
       }
-      await cartAPI.clearCart();
+      try {
+        await cartAPI.clearCart();
+      } catch {
+        // Cart may not exist yet in MongoDB — that's fine
+      }
       for (const item of cart.items) {
         await cartAPI.addItem({
           pizzaId: item.pizzaId,
@@ -189,7 +193,11 @@ export const syncCartToServer = createAsyncThunk(
         });
       }
       if (cart.couponCode) {
-        await cartAPI.applyCoupon(cart.couponCode);
+        try {
+          await cartAPI.applyCoupon(cart.couponCode);
+        } catch {
+          // Coupon may not be valid server-side — ignore
+        }
       }
       const serverCart = await cartAPI.getCart();
       return serverCart;
