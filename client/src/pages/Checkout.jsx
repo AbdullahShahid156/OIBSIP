@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
 import { cn, formatCurrency } from '../utils/helpers';
-import { applyCouponCode, removeCouponCode, clearCartLocal } from '../store/slices/cartSlice';
+import { applyCouponCode, removeCouponCode, clearCartLocal, syncCartToServer } from '../store/slices/cartSlice';
 import { createOrder, verifyPayment, clearError, clearCurrentOrder } from '../store/slices/orderSlice';
 import AddressSelector from '../components/checkout/AddressSelector';
 import OrderSummary from '../components/checkout/OrderSummary';
@@ -80,6 +80,12 @@ export default function Checkout() {
     const scriptLoaded = await loadRazorpayScript();
     if (!scriptLoaded) {
       setPaymentError('Failed to load payment gateway. Please try again.');
+      return;
+    }
+
+    const syncResult = await dispatch(syncCartToServer());
+    if (syncResult.error) {
+      setPaymentError('Failed to sync cart. Please try again.');
       return;
     }
 

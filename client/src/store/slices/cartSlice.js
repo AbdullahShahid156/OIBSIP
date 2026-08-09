@@ -156,6 +156,49 @@ export const removeCouponCode = createAsyncThunk(
   }
 );
 
+export const syncCartToServer = createAsyncThunk(
+  'cart/syncToServer',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { cart } = getState();
+      if (!cart.items || cart.items.length === 0) {
+        const serverCart = await cartAPI.getCart();
+        return serverCart;
+      }
+      await cartAPI.clearCart();
+      for (const item of cart.items) {
+        await cartAPI.addItem({
+          pizzaId: item.pizzaId,
+          name: item.name,
+          image: item.image || '',
+          size: item.size,
+          base: item.base,
+          baseName: item.baseName || '',
+          sauce: item.sauce,
+          sauceName: item.sauceName || '',
+          cheese: item.cheese,
+          cheeseName: item.cheeseName || '',
+          veggies: item.veggies || {},
+          veggieNames: item.veggieNames || {},
+          qty: item.qty,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          prepTime: item.prepTime || 10,
+          isCustomized: item.isCustomized || false,
+          configurationId: item.configurationId,
+        });
+      }
+      if (cart.couponCode) {
+        await cartAPI.applyCoupon(cart.couponCode);
+      }
+      const serverCart = await cartAPI.getCart();
+      return serverCart;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 function applyServerCart(state, cartData) {
   state.items = cartData.items || [];
   state.couponCode = cartData.couponCode || '';
@@ -252,7 +295,11 @@ const cartSlice = createSlice({
       .addCase(applyCouponCode.fulfilled, (state, action) => { state.isLoading = false; applyServerCart(state, action.payload); })
       .addCase(applyCouponCode.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; })
 
-      .addCase(removeCouponCode.fulfilled, (state, action) => { applyServerCart(state, action.payload); });
+      .addCase(removeCouponCode.fulfilled, (state, action) => { applyServerCart(state, action.payload); })
+
+      .addCase(syncCartToServer.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(syncCartToServer.fulfilled, (state, action) => { state.isLoading = false; applyServerCart(state, action.payload); })
+      .addCase(syncCartToServer.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; });
   },
 });
 
