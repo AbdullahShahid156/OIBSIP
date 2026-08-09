@@ -234,7 +234,8 @@ export async function applyCoupon(req, res, next) {
     } else if (coupon.type === 'fixed') {
       discount = coupon.discount;
     } else if (coupon.type === 'delivery') {
-      discount = 4.99;
+      const deliveryFee = subtotal >= 35 ? 0 : 4.99;
+      discount = deliveryFee;
     }
 
     cart.couponCode = code.toUpperCase();

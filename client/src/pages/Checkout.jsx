@@ -249,6 +249,7 @@ export default function Checkout() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Special instructions for delivery (e.g., ring the doorbell, leave at door)..."
                 rows={3}
+                maxLength={500}
                 className={cn(
                   'w-full px-4 py-3 rounded-xl text-sm border transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-none',
                   isDark

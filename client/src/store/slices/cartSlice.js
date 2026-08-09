@@ -251,10 +251,10 @@ const cartSlice = createSlice({
     },
     updateItemQtyLocal(state, action) {
       const { itemId, qty } = action.payload;
-      const item = state.items.find((i) => i._id === itemId);
+      const item = state.items.find((i) => i._id === itemId || i.configurationId === itemId);
       if (item) {
         if (qty <= 0) {
-          state.items = state.items.filter((i) => i._id !== itemId);
+          state.items = state.items.filter((i) => i._id !== itemId && i.configurationId !== itemId);
         } else {
           item.qty = qty;
           item.totalPrice = item.unitPrice * qty;
@@ -264,7 +264,7 @@ const cartSlice = createSlice({
       saveCartToStorage({ items: state.items, couponCode: state.couponCode, couponDiscount: state.couponDiscount });
     },
     removeItemLocal(state, action) {
-      state.items = state.items.filter((i) => i._id !== action.payload);
+      state.items = state.items.filter((i) => i._id !== action.payload && i.configurationId !== action.payload);
       state.summary = calculateSummary(state.items, state.couponDiscount);
       saveCartToStorage({ items: state.items, couponCode: state.couponCode, couponDiscount: state.couponDiscount });
     },

@@ -151,6 +151,10 @@ export async function verifyPayment(req, res, next) {
       });
     }
 
+    if (order.status === 'cancelled' || order.payment.status === 'failed') {
+      throw new AppError('This order has been cancelled or failed. Please place a new order.', 400);
+    }
+
     if (order.payment.razorpayOrderId !== razorpayOrderId) {
       throw new AppError('Order ID mismatch', 400);
     }

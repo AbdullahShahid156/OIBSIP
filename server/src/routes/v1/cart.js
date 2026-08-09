@@ -24,9 +24,9 @@ router.use(protect);
 
 router.get('/', getCart);
 router.post('/items', validate(addCartItemSchema), addToCart);
+router.delete('/clear', clearCart);
 router.patch('/items/:itemId', validate(updateCartItemSchema), updateCartItem);
 router.delete('/items/:itemId', removeCartItem);
-router.delete('/clear', clearCart);
 router.post('/coupon/apply', validate(applyCouponSchema), applyCoupon);
 router.delete('/coupon/remove', removeCoupon);
 router.post('/validate-checkout', validate(checkoutSchema), validateCheckout);

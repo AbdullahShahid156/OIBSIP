@@ -7,7 +7,7 @@ export const createOrder = createAsyncThunk(
     try {
       return await orderAPI.createOrder(addressId, notes);
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create order');
+      return rejectWithValue(error.message || 'Failed to create order');
     }
   }
 );
@@ -18,7 +18,7 @@ export const verifyPayment = createAsyncThunk(
     try {
       return await orderAPI.verifyPayment(paymentData);
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Payment verification failed');
+      return rejectWithValue(error.message || 'Payment verification failed');
     }
   }
 );
@@ -29,7 +29,7 @@ export const getOrder = createAsyncThunk(
     try {
       return await orderAPI.getOrder(orderId);
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch order');
+      return rejectWithValue(error.message || 'Failed to fetch order');
     }
   }
 );
@@ -40,7 +40,7 @@ export const getOrders = createAsyncThunk(
     try {
       return await orderAPI.getOrders(page, limit);
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch orders');
+      return rejectWithValue(error.message || 'Failed to fetch orders');
     }
   }
 );
