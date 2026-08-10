@@ -6,7 +6,7 @@ import { AppError } from '../middleware/errorHandler.js';
 import {
   createRazorpayOrder,
   verifyPaymentSignature,
-  generateReceiptPrefix,
+  generateReceiptId,
 } from '../services/paymentService.js';
 
 export async function createOrder(req, res, next) {
@@ -47,7 +47,7 @@ export async function createOrder(req, res, next) {
     }
 
     const amountInPaise = Math.round(total * 100);
-    const receipt = `${generateReceiptPrefix()}_${req.user.id.slice(-6)}`;
+    const receipt = generateReceiptId();
 
     const razorpayOrder = await createRazorpayOrder(amountInPaise, receipt, {
       userId: req.user.id,

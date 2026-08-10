@@ -4,16 +4,18 @@ import env from '../config/env.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 let razorpay = null;
+let lastKeyId = null;
 
 function getRazorpayInstance() {
   if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
     throw new AppError('Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.', 503);
   }
-  if (!razorpay) {
+  if (!razorpay || lastKeyId !== env.RAZORPAY_KEY_ID) {
     razorpay = new Razorpay({
       key_id: env.RAZORPAY_KEY_ID,
       key_secret: env.RAZORPAY_KEY_SECRET,
     });
+    lastKeyId = env.RAZORPAY_KEY_ID;
   }
   return razorpay;
 }
@@ -29,10 +31,9 @@ export async function createRazorpayOrder(amountInPaise, receipt, notes = {}) {
     });
     return order;
   } catch (error) {
-    if (error.statusCode) {
-      throw new AppError(`Razorpay: ${error.error?.description || error.message}`, error.statusCode);
-    }
-    throw new AppError(`Payment gateway error: ${error.message}`, 502);
+    console.error('RAZORPAY_FULL_ERROR:', JSON.stringify(error, null, 2));
+    const detail = error.error?.description || error.error?.reason || error.message || JSON.stringify(error);
+    throw new AppError(`Razorpay: ${detail}`, error.statusCode || 502);
   }
 }
 
@@ -55,7 +56,7 @@ export function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razor
 
 let receiptCounter = 0;
 
-export function generateReceiptPrefix() {
+export function generateReceiptId() {
   receiptCounter += 1;
-  return `order_${Date.now()}_${receiptCounter}`;
+  return `rcpt_${Date.now()}_${receiptCounter}`;
 }
