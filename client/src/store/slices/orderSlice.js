@@ -25,9 +25,9 @@ export const verifyPayment = createAsyncThunk(
 
 export const testPayment = createAsyncThunk(
   'orders/testPayment',
-  async ({ addressId, notes }, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      return await orderAPI.testPayment(addressId, notes);
+      return await orderAPI.testPayment(payload);
     } catch (error) {
       return rejectWithValue(error.message || 'Test payment failed');
     }

@@ -163,20 +163,14 @@ export default function Checkout() {
 
     const rzp = new window.Razorpay(options);
     rzp.on('payment.failed', async () => {
-      const testResult = await dispatch(testPayment({ addressId: selectedAddressId, notes }));
+      const testResult = await dispatch(testPayment(orderData.order._id));
       if (testResult.error) {
         setPaymentError('Payment failed. Please try again.');
         setIsPlacingOrder(false);
         return;
       }
-      const orderData2 = testResult.payload;
-      if (!orderData2?.order?._id) {
-        setPaymentError('Invalid order response.');
-        setIsPlacingOrder(false);
-        return;
-      }
       dispatch(clearCartLocal());
-      navigate(ROUTES.ORDER_SUCCESS.replace(':id', orderData2.order._id));
+      navigate(ROUTES.ORDER_SUCCESS.replace(':id', orderData.order._id));
     });
     rzp.open();
   }, [selectedAddressId, agreedToTerms, isLoading, dispatch, navigate, user, isDark, notes]);

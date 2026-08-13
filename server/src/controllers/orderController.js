@@ -226,7 +226,36 @@ export async function testPayment(req, res, next) {
   }
 
   try {
-    const { addressId, notes } = req.body;
+    const { orderId, addressId, notes } = req.body;
+
+    if (orderId) {
+      const order = await Order.findById(orderId);
+      if (!order) throw new AppError('Order not found', 404);
+      if (order.user.toString() !== req.user.id) throw new AppError('Unauthorized', 403);
+
+      order.payment.status = 'completed';
+      order.payment.razorpayPaymentId = `test_pay_${Date.now()}`;
+      order.payment.razorpaySignature = `test_sig_${Date.now()}`;
+      order.payment.paidAt = new Date();
+      order.status = 'confirmed';
+      await order.save();
+
+      await Cart.findOneAndUpdate(
+        { user: req.user.id },
+        { $set: { items: [], couponCode: '', couponDiscount: 0 } }
+      );
+
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          order: {
+            _id: order._id,
+            status: order.status,
+            payment: order.payment,
+          },
+        },
+      });
+    }
 
     const cart = await Cart.findOne({ user: req.user.id });
     if (!cart || cart.items.length === 0) {

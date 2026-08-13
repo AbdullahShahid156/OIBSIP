@@ -11,8 +11,8 @@ export const orderAPI = {
     return response.data;
   },
 
-  testPayment: async (addressId, notes) => {
-    const response = await api.post('/orders/test-pay', { addressId, notes });
+  testPayment: async (orderIdOrPayload) => {
+    const response = await api.post('/orders/test-pay', typeof orderIdOrPayload === 'string' ? { orderId: orderIdOrPayload } : orderIdOrPayload);
     return response.data;
   },
 
