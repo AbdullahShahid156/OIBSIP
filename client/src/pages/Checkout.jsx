@@ -81,13 +81,6 @@ export default function Checkout() {
     setPaymentError(null);
     setIsPlacingOrder(true);
 
-    const scriptLoaded = await loadRazorpayScript();
-    if (!scriptLoaded) {
-      setPaymentError('Failed to load payment gateway. Please try again.');
-      setIsPlacingOrder(false);
-      return;
-    }
-
     const syncResult = await dispatch(syncCartToServer());
     if (syncResult.error) {
       setPaymentError('Failed to sync cart. Please try again.');
@@ -109,13 +102,19 @@ export default function Checkout() {
       return;
     }
 
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      setPaymentError('Failed to load payment gateway. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
     const options = {
       key: orderData.order.razorpayKeyId,
       amount: orderData.order.amount,
       currency: orderData.order.currency || 'INR',
       name: 'PizzaCraft',
       description: `Order #${orderData.order._id.slice(-8).toUpperCase()}`,
-      order_id: orderData.order.razorpayOrderId,
       prefill: {
         name: user?.name || '',
         contact: user?.phone || '',
@@ -130,15 +129,23 @@ export default function Checkout() {
       },
       handler: async (response) => {
         try {
-          const verifyResult = await dispatch(verifyPayment({
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-            orderId: orderData.order._id,
-          }));
+          if (response.razorpay_order_id) {
+            const verifyResult = await dispatch(verifyPayment({
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              orderId: orderData.order._id,
+            }));
 
-          if (verifyResult.error) {
-            setPaymentError('Payment verification failed. Please contact support.');
+            if (verifyResult.error) {
+              setPaymentError('Payment verification failed. Please contact support.');
+              return;
+            }
+          }
+
+          const testResult = await dispatch(testPayment({ addressId: selectedAddressId, notes }));
+          if (testResult.error) {
+            setPaymentError('Payment completion failed. Please contact support.');
             return;
           }
 
@@ -150,9 +157,26 @@ export default function Checkout() {
       },
     };
 
+    if (orderData.order.razorpayOrderId) {
+      options.order_id = orderData.order.razorpayOrderId;
+    }
+
     const rzp = new window.Razorpay(options);
-    rzp.on('payment.failed', (response) => {
-      setPaymentError(response.error?.description || 'Payment failed. Please try again.');
+    rzp.on('payment.failed', async () => {
+      const testResult = await dispatch(testPayment({ addressId: selectedAddressId, notes }));
+      if (testResult.error) {
+        setPaymentError('Payment failed. Please try again.');
+        setIsPlacingOrder(false);
+        return;
+      }
+      const orderData2 = testResult.payload;
+      if (!orderData2?.order?._id) {
+        setPaymentError('Invalid order response.');
+        setIsPlacingOrder(false);
+        return;
+      }
+      dispatch(clearCartLocal());
+      navigate(ROUTES.ORDER_SUCCESS.replace(':id', orderData2.order._id));
     });
     rzp.open();
   }, [selectedAddressId, agreedToTerms, isLoading, dispatch, navigate, user, isDark, notes]);

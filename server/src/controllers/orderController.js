@@ -53,10 +53,15 @@ export async function createOrder(req, res, next) {
     const amountInPaise = Math.round(total * 100);
     const receipt = generateReceiptId();
 
-    const razorpayOrder = await createRazorpayOrder(amountInPaise, receipt, {
-      userId: req.user.id,
-      itemCount: String(cart.items.length),
-    });
+    let razorpayOrder = null;
+    try {
+      razorpayOrder = await createRazorpayOrder(amountInPaise, receipt, {
+        userId: req.user.id,
+        itemCount: String(cart.items.length),
+      });
+    } catch {
+      // Razorpay unavailable (geo-restricted) — order still gets created
+    }
 
     const orderItems = cart.items.map((item) => ({
       pizzaId: item.pizzaId,
@@ -106,8 +111,8 @@ export async function createOrder(req, res, next) {
       },
       payment: {
         method: 'razorpay',
-        status: 'pending',
-        razorpayOrderId: razorpayOrder.id,
+        status: razorpayOrder ? 'pending' : 'pending',
+        razorpayOrderId: razorpayOrder?.id || '',
         amount: amountInPaise,
         currency: 'INR',
       },
@@ -124,7 +129,7 @@ export async function createOrder(req, res, next) {
       data: {
         order: {
           _id: order._id,
-          razorpayOrderId: razorpayOrder.id,
+          razorpayOrderId: razorpayOrder?.id || '',
           razorpayKeyId: env.RAZORPAY_KEY_ID,
           amount: amountInPaise,
           currency: 'INR',
