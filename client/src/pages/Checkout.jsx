@@ -205,7 +205,7 @@ export default function Checkout() {
       return;
     }
 
-    const { gatewayUrl, payload } = result.payload;
+    const { gatewayUrl, payload } = result.payload.data;
     if (!gatewayUrl || !payload) {
       setPaymentError('Invalid JazzCash response. Please try again.');
       setIsPlacingOrder(false);

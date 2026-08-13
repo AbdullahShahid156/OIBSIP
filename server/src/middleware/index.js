@@ -9,7 +9,18 @@ import env from '../config/env.js';
 export { validate } from './validate.js';
 
 const setupMiddleware = (app) => {
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
+        frameSrc: ["'self'", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
+        connectSrc: ["'self'", "https://api.razorpay.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+  }));
 
   app.use(
     cors({
