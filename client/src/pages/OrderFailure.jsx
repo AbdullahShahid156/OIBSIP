@@ -21,6 +21,7 @@ export default function OrderFailure() {
   const dispatch = useDispatch();
   const { currentOrder, isLoading } = useSelector((state) => state.orders);
   const [reason, setReason] = useState('');
+  const currency = currentOrder?.payment?.method === 'jazzcash' ? 'PKR' : 'INR';
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -106,7 +107,7 @@ export default function OrderFailure() {
               <div className="flex items-center justify-between mb-4">
                 <p className={cn('text-xs', isDark ? 'text-white/40' : 'text-surface-400')}>Amount</p>
                 <p className={cn('text-sm font-bold tabular-nums', isDark ? 'text-white' : 'text-surface-900')}>
-                  {formatCurrency(currentOrder.summary?.total || 0)}
+                  {formatCurrency(currentOrder.summary?.total || 0, currency)}
                 </p>
               </div>
 

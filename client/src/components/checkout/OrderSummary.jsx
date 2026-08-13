@@ -4,7 +4,7 @@ import { useDarkMode } from '../../hooks';
 import { cn, formatCurrency } from '../../utils/helpers';
 import { SIZE_OPTIONS } from '../../data/pizzaBuilder';
 
-const OrderSummary = memo(function OrderSummary({ items, summary }) {
+const OrderSummary = memo(function OrderSummary({ items, summary, currency = 'INR' }) {
   const { isDark } = useDarkMode();
 
   return (
@@ -63,7 +63,7 @@ const OrderSummary = memo(function OrderSummary({ items, summary }) {
                 )}
               </div>
               <span className={cn('text-xs font-bold tabular-nums flex-shrink-0', isDark ? 'text-white/70' : 'text-surface-700')}>
-                {formatCurrency(item.totalPrice)}
+                {formatCurrency(item.totalPrice, currency)}
               </span>
             </div>
           );
@@ -78,7 +78,7 @@ const OrderSummary = memo(function OrderSummary({ items, summary }) {
         <div className="flex justify-between">
           <span className={cn('text-xs', isDark ? 'text-white/40' : 'text-surface-500')}>Item Total</span>
           <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>
-            {formatCurrency(summary.subtotal)}
+            {formatCurrency(summary.subtotal, currency)}
           </span>
         </div>
         <div className="flex justify-between">
@@ -87,20 +87,20 @@ const OrderSummary = memo(function OrderSummary({ items, summary }) {
             'text-xs font-bold tabular-nums',
             summary.deliveryFee === 0 ? 'text-success-500' : isDark ? 'text-white/70' : 'text-surface-700'
           )}>
-            {summary.deliveryFee === 0 ? 'Free' : formatCurrency(summary.deliveryFee)}
+            {summary.deliveryFee === 0 ? 'Free' : formatCurrency(summary.deliveryFee, currency)}
           </span>
         </div>
         <div className="flex justify-between">
           <span className={cn('text-xs', isDark ? 'text-white/40' : 'text-surface-500')}>Tax (8%)</span>
           <span className={cn('text-xs font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>
-            {formatCurrency(summary.tax)}
+            {formatCurrency(summary.tax, currency)}
           </span>
         </div>
         {summary.couponDiscount > 0 && (
           <div className="flex justify-between">
             <span className="text-xs font-medium text-success-500">Coupon Discount</span>
             <span className="text-xs font-bold tabular-nums text-success-500">
-              -{formatCurrency(summary.couponDiscount)}
+              -{formatCurrency(summary.couponDiscount, currency)}
             </span>
           </div>
         )}
@@ -116,7 +116,7 @@ const OrderSummary = memo(function OrderSummary({ items, summary }) {
             transition={{ duration: 0.4 }}
             className={cn('text-sm font-bold tabular-nums', isDark ? 'text-white' : 'text-surface-900')}
           >
-            {formatCurrency(summary.total)}
+            {formatCurrency(summary.total, currency)}
           </motion.span>
         </div>
       </div>

@@ -100,6 +100,7 @@ export default function OrderSuccess() {
   }
 
   const status = statusConfig[currentOrder.status] || statusConfig.pending;
+  const currency = currentOrder.payment?.method === 'jazzcash' ? 'PKR' : 'INR';
 
   return (
     <div className={cn('min-h-screen transition-colors', isDark ? 'bg-dark-950' : 'bg-surface-50')}>
@@ -160,7 +161,7 @@ export default function OrderSuccess() {
                     </p>
                   </div>
                   <p className={cn('text-sm font-bold tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>
-                    {formatCurrency(item.totalPrice)}
+                    {formatCurrency(item.totalPrice, currency)}
                   </p>
                 </div>
               ))}
@@ -171,27 +172,27 @@ export default function OrderSuccess() {
           <div className={cn('border-t p-6 space-y-2', isDark ? 'border-white/[0.06]' : 'border-surface-100')}>
             <div className="flex justify-between text-sm">
               <span className={isDark ? 'text-white/40' : 'text-surface-500'}>Subtotal</span>
-              <span className={cn('tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>{formatCurrency(currentOrder.summary?.subtotal)}</span>
+              <span className={cn('tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>{formatCurrency(currentOrder.summary?.subtotal, currency)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className={isDark ? 'text-white/40' : 'text-surface-500'}>Delivery</span>
               <span className={cn('tabular-nums', currentOrder.summary?.deliveryFee === 0 ? 'text-success-500' : isDark ? 'text-white/70' : 'text-surface-700')}>
-                {currentOrder.summary?.deliveryFee === 0 ? 'Free' : formatCurrency(currentOrder.summary?.deliveryFee)}
+                {currentOrder.summary?.deliveryFee === 0 ? 'Free' : formatCurrency(currentOrder.summary?.deliveryFee, currency)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className={isDark ? 'text-white/40' : 'text-surface-500'}>Tax</span>
-              <span className={cn('tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>{formatCurrency(currentOrder.summary?.tax)}</span>
+              <span className={cn('tabular-nums', isDark ? 'text-white/70' : 'text-surface-700')}>{formatCurrency(currentOrder.summary?.tax, currency)}</span>
             </div>
             {currentOrder.summary?.couponDiscount > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-success-500">Coupon Discount</span>
-                <span className="text-success-500 tabular-nums">-{formatCurrency(currentOrder.summary.couponDiscount)}</span>
+                <span className="text-success-500 tabular-nums">-{formatCurrency(currentOrder.summary.couponDiscount, currency)}</span>
               </div>
             )}
             <div className={cn('flex justify-between text-base font-bold pt-2 border-t', isDark ? 'border-white/[0.06] text-white' : 'border-surface-100 text-surface-900')}>
               <span>Total</span>
-              <span className="tabular-nums">{formatCurrency(currentOrder.summary?.total)}</span>
+              <span className="tabular-nums">{formatCurrency(currentOrder.summary?.total, currency)}</span>
             </div>
           </div>
         </motion.div>

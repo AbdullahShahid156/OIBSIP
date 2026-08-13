@@ -4,10 +4,10 @@ export function cn(...inputs) {
   return clsx(inputs);
 }
 
-export function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-IN', {
+export function formatCurrency(amount, currency = 'INR') {
+  return new Intl.NumberFormat(currency === 'PKR' ? 'en-PK' : 'en-IN', {
     style: 'currency',
-    currency: 'INR',
+    currency: currency,
   }).format(amount);
 }
 

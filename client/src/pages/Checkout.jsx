@@ -43,6 +43,7 @@ export default function Checkout() {
   const { isLoading, isVerifying, error: orderError, razorpayOrderData, jazzcashOrderData } = useSelector((state) => state.orders);
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('razorpay');
+  const currency = selectedPaymentMethod === 'jazzcash' ? 'PKR' : 'INR';
   const [notes, setNotes] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
@@ -92,6 +93,10 @@ export default function Checkout() {
 
     const result = await dispatch(createOrder({ addressId: selectedAddressId, notes }));
     if (result.error) {
+      if (result.payload?.includes?.('not logged in') || result.payload?.includes?.('token')) {
+        navigate('/login');
+        return;
+      }
       setPaymentError(result.payload || 'Failed to create order. Please try again.');
       setIsPlacingOrder(false);
       return;
@@ -191,6 +196,10 @@ export default function Checkout() {
 
     const result = await dispatch(initiateJazzCash({ addressId: selectedAddressId, notes }));
     if (result.error) {
+      if (result.payload?.includes?.('not logged in') || result.payload?.includes?.('token')) {
+        navigate('/login');
+        return;
+      }
       setPaymentError(result.payload || 'Failed to initiate JazzCash payment. Please try again.');
       setIsPlacingOrder(false);
       return;
@@ -454,7 +463,7 @@ export default function Checkout() {
           >
             <div className="sticky top-24">
               <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
-                <OrderSummary items={items} summary={summary} />
+                <OrderSummary items={items} summary={summary} currency={currency} />
 
                 <div className="mt-6 space-y-3">
                   <motion.button
@@ -481,7 +490,7 @@ export default function Checkout() {
                         ? 'Select a Delivery Address'
                         : !agreedToTerms
                           ? 'Agree to Terms to Continue'
-                          : `Pay ${formatCurrency(summary.total)}`
+                          : `Pay ${formatCurrency(summary.total, currency)}`
                     )}
                   </motion.button>
 
@@ -545,13 +554,13 @@ export default function Checkout() {
               animate={{ scale: 1 }}
               className={cn('text-lg font-bold tabular-nums', isDark ? 'text-white' : 'text-surface-900')}
             >
-              {formatCurrency(summary.total)}
+              {formatCurrency(summary.total, currency)}
             </motion.p>
           </div>
           <div className="text-right">
             <p className={cn('text-[10px] uppercase tracking-wider', isDark ? 'text-white/30' : 'text-surface-400')}>Delivery</p>
             <p className={cn('text-xs font-bold', summary.deliveryFee === 0 ? 'text-success-500' : isDark ? 'text-white/70' : 'text-surface-700')}>
-              {summary.deliveryFee === 0 ? 'Free' : formatCurrency(summary.deliveryFee)}
+              {summary.deliveryFee === 0 ? 'Free' : formatCurrency(summary.deliveryFee, currency)}
             </p>
           </div>
         </div>
