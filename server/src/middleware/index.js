@@ -13,7 +13,7 @@ const setupMiddleware = (app) => {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
         frameSrc: ["'self'", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
         connectSrc: ["'self'", "https://api.razorpay.com"],
         formAction: ["'self'", "https://sandbox.jazzcash.com.pk"],
