@@ -5,6 +5,7 @@ export const ROUTES = {
   CART: '/cart',
   CHECKOUT: '/checkout',
   ORDER_SUCCESS: '/order/:id/success',
+  ORDER_FAILURE: '/order/:id/failure',
   ORDERS: '/orders',
   LOGIN: '/login',
   REGISTER: '/register',
@@ -64,5 +65,6 @@ export const PAYMENT_STATUS = {
   PENDING: 'pending',
   COMPLETED: 'completed',
   FAILED: 'failed',
+  CANCELLED: 'cancelled',
   REFUNDED: 'refunded',
 };

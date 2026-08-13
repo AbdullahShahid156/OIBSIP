@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
+import OrderFailure from './pages/OrderFailure';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CartDrawer from './components/cart/CartDrawer';
 import ErrorBoundary from './components/ui/ErrorBoundary';
@@ -73,6 +74,10 @@ export default function App() {
                 <OrderSuccess />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/order/:id/failure"
+            element={<OrderFailure />}
           />
           <Route
             path="/orders"

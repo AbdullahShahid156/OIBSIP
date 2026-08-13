@@ -29,7 +29,7 @@ This repository tracks the incremental development of the platform through 9 com
 
 | Metric | Value |
 |--------|-------|
-| **Phase** | 12 — Razorpay Payment Integration |
+| **Phase** | 12 — Razorpay + JazzCash Payment Integration |
 | **Build** | Passing |
 | **Client** | 541 modules, zero errors |
 | **Server** | Syntax verified, all deps installed |
@@ -456,7 +456,7 @@ Phase 9   ✅  Cart & checkout foundation, localStorage persistence, address sel
 Phase 9b  ✅  Premium UI polish, complete dark mode audit, animation improvements
 Phase 10  ✅  Elite UI redesign — commercial FoodTech quality, accessibility, micro-interactions
 Phase 11  ✅  AI Pizza Assistant — Groq-powered chatbot with fallback engine, premium UI, cart integration
-Phase 12  ✅  Razorpay Payment Integration — Full Cart → Checkout → Payment → Order Confirmation flow
+Phase 12  ✅  Payment Integration — Razorpay + JazzCash Sandbox, full Cart → Checkout → Payment → Order flow
 Phase 13  ⬜  Order status tracking
 Phase 14  ⬜  Admin dashboard with inventory and analytics
 Phase 15  ⬜  Real-time order tracking via WebSocket
@@ -672,6 +672,11 @@ npm run dev:server    # http://localhost:5000
 | `GROQ_API_KEY` | Groq API key for AI chatbot | No | — (uses fallback) |
 | `RAZORPAY_KEY_ID` | Razorpay test mode key ID | No | — (disables payment) |
 | `RAZORPAY_KEY_SECRET` | Razorpay test mode key secret | No | — (disables payment) |
+| `JAZZCASH_MERCHANT_ID` | JazzCash sandbox merchant ID | No | — (disables JazzCash) |
+| `JAZZCASH_PASSWORD` | JazzCash sandbox password | No | — (disables JazzCash) |
+| `JAZZCASH_INTEGRITY_SALT` | JazzCash integrity salt for HMAC-SHA256 | No | — (disables JazzCash) |
+| `JAZZCASH_RETURN_URL` | JazzCash return/callback URL | No | `http://localhost:5000/api/v1/orders/jazzcash/return` |
+| `JAZZCASH_SANDBOX_URL` | JazzCash sandbox gateway URL | No | — |
 
 ### Client
 

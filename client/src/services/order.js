@@ -6,6 +6,11 @@ export const orderAPI = {
     return response.data;
   },
 
+  initiateJazzCash: async (addressId, notes) => {
+    const response = await api.post('/orders/jazzcash/initiate', { addressId, notes });
+    return response.data;
+  },
+
   verifyPayment: async (paymentData) => {
     const response = await api.post('/orders/verify', paymentData);
     return response.data;

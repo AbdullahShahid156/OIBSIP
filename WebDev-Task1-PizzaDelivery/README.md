@@ -366,6 +366,11 @@ User clicks "Pay" → Backend creates Razorpay order → Razorpay modal opens
 | `CLIENT_URL` | Frontend origin | Yes |
 | `RAZORPAY_KEY_ID` | Razorpay test mode key ID | No |
 | `RAZORPAY_KEY_SECRET` | Razorpay test mode key secret | No |
+| `JAZZCASH_MERCHANT_ID` | JazzCash sandbox merchant ID | No |
+| `JAZZCASH_PASSWORD` | JazzCash sandbox password | No |
+| `JAZZCASH_INTEGRITY_SALT` | JazzCash integrity salt for HMAC-SHA256 | No |
+| `JAZZCASH_RETURN_URL` | JazzCash return/callback URL | No |
+| `JAZZCASH_SANDBOX_URL` | JazzCash sandbox gateway URL | No |
 
 ### Client
 

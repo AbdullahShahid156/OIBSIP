@@ -243,6 +243,44 @@ export default function OrderSuccess() {
           </motion.div>
         )}
 
+        {/* Payment info */}
+        <motion.div
+          {...pageTransition}
+          transition={{ delay: 0.75 }}
+          className={cn('rounded-2xl border p-6 mb-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}
+        >
+          <h3 className={cn('text-sm font-display font-bold uppercase tracking-wider mb-3', isDark ? 'text-white/50' : 'text-surface-400')}>
+            Payment Info
+          </h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className={isDark ? 'text-white/40' : 'text-surface-500'}>Method</span>
+              <span className={cn('font-medium capitalize', isDark ? 'text-white/70' : 'text-surface-700')}>
+                {currentOrder.payment?.method === 'jazzcash' ? 'JazzCash' : 'Razorpay'}
+              </span>
+            </div>
+            {currentOrder.payment?.method === 'jazzcash' && currentOrder.payment?.jazzcashRetrievalRefNo && (
+              <div className="flex justify-between text-sm">
+                <span className={isDark ? 'text-white/40' : 'text-surface-500'}>Retrieval Ref No</span>
+                <span className={cn('font-mono text-xs', isDark ? 'text-white/70' : 'text-surface-700')}>
+                  {currentOrder.payment.jazzcashRetrievalRefNo}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm">
+              <span className={isDark ? 'text-white/40' : 'text-surface-500'}>Status</span>
+              <span className={cn(
+                'px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider',
+                currentOrder.payment?.status === 'completed'
+                  ? isDark ? 'bg-success-500/15 text-success-400' : 'bg-success-50 text-success-600'
+                  : isDark ? 'bg-warning-500/15 text-warning-400' : 'bg-warning-50 text-warning-600'
+              )}>
+                {currentOrder.payment?.status || 'Pending'}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Actions */}
         <motion.div {...pageTransition} transition={{ delay: 0.8 }} className="flex gap-3">
           <Link

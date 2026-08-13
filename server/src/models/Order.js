@@ -56,12 +56,16 @@ const orderSchema = new mongoose.Schema({
     method: { type: String, default: 'razorpay' },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'failed', 'refunded'],
+      enum: ['pending', 'completed', 'failed', 'cancelled', 'refunded'],
       default: 'pending',
     },
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
     razorpaySignature: { type: String },
+    jazzcashTxnRefNo: { type: String },
+    jazzcashRetrievalRefNo: { type: String },
+    jazzcashResponseCode: { type: String },
+    jazzcashResponseMessage: { type: String },
     amount: { type: Number },
     currency: { type: String, default: 'INR' },
     paidAt: { type: Date },
@@ -89,6 +93,7 @@ orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ 'payment.razorpayOrderId': 1 });
 orderSchema.index({ 'payment.razorpayPaymentId': 1 });
+orderSchema.index({ 'payment.jazzcashTxnRefNo': 1 });
 
 const Order = mongoose.model('Order', orderSchema);
 

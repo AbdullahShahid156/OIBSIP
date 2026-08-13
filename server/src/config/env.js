@@ -20,6 +20,11 @@ const envSchema = z.object({
   GROQ_API_KEY: z.string().optional(),
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),
+  JAZZCASH_MERCHANT_ID: z.string().optional(),
+  JAZZCASH_PASSWORD: z.string().optional(),
+  JAZZCASH_INTEGRITY_SALT: z.string().optional(),
+  JAZZCASH_RETURN_URL: z.string().url().optional(),
+  JAZZCASH_SANDBOX_URL: z.string().url().optional(),
 });
 
 function validateEnv() {

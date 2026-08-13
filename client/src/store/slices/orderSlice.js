@@ -12,6 +12,17 @@ export const createOrder = createAsyncThunk(
   }
 );
 
+export const initiateJazzCash = createAsyncThunk(
+  'orders/initiateJazzCash',
+  async ({ addressId, notes }, { rejectWithValue }) => {
+    try {
+      return await orderAPI.initiateJazzCash(addressId, notes);
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to initiate JazzCash payment');
+    }
+  }
+);
+
 export const verifyPayment = createAsyncThunk(
   'orders/verifyPayment',
   async (paymentData, { rejectWithValue }) => {
@@ -60,6 +71,7 @@ const orderSlice = createSlice({
   name: 'orders',
   initialState: {
     currentOrder: null,
+    jazzcashOrderData: null,
     razorpayOrderData: null,
     orders: [],
     pagination: null,
@@ -78,6 +90,7 @@ const orderSlice = createSlice({
     clearCurrentOrder: (state) => {
       state.currentOrder = null;
       state.razorpayOrderData = null;
+      state.jazzcashOrderData = null;
     },
   },
   extraReducers: (builder) => {
@@ -91,6 +104,18 @@ const orderSlice = createSlice({
         state.razorpayOrderData = action.payload;
       })
       .addCase(createOrder.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(initiateJazzCash.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(initiateJazzCash.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.jazzcashOrderData = action.payload;
+      })
+      .addCase(initiateJazzCash.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

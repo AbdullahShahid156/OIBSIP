@@ -5,10 +5,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
 import { cn, formatCurrency } from '../utils/helpers';
 import { applyCouponCode, removeCouponCode, clearCartLocal, syncCartToServer } from '../store/slices/cartSlice';
-import { createOrder, verifyPayment, testPayment, clearError, clearCurrentOrder } from '../store/slices/orderSlice';
+import { createOrder, verifyPayment, testPayment, initiateJazzCash, clearError, clearCurrentOrder } from '../store/slices/orderSlice';
 import AddressSelector from '../components/checkout/AddressSelector';
 import OrderSummary from '../components/checkout/OrderSummary';
 import CouponInput from '../components/checkout/CouponInput';
+import PaymentMethodSelector from '../components/checkout/PaymentMethodSelector';
 import { ROUTES } from '../utils/constants';
 
 const isDev = import.meta.env.DEV;
@@ -39,8 +40,9 @@ export default function Checkout() {
   const dispatch = useDispatch();
   const { items, summary, couponCode } = useSelector((state) => state.cart);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { isLoading, isVerifying, error: orderError, razorpayOrderData } = useSelector((state) => state.orders);
+  const { isLoading, isVerifying, error: orderError, razorpayOrderData, jazzcashOrderData } = useSelector((state) => state.orders);
   const [selectedAddressId, setSelectedAddressId] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('razorpay');
   const [notes, setNotes] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
@@ -174,6 +176,48 @@ export default function Checkout() {
     });
     rzp.open();
   }, [selectedAddressId, agreedToTerms, isLoading, dispatch, navigate, user, isDark, notes]);
+
+  const handlePlaceJazzCash = useCallback(async () => {
+    if (!selectedAddressId || !agreedToTerms || isLoading) return;
+    setPaymentError(null);
+    setIsPlacingOrder(true);
+
+    const syncResult = await dispatch(syncCartToServer());
+    if (syncResult.error) {
+      setPaymentError('Failed to sync cart. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
+    const result = await dispatch(initiateJazzCash({ addressId: selectedAddressId, notes }));
+    if (result.error) {
+      setPaymentError(result.payload || 'Failed to initiate JazzCash payment. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
+    const { gatewayUrl, payload } = result.payload;
+    if (!gatewayUrl || !payload) {
+      setPaymentError('Invalid JazzCash response. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = gatewayUrl;
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
+    });
+    document.body.appendChild(form);
+    form.submit();
+  }, [selectedAddressId, agreedToTerms, isLoading, dispatch, notes]);
 
   const handleTestPayment = useCallback(async () => {
     if (!selectedAddressId || !agreedToTerms || isLoading) return;
@@ -335,32 +379,12 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Payment Method - Razorpay */}
+            {/* Payment Method */}
             <div className={cn('rounded-2xl border p-6', isDark ? 'bg-white/[0.02] border-white/[0.06]' : 'bg-white border-surface-200 shadow-sm')}>
               <h3 className={cn('text-sm font-display font-bold uppercase tracking-wider mb-4', isDark ? 'text-white/50' : 'text-surface-400')}>
                 Payment Method
               </h3>
-              <div className={cn(
-                'flex items-center gap-4 p-4 rounded-xl border-2',
-                isDark
-                  ? 'border-brand-500/30 bg-brand-500/5'
-                  : 'border-brand-200 bg-brand-50/50'
-              )}>
-                <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', isDark ? 'bg-brand-500/15' : 'bg-brand-100')}>
-                  <svg className={cn('w-5 h-5', isDark ? 'text-brand-400' : 'text-brand-600')} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-surface-900')}>Razorpay</p>
-                  <p className={cn('text-[10px]', isDark ? 'text-white/35' : 'text-surface-400')}>
-                    Secure payment via Razorpay (Test Mode)
-                  </p>
-                </div>
-                <div className={cn('px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider', isDark ? 'bg-success-500/15 text-success-400' : 'bg-success-50 text-success-600')}>
-                  Test Mode
-                </div>
-              </div>
+              <PaymentMethodSelector selectedMethod={selectedPaymentMethod} onSelect={setSelectedPaymentMethod} />
             </div>
 
             {/* Terms */}
@@ -436,7 +460,7 @@ export default function Checkout() {
                   <motion.button
                     whileHover={!isProcessing ? { scale: 1.01 } : {}}
                     whileTap={!isProcessing ? { scale: 0.99 } : {}}
-                    onClick={handlePlaceOrder}
+                    onClick={selectedPaymentMethod === 'jazzcash' ? handlePlaceJazzCash : handlePlaceOrder}
                     disabled={!selectedAddressId || !agreedToTerms || isProcessing}
                     className={cn(
                       'w-full py-4 rounded-xl font-bold text-sm transition-all duration-300',
@@ -534,7 +558,7 @@ export default function Checkout() {
         <motion.button
           whileHover={!isProcessing ? { scale: 1.01 } : {}}
           whileTap={!isProcessing ? { scale: 0.99 } : {}}
-          onClick={handlePlaceOrder}
+          onClick={selectedPaymentMethod === 'jazzcash' ? handlePlaceJazzCash : handlePlaceOrder}
           disabled={!selectedAddressId || !agreedToTerms || isProcessing}
           className={cn(
             'w-full py-4 rounded-xl font-bold text-sm transition-all',
