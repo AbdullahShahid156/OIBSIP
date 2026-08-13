@@ -21,20 +21,39 @@ function getRazorpayInstance() {
 }
 
 export async function createRazorpayOrder(amountInPaise, receipt, notes = {}) {
-  try {
-    const instance = getRazorpayInstance();
-    const order = await instance.orders.create({
+  const auth = Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString('base64');
+
+  const response = await fetch('https://api.razorpay.com/v1/orders', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
       amount: amountInPaise,
       currency: 'INR',
       receipt,
       notes,
-    });
-    return order;
-  } catch (error) {
-    console.error('RAZORPAY_FULL_ERROR:', JSON.stringify(error, null, 2));
-    const detail = error.error?.description || error.error?.reason || error.message || JSON.stringify(error);
-    throw new AppError(`Razorpay: ${detail}`, error.statusCode || 502);
+    }),
+  });
+
+  const rawText = await response.text();
+
+  let data;
+  try {
+    data = rawText ? JSON.parse(rawText) : {};
+  } catch {
+    data = {};
   }
+
+  if (!response.ok) {
+    throw new AppError(
+      `Razorpay: ${data.error?.description || data.error?.reason || rawText || 'Empty response'}`,
+      response.status
+    );
+  }
+
+  return data;
 }
 
 export function verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razorpaySignature) {

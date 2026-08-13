@@ -5,6 +5,7 @@ import { createOrderSchema, verifyPaymentSchema } from '../../validations/order.
 import {
   createOrder,
   verifyPayment,
+  testPayment,
   getOrder,
   getOrders,
 } from '../../controllers/orderController.js';
@@ -15,6 +16,7 @@ router.use(protect);
 
 router.post('/create', validate(createOrderSchema), createOrder);
 router.post('/verify', validate(verifyPaymentSchema), verifyPayment);
+router.post('/test-pay', testPayment);
 router.get('/', getOrders);
 router.get('/:id', getOrder);
 

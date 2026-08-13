@@ -20,14 +20,18 @@ export async function createOrder(req, res, next) {
     }).sort({ createdAt: -1 });
 
     if (existingPending) {
-      const age = Date.now() - existingPending.createdAt.getTime();
-      if (age < 10 * 60 * 1000) {
-        throw new AppError('You already have a pending order. Please complete or wait for it to expire.', 409);
-      }
+      existingPending.status = 'cancelled';
+      existingPending.payment.status = 'failed';
+      await existingPending.save();
     }
 
     const cart = await Cart.findOne({ user: req.user.id });
     if (!cart || cart.items.length === 0) {
+      throw new AppError('Cart is empty', 400);
+    }
+
+    cart.items = cart.items.filter((item) => item && item.totalPrice);
+    if (cart.items.length === 0) {
       throw new AppError('Cart is empty', 400);
     }
 
@@ -205,6 +209,124 @@ export async function getOrder(req, res, next) {
     res.status(200).json({
       status: 'success',
       data: { order },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function testPayment(req, res, next) {
+  if (env.NODE_ENV !== 'development') {
+    throw new AppError('Test payment only available in development', 403);
+  }
+
+  try {
+    const { addressId, notes } = req.body;
+
+    const cart = await Cart.findOne({ user: req.user.id });
+    if (!cart || cart.items.length === 0) {
+      throw new AppError('Cart is empty', 400);
+    }
+
+    cart.items = cart.items.filter((item) => item && item.totalPrice);
+    if (cart.items.length === 0) {
+      throw new AppError('Cart is empty', 400);
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) throw new AppError('User not found', 404);
+
+    const address = user.addresses.id(addressId);
+    if (!address) throw new AppError('Invalid delivery address', 400);
+
+    const subtotal = cart.getSubtotal();
+    const deliveryFee = subtotal >= 35 ? 0 : 4.99;
+    const tax = Math.round(subtotal * 0.08 * 100) / 100;
+    const total = Math.round((subtotal + deliveryFee + tax - cart.couponDiscount) * 100) / 100;
+
+    if (total <= 0) {
+      throw new AppError('Invalid order total', 400);
+    }
+
+    const amountInPaise = Math.round(total * 100);
+
+    const orderItems = cart.items.map((item) => ({
+      pizzaId: item.pizzaId,
+      name: item.name,
+      image: item.image || '',
+      size: item.size,
+      base: item.base,
+      baseName: item.baseName || '',
+      sauce: item.sauce,
+      sauceName: item.sauceName || '',
+      cheese: item.cheese,
+      cheeseName: item.cheeseName || '',
+      veggies: item.veggies || {},
+      veggieNames: item.veggieNames || {},
+      qty: item.qty,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice,
+      prepTime: item.prepTime || 10,
+      isCustomized: item.isCustomized || false,
+      configurationId: item.configurationId,
+    }));
+
+    const maxPrepTime = Math.max(...cart.items.map((i) => i.prepTime || 10));
+
+    const order = await Order.create({
+      user: req.user.id,
+      items: orderItems,
+      summary: {
+        itemCount: cart.items.length,
+        subtotal,
+        deliveryFee,
+        tax,
+        couponCode: cart.couponCode || '',
+        couponDiscount: cart.couponDiscount || 0,
+        total,
+        currency: 'INR',
+      },
+      address: {
+        recipientName: address.recipientName,
+        phone: address.phone,
+        houseFlat: address.houseFlat,
+        street: address.street,
+        area: address.area,
+        city: address.city,
+        postalCode: address.postalCode,
+        label: address.label,
+      },
+      payment: {
+        method: 'test',
+        status: 'completed',
+        razorpayPaymentId: `test_pay_${Date.now()}`,
+        razorpaySignature: `test_sig_${Date.now()}`,
+        paidAt: new Date(),
+        amount: amountInPaise,
+        currency: 'INR',
+      },
+      status: 'confirmed',
+      notes: notes || '',
+      estimatedDelivery: {
+        min: maxPrepTime + 15,
+        max: maxPrepTime + 30,
+      },
+    });
+
+    await Cart.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: { items: [], couponCode: '', couponDiscount: 0 } }
+    );
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        order: {
+          _id: order._id,
+          status: order.status,
+          payment: order.payment,
+        },
+      },
     });
   } catch (error) {
     next(error);

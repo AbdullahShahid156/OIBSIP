@@ -23,6 +23,17 @@ export const verifyPayment = createAsyncThunk(
   }
 );
 
+export const testPayment = createAsyncThunk(
+  'orders/testPayment',
+  async ({ addressId, notes }, { rejectWithValue }) => {
+    try {
+      return await orderAPI.testPayment(addressId, notes);
+    } catch (error) {
+      return rejectWithValue(error.message || 'Test payment failed');
+    }
+  }
+);
+
 export const getOrder = createAsyncThunk(
   'orders/getOrder',
   async (orderId, { rejectWithValue }) => {
@@ -94,6 +105,20 @@ const orderSlice = createSlice({
         state.successMessage = 'Payment verified successfully!';
       })
       .addCase(verifyPayment.rejected, (state, action) => {
+        state.isVerifying = false;
+        state.error = action.payload;
+      })
+      .addCase(testPayment.pending, (state) => {
+        state.isVerifying = true;
+        state.error = null;
+      })
+      .addCase(testPayment.fulfilled, (state, action) => {
+        state.isVerifying = false;
+        state.currentOrder = action.payload.order;
+        state.razorpayOrderData = null;
+        state.successMessage = 'Test payment completed!';
+      })
+      .addCase(testPayment.rejected, (state, action) => {
         state.isVerifying = false;
         state.error = action.payload;
       })

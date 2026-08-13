@@ -43,12 +43,13 @@ const cartSchema = new mongoose.Schema(
 );
 
 cartSchema.methods.getSubtotal = function () {
-  return this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+  return this.items.reduce((sum, item) => sum + (item?.totalPrice || 0), 0);
 };
 
 cartSchema.methods.getMaxPrepTime = function () {
-  if (this.items.length === 0) return 0;
-  return Math.max(...this.items.map((item) => item.prepTime));
+  const validItems = this.items.filter((item) => item && item.prepTime);
+  if (validItems.length === 0) return 10;
+  return Math.max(...validItems.map((item) => item.prepTime));
 };
 
 const Cart = mongoose.model('Cart', cartSchema);

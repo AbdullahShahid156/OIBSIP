@@ -5,11 +5,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDarkMode } from '../hooks';
 import { cn, formatCurrency } from '../utils/helpers';
 import { applyCouponCode, removeCouponCode, clearCartLocal, syncCartToServer } from '../store/slices/cartSlice';
-import { createOrder, verifyPayment, clearError, clearCurrentOrder } from '../store/slices/orderSlice';
+import { createOrder, verifyPayment, testPayment, clearError, clearCurrentOrder } from '../store/slices/orderSlice';
 import AddressSelector from '../components/checkout/AddressSelector';
 import OrderSummary from '../components/checkout/OrderSummary';
 import CouponInput from '../components/checkout/CouponInput';
 import { ROUTES } from '../utils/constants';
+
+const isDev = import.meta.env.DEV;
 
 const pageTransition = {
   initial: { opacity: 0, y: 20 },
@@ -42,6 +44,7 @@ export default function Checkout() {
   const [notes, setNotes] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -52,10 +55,10 @@ export default function Checkout() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (items.length === 0 && !isLoading) {
+    if (items.length === 0 && !isLoading && !isPlacingOrder) {
       navigate('/cart');
     }
-  }, [items.length, navigate, isLoading]);
+  }, [items.length, navigate, isLoading, isPlacingOrder]);
 
   useEffect(() => {
     if (orderError) {
@@ -76,35 +79,40 @@ export default function Checkout() {
   const handlePlaceOrder = useCallback(async () => {
     if (!selectedAddressId || !agreedToTerms || isLoading) return;
     setPaymentError(null);
+    setIsPlacingOrder(true);
 
     const scriptLoaded = await loadRazorpayScript();
     if (!scriptLoaded) {
       setPaymentError('Failed to load payment gateway. Please try again.');
+      setIsPlacingOrder(false);
       return;
     }
 
     const syncResult = await dispatch(syncCartToServer());
     if (syncResult.error) {
       setPaymentError('Failed to sync cart. Please try again.');
+      setIsPlacingOrder(false);
       return;
     }
 
     const result = await dispatch(createOrder({ addressId: selectedAddressId, notes }));
     if (result.error) {
       setPaymentError(result.payload || 'Failed to create order. Please try again.');
+      setIsPlacingOrder(false);
       return;
     }
 
     const orderData = result.payload;
     if (!orderData?.order) {
       setPaymentError('Invalid order response. Please try again.');
+      setIsPlacingOrder(false);
       return;
     }
 
     const options = {
       key: orderData.order.razorpayKeyId,
       amount: orderData.order.amount,
-      currency: orderData.order.currency,
+      currency: orderData.order.currency || 'INR',
       name: 'PizzaCraft',
       description: `Order #${orderData.order._id.slice(-8).toUpperCase()}`,
       order_id: orderData.order.razorpayOrderId,
@@ -148,6 +156,36 @@ export default function Checkout() {
     });
     rzp.open();
   }, [selectedAddressId, agreedToTerms, isLoading, dispatch, navigate, user, isDark, notes]);
+
+  const handleTestPayment = useCallback(async () => {
+    if (!selectedAddressId || !agreedToTerms || isLoading) return;
+    setPaymentError(null);
+    setIsPlacingOrder(true);
+
+    const syncResult = await dispatch(syncCartToServer());
+    if (syncResult.error) {
+      setPaymentError('Failed to sync cart. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
+    const result = await dispatch(testPayment({ addressId: selectedAddressId, notes }));
+    if (result.error) {
+      setPaymentError(result.payload || 'Test payment failed. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
+    const orderData = result.payload;
+    if (!orderData?.order?._id) {
+      setPaymentError('Invalid order response. Please try again.');
+      setIsPlacingOrder(false);
+      return;
+    }
+
+    dispatch(clearCartLocal());
+    navigate(ROUTES.ORDER_SUCCESS.replace(':id', orderData.order._id));
+  }, [selectedAddressId, agreedToTerms, isLoading, dispatch, navigate, notes]);
 
   const isProcessing = isLoading || isVerifying;
 
@@ -405,6 +443,28 @@ export default function Checkout() {
                     )}
                   </motion.button>
 
+                  {isDev && (
+                    <motion.button
+                      whileHover={!isProcessing ? { scale: 1.01 } : {}}
+                      whileTap={!isProcessing ? { scale: 0.99 } : {}}
+                      onClick={handleTestPayment}
+                      disabled={!selectedAddressId || !agreedToTerms || isProcessing}
+                      className={cn(
+                        'w-full py-3 rounded-xl font-bold text-xs transition-all duration-300 mt-2',
+                        'border-2 border-dashed',
+                        selectedAddressId && agreedToTerms && !isProcessing
+                          ? isDark
+                            ? 'border-warning-500/30 text-warning-400 hover:bg-warning-500/10'
+                            : 'border-warning-300 text-warning-600 hover:bg-warning-50'
+                          : isDark
+                            ? 'border-white/[0.06] text-white/20 cursor-not-allowed'
+                            : 'border-surface-200 text-surface-400 cursor-not-allowed'
+                      )}
+                    >
+                      Test Payment (Skip Razorpay)
+                    </motion.button>
+                  )}
+
                   {!selectedAddressId && (
                     <p className={cn('text-[10px] text-center', isDark ? 'text-white/25' : 'text-surface-400')}>
                       Please select a delivery address to proceed
@@ -480,6 +540,26 @@ export default function Checkout() {
                 : `Pay ${formatCurrency(summary.total)}`
           )}
         </motion.button>
+        {isDev && (
+          <motion.button
+            whileHover={!isProcessing ? { scale: 1.01 } : {}}
+            whileTap={!isProcessing ? { scale: 0.99 } : {}}
+            onClick={handleTestPayment}
+            disabled={!selectedAddressId || !agreedToTerms || isProcessing}
+            className={cn(
+              'w-full py-3 rounded-xl font-bold text-xs transition-all mt-2 border-2 border-dashed',
+              selectedAddressId && agreedToTerms && !isProcessing
+                ? isDark
+                  ? 'border-warning-500/30 text-warning-400 hover:bg-warning-500/10'
+                  : 'border-warning-300 text-warning-600 hover:bg-warning-50'
+                : isDark
+                  ? 'border-white/[0.06] text-white/20 cursor-not-allowed'
+                  : 'border-surface-200 text-surface-400 cursor-not-allowed'
+            )}
+          >
+            Test Payment (Skip Razorpay)
+          </motion.button>
+        )}
       </motion.div>
     </div>
   );

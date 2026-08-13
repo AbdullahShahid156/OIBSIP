@@ -11,6 +11,11 @@ export const orderAPI = {
     return response.data;
   },
 
+  testPayment: async (addressId, notes) => {
+    const response = await api.post('/orders/test-pay', { addressId, notes });
+    return response.data;
+  },
+
   getOrder: async (orderId) => {
     const response = await api.get(`/orders/${orderId}`);
     return response.data.order;
