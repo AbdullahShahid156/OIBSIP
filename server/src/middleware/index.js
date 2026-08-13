@@ -16,6 +16,7 @@ const setupMiddleware = (app) => {
         scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
         frameSrc: ["'self'", "https://checkout.razorpay.com", "https://sandbox.jazzcash.com.pk"],
         connectSrc: ["'self'", "https://api.razorpay.com"],
+        formAction: ["'self'", "https://sandbox.jazzcash.com.pk"],
         imgSrc: ["'self'", "data:", "https:"],
         styleSrc: ["'self'", "'unsafe-inline'"],
       },
