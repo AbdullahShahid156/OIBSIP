@@ -3,9 +3,25 @@ import env from '../config/env.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 const JAZZCASH_VERSION = '1.1';
-const JAZZCASH_TXN_TYPE = 'MWALLET';
 const JAZZCASH_LANGUAGE = 'EN';
 const JAZZCASH_CURRENCY = 'PKR';
+
+const HASH_FIELD_ORDER = [
+  'pp_Amount',
+  'pp_BankID',
+  'pp_BillReference',
+  'pp_Description',
+  'pp_Language',
+  'pp_MerchantID',
+  'pp_Password',
+  'pp_ProductID',
+  'pp_ReturnURL',
+  'pp_SubMerchantID',
+  'pp_TxnCurrency',
+  'pp_TxnDateTime',
+  'pp_TxnExpiryDateTime',
+  'pp_TxnRefNo',
+];
 
 export function generateTxnRefNo() {
   const now = new Date();
@@ -54,11 +70,36 @@ export function generateSecureHash(params) {
   const salt = env.JAZZCASH_INTEGRITY_SALT;
   if (!salt) throw new AppError('JazzCash integrity salt not configured', 503);
 
-  const sortedKeys = Object.keys(params)
-    .filter((key) => key !== 'pp_SecureHash' && params[key] !== undefined && params[key] !== null && params[key] !== '')
-    .sort();
+  const values = HASH_FIELD_ORDER
+    .filter((key) => params[key] !== undefined && params[key] !== null && params[key] !== '')
+    .map((key) => String(params[key]));
 
-  const values = sortedKeys.map((key) => params[key]);
+  const stringToHash = salt + '&' + values.join('&');
+
+  return crypto
+    .createHmac('sha256', salt)
+    .update(stringToHash)
+    .digest('hex')
+    .toUpperCase();
+}
+
+export function generateReturnHash(params) {
+  const salt = env.JAZZCASH_INTEGRITY_SALT;
+  if (!salt) throw new AppError('JazzCash integrity salt not configured', 503);
+
+  const RETURN_HASH_FIELDS = [
+    'pp_Amount',
+    'pp_MerchantID',
+    'pp_ResponseCode',
+    'pp_RetreivalReferenceNo',
+    'pp_TxnCurrency',
+    'pp_TxnRefNo',
+  ];
+
+  const values = RETURN_HASH_FIELDS
+    .filter((key) => params[key] !== undefined && params[key] !== null && params[key] !== '')
+    .map((key) => String(params[key]));
+
   const stringToHash = salt + '&' + values.join('&');
 
   return crypto
@@ -78,7 +119,7 @@ export function buildJazzCashPayload({ txnRefNo, amount, billReference, descript
 
   const params = {
     pp_Version: JAZZCASH_VERSION,
-    pp_TxnType: JAZZCASH_TXN_TYPE,
+    pp_TxnType: '',
     pp_Language: JAZZCASH_LANGUAGE,
     pp_MerchantID: env.JAZZCASH_MERCHANT_ID,
     pp_SubMerchantID: '',
@@ -95,11 +136,6 @@ export function buildJazzCashPayload({ txnRefNo, amount, billReference, descript
     pp_Description: description,
     pp_TxnExpiryDateTime: txnExpiry,
     pp_ReturnURL: returnUrl,
-    ppmpf_1: '',
-    ppmpf_2: '',
-    ppmpf_3: '',
-    ppmpf_4: '',
-    ppmpf_5: '',
   };
 
   params.pp_SecureHash = generateSecureHash(params);
@@ -123,17 +159,14 @@ export function validateReturnParams(params) {
     return { valid: false, message: 'Missing required response parameters' };
   }
 
-  const hashParams = {
-    pp_MerchantID: pp_MerchantID || '',
-    pp_RetreivalReferenceNo: pp_RetreivalReferenceNo || '',
+  const expectedHash = generateReturnHash({
     pp_Amount: pp_Amount || '',
+    pp_MerchantID: pp_MerchantID || '',
+    pp_ResponseCode: pp_ResponseCode || '',
+    pp_RetreivalReferenceNo: pp_RetreivalReferenceNo || '',
     pp_TxnCurrency: pp_TxnCurrency || '',
     pp_TxnRefNo: pp_TxnRefNo || '',
-    pp_ResponseCode: pp_ResponseCode || '',
-    pp_ResponseMessage: pp_ResponseMessage || '',
-  };
-
-  const expectedHash = generateSecureHash(hashParams);
+  });
 
   if (pp_SecureHash !== expectedHash) {
     return { valid: false, message: 'Invalid secure hash' };

@@ -205,36 +205,27 @@ export default function Checkout() {
       return;
     }
 
-    console.log('JazzCash result:', JSON.stringify(result.payload));
-
     const responseData = result.payload?.data || result.payload;
     const gatewayUrl = responseData?.gatewayUrl;
     const payload = responseData?.payload;
     if (!gatewayUrl || !payload) {
-      console.error('Missing gatewayUrl or payload:', responseData);
       setPaymentError('Invalid JazzCash response. Please try again.');
       setIsPlacingOrder(false);
       return;
     }
-
-    console.log('Gateway URL:', gatewayUrl);
-    console.log('Payload keys:', Object.keys(payload));
 
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = gatewayUrl;
     form.target = '_self';
     Object.entries(payload).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = String(value);
-        form.appendChild(input);
-      }
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = String(value ?? '');
+      form.appendChild(input);
     });
     document.body.appendChild(form);
-    console.log('Form action:', form.action, 'inputs:', form.elements.length);
     form.submit();
   }, [selectedAddressId, agreedToTerms, isLoading, dispatch, notes]);
 
