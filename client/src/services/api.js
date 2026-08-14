@@ -25,8 +25,11 @@ api.interceptors.response.use(
     const message = error.response?.data?.message || 'Something went wrong';
     
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const token = localStorage.getItem('token');
+      if (token) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(new Error(message));
