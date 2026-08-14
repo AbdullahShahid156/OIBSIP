@@ -71,8 +71,7 @@ export function generateSecureHash(params) {
   if (!salt) throw new AppError('JazzCash integrity salt not configured', 503);
 
   const values = HASH_FIELD_ORDER
-    .filter((key) => params[key] !== undefined && params[key] !== null && params[key] !== '')
-    .map((key) => String(params[key]));
+    .map((key) => String(params[key] ?? ''));
 
   const stringToHash = salt + '&' + values.join('&');
 

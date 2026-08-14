@@ -208,16 +208,21 @@ export default function Checkout() {
     const responseData = result.payload?.data || result.payload;
     const gatewayUrl = responseData?.gatewayUrl;
     const payload = responseData?.payload;
-    if (!gatewayUrl || !payload) {
+
+    if (!gatewayUrl || !payload || Object.keys(payload).length === 0) {
       setPaymentError('Invalid JazzCash response. Please try again.');
       setIsPlacingOrder(false);
       return;
     }
 
     const form = document.createElement('form');
+    form.id = 'jazzcash-form';
     form.method = 'POST';
     form.action = gatewayUrl;
     form.target = '_self';
+    form.acceptCharset = 'UTF-8';
+    form.style.display = 'none';
+
     Object.entries(payload).forEach(([key, value]) => {
       const input = document.createElement('input');
       input.type = 'hidden';
@@ -225,8 +230,17 @@ export default function Checkout() {
       input.value = String(value ?? '');
       form.appendChild(input);
     });
+
     document.body.appendChild(form);
-    form.submit();
+
+    setTimeout(() => {
+      try {
+        form.submit();
+      } catch {
+        setPaymentError('Failed to redirect to JazzCash. Please try again.');
+        setIsPlacingOrder(false);
+      }
+    }, 100);
   }, [selectedAddressId, agreedToTerms, isLoading, dispatch, notes]);
 
   const handleTestPayment = useCallback(async () => {
