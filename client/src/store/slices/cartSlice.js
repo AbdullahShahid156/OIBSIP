@@ -167,8 +167,10 @@ export const syncCartToServer = createAsyncThunk(
       }
       try {
         await cartAPI.clearCart();
-      } catch {
-        // Cart may not exist yet in MongoDB — that's fine
+      } catch (err) {
+        if (err.message?.includes('not logged in') || err.message?.includes('token')) {
+          return rejectWithValue(err.message);
+        }
       }
       for (const item of cart.items) {
         await cartAPI.addItem({

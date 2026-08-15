@@ -12,12 +12,10 @@ import {
 
 const router = Router();
 
-router.use(protect);
-
-router.post('/create', validate(createOrderSchema), createOrder);
-router.post('/verify', validate(verifyPaymentSchema), verifyPayment);
-router.post('/test-pay', testPayment);
-router.get('/', getOrders);
-router.get('/:id', getOrder);
+router.post('/create', protect, validate(createOrderSchema), createOrder);
+router.post('/verify', protect, validate(verifyPaymentSchema), verifyPayment);
+router.post('/test-pay', protect, testPayment);
+router.get('/', protect, getOrders);
+router.get('/:id', protect, getOrder);
 
 export default router;

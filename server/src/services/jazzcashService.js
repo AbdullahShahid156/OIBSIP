@@ -96,8 +96,7 @@ export function generateReturnHash(params) {
   ];
 
   const values = RETURN_HASH_FIELDS
-    .filter((key) => params[key] !== undefined && params[key] !== null && params[key] !== '')
-    .map((key) => String(params[key]));
+    .map((key) => String(params[key] ?? ''));
 
   const stringToHash = salt + '&' + values.join('&');
 

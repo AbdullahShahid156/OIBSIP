@@ -603,10 +603,10 @@ export default function Checkout() {
               ? 'Select Address'
               : !agreedToTerms
                 ? 'Agree to Terms'
-                : `Pay ${formatCurrency(summary.total)}`
-          )}
-        </motion.button>
-        {isDev && (
+                : `Pay ${formatCurrency(summary.total, currency)}`
+            )}
+          </motion.button>
+          {isDev && (
           <motion.button
             whileHover={!isProcessing ? { scale: 1.01 } : {}}
             whileTap={!isProcessing ? { scale: 0.99 } : {}}
