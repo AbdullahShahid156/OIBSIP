@@ -6,22 +6,20 @@ const JAZZCASH_VERSION = '1.1';
 const JAZZCASH_LANGUAGE = 'EN';
 const JAZZCASH_CURRENCY = 'PKR';
 
-const HASH_FIELD_ORDER = [
-  'pp_Amount',
-  'pp_BankID',
-  'pp_BillReference',
-  'pp_Description',
-  'pp_Language',
-  'pp_MerchantID',
-  'pp_Password',
-  'pp_ProductID',
-  'pp_ReturnURL',
-  'pp_SubMerchantID',
-  'pp_TxnCurrency',
-  'pp_TxnDateTime',
-  'pp_TxnExpiryDateTime',
-  'pp_TxnRefNo',
-];
+function computeHash(salt, params) {
+  const sortedKeys = Object.keys(params)
+    .filter((key) => key.startsWith('pp_') && key !== 'pp_SecureHash' && params[key] !== '' && params[key] !== undefined && params[key] !== null)
+    .sort();
+
+  const values = sortedKeys.map((key) => String(params[key]));
+  const stringToHash = salt + '&' + values.join('&');
+
+  return crypto
+    .createHmac('sha256', salt)
+    .update(stringToHash)
+    .digest('hex')
+    .toUpperCase();
+}
 
 export function generateTxnRefNo() {
   const now = new Date();
@@ -69,42 +67,13 @@ export function formatAmountForJazzCash(amountInPKR) {
 export function generateSecureHash(params) {
   const salt = env.JAZZCASH_INTEGRITY_SALT;
   if (!salt) throw new AppError('JazzCash integrity salt not configured', 503);
-
-  const values = HASH_FIELD_ORDER
-    .map((key) => String(params[key] ?? ''));
-
-  const stringToHash = salt + '&' + values.join('&');
-
-  return crypto
-    .createHmac('sha256', salt)
-    .update(stringToHash)
-    .digest('hex')
-    .toUpperCase();
+  return computeHash(salt, params);
 }
 
 export function generateReturnHash(params) {
   const salt = env.JAZZCASH_INTEGRITY_SALT;
   if (!salt) throw new AppError('JazzCash integrity salt not configured', 503);
-
-  const RETURN_HASH_FIELDS = [
-    'pp_Amount',
-    'pp_MerchantID',
-    'pp_ResponseCode',
-    'pp_RetreivalReferenceNo',
-    'pp_TxnCurrency',
-    'pp_TxnRefNo',
-  ];
-
-  const values = RETURN_HASH_FIELDS
-    .map((key) => String(params[key] ?? ''));
-
-  const stringToHash = salt + '&' + values.join('&');
-
-  return crypto
-    .createHmac('sha256', salt)
-    .update(stringToHash)
-    .digest('hex')
-    .toUpperCase();
+  return computeHash(salt, params);
 }
 
 export function buildJazzCashPayload({ txnRefNo, amount, billReference, description, returnUrl }) {
@@ -157,14 +126,7 @@ export function validateReturnParams(params) {
     return { valid: false, message: 'Missing required response parameters' };
   }
 
-  const expectedHash = generateReturnHash({
-    pp_Amount: pp_Amount || '',
-    pp_MerchantID: pp_MerchantID || '',
-    pp_ResponseCode: pp_ResponseCode || '',
-    pp_RetreivalReferenceNo: pp_RetreivalReferenceNo || '',
-    pp_TxnCurrency: pp_TxnCurrency || '',
-    pp_TxnRefNo: pp_TxnRefNo || '',
-  });
+  const expectedHash = generateReturnHash(params);
 
   if (pp_SecureHash !== expectedHash) {
     return { valid: false, message: 'Invalid secure hash' };
