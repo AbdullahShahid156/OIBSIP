@@ -86,7 +86,7 @@ export function buildJazzCashPayload({ txnRefNo, amount, billReference, descript
 
   const params = {
     pp_Version: JAZZCASH_VERSION,
-    pp_TxnType: '',
+    pp_TxnType: 'OTC',
     pp_Language: JAZZCASH_LANGUAGE,
     pp_MerchantID: env.JAZZCASH_MERCHANT_ID,
     pp_SubMerchantID: '',
