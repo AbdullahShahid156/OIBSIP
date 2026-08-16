@@ -17,8 +17,7 @@ function computeHash(salt, params) {
   return crypto
     .createHmac('sha256', salt)
     .update(stringToHash)
-    .digest('hex')
-    .toUpperCase();
+    .digest('hex');
 }
 
 export function generateTxnRefNo() {
@@ -86,7 +85,7 @@ export function buildJazzCashPayload({ txnRefNo, amount, billReference, descript
 
   const params = {
     pp_Version: JAZZCASH_VERSION,
-    pp_TxnType: 'OTC',
+    pp_TxnType: 'MWALLET',
     pp_Language: JAZZCASH_LANGUAGE,
     pp_MerchantID: env.JAZZCASH_MERCHANT_ID,
     pp_SubMerchantID: '',
@@ -103,6 +102,11 @@ export function buildJazzCashPayload({ txnRefNo, amount, billReference, descript
     pp_Description: description,
     pp_TxnExpiryDateTime: txnExpiry,
     pp_ReturnURL: returnUrl,
+    ppmpf_1: '',
+    ppmpf_2: '',
+    ppmpf_3: '',
+    ppmpf_4: '',
+    ppmpf_5: '',
   };
 
   params.pp_SecureHash = generateSecureHash(params);
